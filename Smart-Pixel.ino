@@ -19,6 +19,7 @@ ESP8266WebServer webserver(WiFi.localIP(), 80);
 
 //MDNSResponder MDNS;
 
+// https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html#check-return-codes
 String wifiStatusUserOutput(wl_status_t stat) {
 	String message;	// The message that will return(fail or success)
 	switch (stat) {
@@ -92,7 +93,6 @@ void initWifi() {
 }
 
 // https://tttapa.github.io/ESP8266/Chap08%20-%20mDNS.html
-// https://tttapa.github.io/ESP8266/Chap11%20-%20SPIFFS.html
 void initDNS() {
 	if (MDNS.begin("hostname", WiFi.localIP())) {
 
@@ -112,6 +112,7 @@ void initWebServer() {
 }
 
 // https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html
+// https://tttapa.github.io/ESP8266/Chap11%20-%20SPIFFS.html
 void initSpiffs() {
 	SPIFFSConfig config;
 	// Normalerweise formatiert der Spiffs sich selbst, wenn er sich nicht erfolgreich einbinden(mounten) konnten
