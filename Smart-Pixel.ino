@@ -101,6 +101,18 @@ void initDNS() {
 	}
 }
 
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+String getFileType(String filename) {
+	if		(filename.endsWith(".html"))	return "text/html";
+	else if	(filename.endsWith(".css"))		return "text/css";
+	else if (filename.endsWith(".js"))		return "text/javascript";
+	else if	(filename.endsWith(".ico"))		return "image/vnd.microsoft.icon";
+	else if (filename.endsWith(".gz"))		return "application/gzip";
+	else if (filename.endsWith(".jpeg"))	return "image/jpeg";
+	else if (filename.endsWith("jpg"))		return "image/jpeg";
+	else									return "text/plain";
+}
+
 // https://tttapa.github.io/ESP8266/Chap10%20-%20Simple%20Web%20Server.html
 void initWebServer() {
 	webserver.onNotFound (
