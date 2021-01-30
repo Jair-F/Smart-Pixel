@@ -79,7 +79,7 @@ void initWifi() {
 		}
 		WiFi.scanDelete(); // Gefundene Netzwerke entfernen, im fall dass wenn nochmal gesucht wird, sie nicht erscheinen
 		
-		wl_status_t wifiStatus = WiFi.begin("TP-Link_A136", "JaDaLiAdJa1209!?,");
+		wl_status_t wifiStatus = WiFi.begin("WiFi-Name", "password");
 
 		while (wifiStatus != WL_CONNECTED) {
 			WiFi.waitForConnectResult();	// Warten, bis WiFi ein Ergebnis hat(Timout,Successfully connected...)
