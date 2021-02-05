@@ -27,7 +27,7 @@ public:
 
 class Spiffs_Exception: public ESPException{
 public:
-	Spiffs_Exception(const char* _msg, bool _restartESP): ESPException(_msg, _restartESP) { }
+	Spiffs_Exception(const char* _msg, bool _restartESP = false): ESPException(_msg, _restartESP) { }
 	Spiffs_Exception& operator=(Spiffs_Exception&) = default;
 	Spiffs_Exception(const Spiffs_Exception&) = default;
 	virtual ~Spiffs_Exception() { }
