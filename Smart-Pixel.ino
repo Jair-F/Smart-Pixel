@@ -6,12 +6,23 @@
 #include <stdexcept>
 #include <FS.h>
 
+#include "lib/Exception.hpp"
+#include "lib/Relay.hpp"
+
 /**
  * Definiert ob man ein WiFi Access Point erstellen soll oder sich zu einem bestehende WiFi verbinden soll
  * true  = ein eignen WiFi Access Point erstellen
  * false = mit einem bestehenden WiFi verbinden
  */
 bool WiFiAccessPointMode = true;
+String Hostname;
+String WiFiName;
+String WiFiPassword;
+/**
+ * Maximale Anzahl an Clients, die sich mit dem WiFi verbinden koennen.
+ * Ist nur wichtig, wenn ein WiFi-Access-Point erstellet wird(WiFiAccessPointMode = true).
+ */
+unsigned short MaxWiFiCon;
 
 ESP8266WebServer webserver(WiFi.localIP(), 80);
 
@@ -67,9 +78,9 @@ String wifiStatusUserOutput(wl_status_t stat) {
 // https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
 void initWifi() {
 	if (WiFiAccessPointMode == true) {
-		bool WiFiAccessPointCreated = WiFi.softAP("ssid", "password", 1, 0, 4);
+		bool WiFiAccessPointCreated = WiFi.softAP(WiFiName, WiFiPassword, 1, 0, MaxWiFiCon);
 		if (! WiFiAccessPointCreated) {
-			throw std::runtime_error("WiFi AccessPoint failed to start!");
+			throw WiFi_Exception("WiFi AccessPoint failed to start!");
 		}
 	} else {
 		Serial.println("Networks in range: ");
@@ -80,7 +91,7 @@ void initWifi() {
 		}
 		WiFi.scanDelete(); // Gefundene Netzwerke entfernen, im fall dass wenn nochmal gesucht wird, sie nicht erscheinen
 		
-		wl_status_t wifiStatus = WiFi.begin("WiFi-Name", "password");
+		wl_status_t wifiStatus = WiFi.begin(WiFiName, WiFiPassword);
 
 		while (wifiStatus != WL_CONNECTED) {
 			WiFi.waitForConnectResult();	// Warten, bis WiFi ein Ergebnis hat(Timout,Successfully connected...)
@@ -136,11 +147,74 @@ void initSpiffs() {
 	}
 }
 
+void readConfigs() {
+	// wifi.config ---> WiFi Konfiguration
+	Serial.println("WiFi-Config:");
+	if(SPIFFS.exists("/wifi.config")) {
+		File WiFiConfig = SPIFFS.open("/wifi.config", "r");
+		if(! WiFiConfig) {
+			// Fehlermeldung(Dateioeffnung gescheitert)
+			Serial.println("Konnte Datei /wifi.config nicht zum Lesen oeffnen/erstellen!");
+			throw Spiffs_Exception("Konnte Datei /wifi.config nicht zum Lesen oeffnen/erstellen!");
+		}
+		while(WiFiConfig.position() < WiFiConfig.size()) {
+			String data;
+			String group;
+			group = WiFiConfig.readStringUntil('=');
+			data = WiFiConfig.readStringUntil('\n');
+			Serial.print(group);
+			Serial.print(": ");
+			Serial.println(data);
+
+			if(group == "WiFiName") {
+				WiFiName = data;
+			} else if(group == "WiFiPassword") {
+				WiFiPassword = data;
+			} else if(group == "MaxConnections") {
+				MaxWiFiCon = data.toInt();
+			} else if(group = "WiFiAccessPointMode") {
+				WiFiAccessPointMode = data.toInt();
+			} else if(group == "Hostname") {
+				Hostname = data;
+			} else {
+				Serial.print("Undefinierter Parameter in wifi.config: ");
+				Serial.print("\"");
+				Serial.print(group);
+				Serial.print(": ");
+				Serial.print(data);
+				Serial.println(" - Ignoriere");
+			}
+		}
+		WiFiConfig.close();
+	} else {
+		// Fehlermeldung/Warnung auf dem Display, standartkonfiguration erstellen
+		Serial.println("Pfad: /wifi.config existiert nicht!");
+	}
+}
+
+void writeConfigs(String _WiFiName, String _WiFiPassword, String _Hostname, bool _WiFiAccessPointMode = WiFiAccessPointMode, unsigned short _MaxWiFiCon = MaxWiFiCon) {
+	// wifi.conf
+	File WiFiConfig = SPIFFS.open("/wifi.config", "w");
+	if(! WiFiConfig) {
+		// Fehlermeldung (Fehler beim Offnen zum Config schreiben)
+		Serial.println("Fehler beim schreiben in wifi.config");
+	} else {
+		WiFiConfig.write(	String("WiFiName="				+ _WiFiName				+ '\n').c_str()	);
+		WiFiConfig.write(	String("WiFiPassword="			+ _WiFiPassword			+ '\n').c_str()	);
+		WiFiConfig.write(	String("Hostname="				+ _Hostname				+ '\n').c_str()	);
+		WiFiConfig.write(	String("WiFiAccessPointMode="	+ _WiFiAccessPointMode ? "1" : "0"	+ '\n').c_str()	);
+		WiFiConfig.write(	String("MaxConnections="		+ _MaxWiFiCon			+ '\n').c_str()	);
+	}
+	WiFiConfig.close();
+}
+
 void setup() {
 	Serial.begin(9600);
 
 	initSpiffs();
-	
+
+	readConfigs();
+
 	initWifi();
 
 	initDNS();
