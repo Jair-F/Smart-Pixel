@@ -14,7 +14,7 @@
  * true  = ein eignen WiFi Access Point erstellen
  * false = mit einem bestehenden WiFi verbinden
  */
-bool WiFiAccessPointMode = true;
+bool WiFiAccessPointMode = false;
 String Hostname;
 String WiFiName;
 String WiFiPassword;
@@ -77,9 +77,9 @@ String wifiStatusUserOutput(wl_status_t stat) {
 
 // https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
 void initWifi() {
-	if (WiFiAccessPointMode == true) {
+	if(WiFiAccessPointMode == true) {
 		bool WiFiAccessPointCreated = WiFi.softAP(WiFiName, WiFiPassword, 1, 0, MaxWiFiCon);
-		if (! WiFiAccessPointCreated) {
+		if(! WiFiAccessPointCreated) {
 			throw WiFi_Exception("WiFi AccessPoint failed to start!");
 		}
 	} else {
@@ -93,7 +93,7 @@ void initWifi() {
 		
 		wl_status_t wifiStatus = WiFi.begin(WiFiName, WiFiPassword);
 
-		while (wifiStatus != WL_CONNECTED) {
+		while(wifiStatus != WL_CONNECTED) {
 			WiFi.waitForConnectResult();	// Warten, bis WiFi ein Ergebnis hat(Timout,Successfully connected...)
 			wifiStatus = WiFi.status();
 
@@ -105,7 +105,7 @@ void initWifi() {
 
 // https://tttapa.github.io/ESP8266/Chap08%20-%20mDNS.html
 void initDNS() {
-	if (MDNS.begin("hostname", WiFi.localIP())) {
+	if(MDNS.begin("hostname", WiFi.localIP())) {
 
 	} else {
 		throw std::runtime_error("DNS-Service failed to start!");
@@ -128,7 +128,9 @@ String getFileType(String filename) {
 void initWebServer() {
 	webserver.onNotFound (
 		[] () {		// inline Funktion - muss nicht extra globale Funktion machen
-			webserver.send(404, "text/plan", "404: Site not found");
+			if(! handleFromClientRequestedFile(webserver.uri())) {	// Wenn es den vom Client verlangten Pfad nicht gibt eine Fehlermeldung schicken
+				webserver.send(404, "text/plain", "404: Site not found");
+			}
 		}
 	);
 	webserver.begin();
@@ -145,6 +147,25 @@ void initSpiffs() {
 	if (! SPIFFS.begin()) {
 		throw std::runtime_error("Spiff-Filesystem failed to mount!");
 	}
+}
+
+/**
+ * @return true wenn es die Datei gibt und kein fehler beim oeffnen gibt - sonst false
+ */
+bool handleFromClientRequestedFile(String path) {
+	Serial.println(path);
+	if(path.endsWith("/")) { path += "index.html"; } // Wenn ein Ordner verlangt wird, die index.html Datei geben
+	String FileType = getFileType(path);
+	if(SPIFFS.exists(path)) {
+		File file = SPIFFS.open(path, "r");
+		if(! file) {
+			Serial.println("Fehler beim oeffnen der Datei");
+			return false;
+		}
+		webserver.streamFile(file, FileType);
+		file.close();
+	}
+	return true;
 }
 
 void readConfigs() {
