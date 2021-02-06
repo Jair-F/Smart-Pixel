@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <FS.h>
 
+#include <DHT.h>
+
 #include "lib/Exception.hpp"
 #include "lib/Relay.hpp"
 
@@ -86,8 +88,7 @@ void initWifi() {
 		Serial.println("Networks in range: ");
 		int8_t numOfDiscoverdNetworks = WiFi.scanNetworks();
 		for(int8_t i = 0; i < numOfDiscoverdNetworks; i++) {
-			String mess = WiFi.SSID(i) + ' ' + WiFi.encryptionType(i);
-			Serial.println(mess);
+			Serial.println(String(WiFi.SSID(i) + ' ' + WiFi.encryptionType(i)));
 		}
 		WiFi.scanDelete(); // Gefundene Netzwerke entfernen, im fall dass wenn nochmal gesucht wird, sie nicht erscheinen
 		
@@ -149,11 +150,15 @@ void initSpiffs() {
 	}
 }
 
+// https://tttapa.github.io/ESP8266/Chap11%20-%20SPIFFS.html
 /**
  * @return true wenn es die Datei gibt und kein fehler beim oeffnen gibt - sonst false
  */
 bool handleFromClientRequestedFile(String path) {
-	Serial.println(path);
+
+	Serial.print("Angefordert: ");
+	Serial.print(path);
+
 	if(path.endsWith("/")) { path += "index.html"; } // Wenn ein Ordner verlangt wird, die index.html Datei geben
 	String FileType = getFileType(path);
 	if(SPIFFS.exists(path)) {
@@ -164,8 +169,21 @@ bool handleFromClientRequestedFile(String path) {
 		}
 		webserver.streamFile(file, FileType);
 		file.close();
+		Serial.print(" -> ");
+		Serial.println(path + " gesendet");
 	}
 	return true;
+}
+
+String readFileUntil(File& file, char terminator = '\n') {
+	String ret;
+	char c;
+	file.readBytes(&c, 1);
+	while(c != terminator && file.position() != file.size()) {
+		ret += c;
+		file.readBytes(&c, 1);
+	}
+	return ret;
 }
 
 void readConfigs() {
@@ -193,13 +211,12 @@ void readConfigs() {
 				WiFiPassword = data;
 			} else if(group == "MaxConnections") {
 				MaxWiFiCon = data.toInt();
-			} else if(group = "WiFiAccessPointMode") {
+			} else if(group == "WiFiAccessPointMode") {
 				WiFiAccessPointMode = data.toInt();
 			} else if(group == "Hostname") {
 				Hostname = data;
 			} else {
 				Serial.print("Undefinierter Parameter in wifi.config: ");
-				Serial.print("\"");
 				Serial.print(group);
 				Serial.print(": ");
 				Serial.print(data);
@@ -214,7 +231,6 @@ void readConfigs() {
 }
 
 void writeConfigs(String _WiFiName, String _WiFiPassword, String _Hostname, bool _WiFiAccessPointMode = WiFiAccessPointMode, unsigned short _MaxWiFiCon = MaxWiFiCon) {
-	// wifi.conf
 	File WiFiConfig = SPIFFS.open("/wifi.config", "w");
 	if(! WiFiConfig) {
 		// Fehlermeldung (Fehler beim Offnen zum Config schreiben)
@@ -223,8 +239,19 @@ void writeConfigs(String _WiFiName, String _WiFiPassword, String _Hostname, bool
 		WiFiConfig.write(	String("WiFiName="				+ _WiFiName				+ '\n').c_str()	);
 		WiFiConfig.write(	String("WiFiPassword="			+ _WiFiPassword			+ '\n').c_str()	);
 		WiFiConfig.write(	String("Hostname="				+ _Hostname				+ '\n').c_str()	);
-		WiFiConfig.write(	String("WiFiAccessPointMode="	+ _WiFiAccessPointMode ? "1" : "0"	+ '\n').c_str()	);
-		WiFiConfig.write(	String("MaxConnections="		+ _MaxWiFiCon			+ '\n').c_str()	);
+
+		// Muss anderst geschrieben werden, da _WiFiAccessPointMode und _MaxWiFiCon nicht Strings/Char-Arrays sind (und es keinen String +-Operator fuer diese gibt)
+		WiFiConfig.write("WiFiAccessPointMode=");
+		if(_WiFiAccessPointMode == true) {
+			WiFiConfig.write('1');
+		} else {
+			WiFiConfig.write('0');
+		}
+		WiFiConfig.write('\n');
+
+		WiFiConfig.write("MaxConnections=");
+		WiFiConfig.write( String(_MaxWiFiCon).c_str() );
+		WiFiConfig.write('\n');
 	}
 	WiFiConfig.close();
 }
