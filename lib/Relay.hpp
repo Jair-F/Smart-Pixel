@@ -14,9 +14,9 @@ public:
 	bool status()		{ return digitalRead(pin);	}
 
 	void setPin(unsigned short _pin);
-	unsigned short int getPin() { return pin; }
+	unsigned short getPin() { return pin; }
 private:
-	unsigned short int pin;
+	unsigned short pin;
 };
 
 // Implementationen
