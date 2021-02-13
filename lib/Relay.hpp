@@ -1,7 +1,7 @@
 #ifndef _RELAY_HPP_INCLUDED_
 #define _RELAY_HPP_INCLUDED_
 
-class Relay{
+class Relay {
 public:
 	Relay() { }
 	Relay(unsigned short _pin, bool _status = false);

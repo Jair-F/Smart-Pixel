@@ -4,7 +4,7 @@
 #ifndef _EXCEPTION_HPP_INCLUDED_
 #define _EXCEPTION_HPP_INCLUDED_
 
-class ESPException: public std::runtime_error{
+class ESPException: public std::runtime_error {
 public:
 	ESPException(const char* _msg, bool _restart_ESP = false): restart_ESP(_restart_ESP), std::runtime_error(_msg) { }
 	ESPException(const ESPException&) = default;
