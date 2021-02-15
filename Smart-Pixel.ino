@@ -7,7 +7,6 @@
 #include <Adafruit_SSD1306.h>
 #include <DHT.h>
 
-
 /**
  * Definiert ob man ein WiFi Access Point erstellen soll oder sich zu einem bestehende WiFi verbinden soll
  * true  = ein eignen WiFi Access Point erstellen
@@ -32,7 +31,6 @@ ESP8266WebServer webserver(WiFi.localIP(), 80);
 #include "lib/Exception.hpp"
 #include "lib/Relay.hpp"
 #include "lib/WiFiUtils.hpp"
-
 
 
 // https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html
@@ -131,20 +129,26 @@ void writeConfigs(String _WiFiName, String _WiFiPassword, String _Hostname, bool
 
 void setup() {
 	Serial.begin(9600);
+	Serial.println("Serial started");
 
 	initSpiffs();
+	Serial.println("SPIFFS started");
 
 	readConfigs();
+	Serial.println("Configs read");
 
 	initWifi();
+	Serial.println("WiFi started");
 
 	initDNS();
+	Serial.println("DNS started");
 
 	initWebServer();
+	Serial.println("Web-Server started");
 }
 
 void loop() {
-	
+
 	webserver.handleClient();
 	MDNS.update();
 }
