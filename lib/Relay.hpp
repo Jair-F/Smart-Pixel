@@ -6,7 +6,6 @@ public:
 	Relay() { }
 	Relay(unsigned short _pin, String _name, bool _status = false);
 	Relay(const Relay&) = default;
-	Relay& operator=(Relay&) = default;
 	~Relay() { }
 
 	void activate()		{ digitalWrite(pin, HIGH);	}
