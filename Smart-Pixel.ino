@@ -31,6 +31,8 @@ ESP8266WebServer webserver(WiFi.localIP(), 80);
 #include "lib/Exception.hpp"
 #include "lib/Relay.hpp"
 #include "lib/WiFiUtils.hpp"
+#include "lib/PirSensor.hpp"
+#include "lib/TouchSensor.hpp"
 
 
 // https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html
