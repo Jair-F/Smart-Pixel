@@ -1,0 +1,30 @@
+<html>
+	<head>
+		<title>Smart-Pixel</title>
+		<h1>Smart-Pixel</h1>
+		<hr>
+	</head>
+	<body>
+		<h2>RGB</h2>
+		<form method="POST">
+			Farbe<input type="color" name="Color"/>
+			<br/>
+			<input type="radio" name="Effekte" value="Blink"/>Blink
+			<br/>
+			<input type="radio" name="Effekte" value="Rainbow"/>Rainbow
+			<br/>
+			<input type="submit" value="Abschicken"/>
+		</form>
+		<hr/>
+		<h2>Einstellungen</h2>
+		<form method="POST">
+			Eigenes WiFi erzeugen:<input type="checkbox" name="WiFiAccessPointMode" value="1"/>
+			<br/>
+			WiFi-Name:<input type="text" name="WiFi-Name" minlength="8" maxlength="12"/>
+			<br/>
+			WiFi-Passwort:<input type="text" name="WiFi-Passwort" minlength="8" maxlength="12"/>
+			<br/>
+			<input type="submit" value="Abschicken"/>
+		</form>
+	</body>
+</html>

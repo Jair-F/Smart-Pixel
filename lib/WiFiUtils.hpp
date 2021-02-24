@@ -6,6 +6,7 @@
 #include <FS.h>
 
 #include "Exception.hpp"
+#include "RGBRing.hpp"
 
 #ifndef _WIFIUTILS_HPP_INCLUDED_
 #define _WIFIUTILS_HPP_INCLUDED_
@@ -133,11 +134,41 @@ String getFileType(String filename) {
 }
 
 // https://tttapa.github.io/ESP8266/Chap10%20-%20Simple%20Web%20Server.html
+// https://arduino.stackexchange.com/questions/39599/esp8266-cannot-read-post-parameters
+
+//??
+// https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/server-examples.html
 void initWebServer() {
 	webserver.onNotFound (
 		[] () {		// inline Funktion - muss nicht extra globale Funktion machen
-			if(! handleFromClientRequestedFile(webserver.uri())) {	// Wenn es den vom Client verlangten Pfad nicht gibt eine Fehlermeldung schicken
+			bool pathExist = handleFromClientRequestedFile(webserver.uri());
+			if(! pathExist) {	// Wenn es den vom Client verlangten Pfad nicht gibt eine Fehlermeldung schicken
 				webserver.send(404, "text/plain", "404: Site not found");
+			} else {
+				if(webserver.method() == HTTP_POST) {
+					Serial.println("Params:");
+					Serial.println(webserver.arg("Color"));
+					for(unsigned short i = 0; i < webserver.args(); i++) {
+						if(webserver.argName(i) == "Color") {
+							for(unsigned short pixel = 0; pixel < RGB_LEDS.numPixels(); pixel++) {
+								RGB_LEDS.setPixelColor(pixel, RGBHexToColor(webserver.arg(i).c_str()));
+							}
+							RGB_LEDS.show();
+						}
+						/**
+						 * "plain" gibt nochmals die Argumente als ein String zurueck wie sie oben im Browser in der Titelleiste stehen wuerde,
+						 * wenn im html "method=GET" steht.
+						 */
+						else if(webserver.argName(i) == "plain") {
+							continue;
+						} else {
+							Serial.println("Unknow Arg:");
+							Serial.print(webserver.argName(i));
+							Serial.print(':');
+							Serial.println(webserver.arg(i));
+						}
+					}
+				}
 			}
 		}
 	);

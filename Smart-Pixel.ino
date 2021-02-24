@@ -4,8 +4,8 @@
 #include <exception>
 #include <stdexcept>
 #include <FS.h>
+#include <Adafruit_NeoPixel.h>
 #include <Adafruit_SSD1306.h>
-#include <DHT.h>
 
 /**
  * Definiert ob man ein WiFi Access Point erstellen soll oder sich zu einem bestehende WiFi verbinden soll
@@ -28,11 +28,17 @@ ESP8266WebServer webserver(WiFi.localIP(), 80);
 
 //MDNSResponder MDNS;
 
+#define RGB_LED_NUMPIXELS 16
+#define RGB_LED_PIN D6
+Adafruit_NeoPixel RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
+
+
 #include "lib/Exception.hpp"
 #include "lib/Relay.hpp"
 #include "lib/WiFiUtils.hpp"
 #include "lib/PirSensor.hpp"
 #include "lib/TouchSensor.hpp"
+#include "lib/RGBRing.hpp"
 
 
 // https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html
@@ -103,7 +109,7 @@ void readConfigs() {
 	}
 }
 
-void writeConfigs(String _WiFiName, String _WiFiPassword, String _Hostname, bool _WiFiAccessPointMode = WiFiAccessPointMode, unsigned short _MaxWiFiCon = MaxWiFiCon) {
+void writeConfigs(String _WiFiName = WiFiName, String _WiFiPassword = WiFiPassword, String _Hostname = Hostname, bool _WiFiAccessPointMode = WiFiAccessPointMode, unsigned short _MaxWiFiCon = MaxWiFiCon) {
 	File WiFiConfig = SPIFFS.open("/wifi.config", "w");
 	if(! WiFiConfig) {
 		// Fehlermeldung (Fehler beim Offnen zum Config schreiben)
@@ -141,12 +147,37 @@ void setup() {
 
 	initWifi();
 	Serial.println("WiFi started");
+	Serial.print("IP-Adresse: ");
+	Serial.println(WiFi.localIP().toString());
 
 	initDNS();
 	Serial.println("DNS started");
 
 	initWebServer();
 	Serial.println("Web-Server started");
+
+	RGB_LEDS.begin();
+	Serial.println("RGB-LEDS started");
+
+	for(int i = 0; i < RGB_LEDS.numPixels(); i++) {
+		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixel::Color(255, 0, 0));
+	}
+	RGB_LEDS.show();
+	delay(500);
+	for(int i = 0; i < RGB_LEDS.numPixels(); i++) {
+		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixel::Color(0, 255, 0));
+	}
+	RGB_LEDS.show();
+	delay(500);
+	for(int i = 0; i < RGB_LEDS.numPixels(); i++) {
+		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixel::Color(0, 0, 255));
+	}
+	RGB_LEDS.show();
+	delay(500);
+	for(int i = 0; i < RGB_LEDS.numPixels(); i++) {
+		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixel::Color(0, 0, 0));
+	}
+	RGB_LEDS.show();
 }
 
 void loop() {
