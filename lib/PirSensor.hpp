@@ -20,7 +20,7 @@ public:
 	String getName() { return name; }
 
 	unsigned short getPin() { return pin; }
-	void setPin(unsigned short _pin)
+	void setPin(unsigned short _pin);
 
 	DateTime getLastActiveReport() { return last_active_report; }
 private:
