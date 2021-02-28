@@ -9,9 +9,20 @@
 		<form method="POST">
 			Farbe<input type="color" name="Color"/>
 			<br/>
-			<input type="radio" name="Effekte" value="Blink"/>Blink
+			<input type="submit" id="RGB-Color" value="Abschicken"/>
+		</form>
+		<hr/>
+		<h2>Effekte</h2>
+		<form method="POST">
+			<input type="radio" name="Effekt" value="Blink"/>Blink
 			<br/>
-			<input type="radio" name="Effekte" value="Rainbow"/>Rainbow
+			<input type="radio" name="Effekt" value="RainbowCycle"/>Rainbow-Cycle
+			<br/>
+			<input type="radio" name="Effekt" value="Color-Wipe"/>Color-Wipe
+			<br/>
+			<input type="radio" name="Effekt" value="Nothing"/>Nothing
+			<br/>
+			Effekt-Speed<input name="EffektSpeed" type="range" min="1" max="100">
 			<br/>
 			<input type="submit" value="Abschicken"/>
 		</form>
@@ -23,6 +34,10 @@
 			WiFi-Name:<input type="text" name="WiFi-Name" minlength="8" maxlength="12"/>
 			<br/>
 			WiFi-Passwort:<input type="text" name="WiFi-Passwort" minlength="8" maxlength="12"/>
+			<br/>
+			Hostname/Domain:<input type="text" name="Hostname" minlength="1" maxlength="12"/>
+			<br/>
+			max. Anzahl an Clients:<input type="number" min="1" max="8" name="MaxConnections"/>
 			<br/>
 			<input type="submit" value="Abschicken"/>
 		</form>

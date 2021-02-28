@@ -1,15 +1,14 @@
+#ifndef _WIFIUTILS_HPP_INCLUDED_
+#define _WIFIUTILS_HPP_INCLUDED_
+
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include <exception>
-#include <stdexcept>
-#include <FS.h>
 
 #include "Exception.hpp"
 #include "RGBRing.hpp"
+#include "Spiffs.hpp"
 
-#ifndef _WIFIUTILS_HPP_INCLUDED_
-#define _WIFIUTILS_HPP_INCLUDED_
 
 void initWifi();
 
@@ -34,6 +33,11 @@ String getFileType(String filename);
  * fuehrt Aktionen auf zurueckgesendete Daten aus.
  */
 void handleClientandActions();
+
+/**
+ * Fuehrt die vom Client gesendeten Parameter aus
+ */
+void make_action(const String argName, const String arg);
 
 /**
  * @return leerer String wenn es die Datei nicht gibt, sonst Pfad zur Datei
@@ -92,7 +96,7 @@ void initWebServer() {
 
 // https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html#check-return-codes
 String wifiStatusUserOutput(wl_status_t stat) {
-	String message;	// The message that will return(fail or success)
+	String message;	// Die Nachricht, die zurueckgegeben wird(Erfolg oder nicht)
 	switch (stat) {
 		case WL_CONNECTED: {
 			message = "Connected successfully to Network " + WiFi.SSID();
@@ -154,28 +158,62 @@ void handleClientandActions() {
 
 	// Aktionen auf zurueckgesendete Daten
 	if(webserver.method() == HTTP_POST) {
-		Serial.println("Params:");
-		Serial.println(webserver.arg("Color"));
 		for(unsigned short i = 0; i < webserver.args(); i++) {
-			if(webserver.argName(i) == "Color") {
-				for(unsigned short pixel = 0; pixel < RGB_LEDS.numPixels(); pixel++) {
-					RGB_LEDS.setPixelColor(pixel, RGBHexToColor(webserver.arg(i).c_str()));
+			make_action(webserver.argName(i), webserver.arg(i));
+		}
+	}
+}
+
+void make_action(const String argName, const String arg) {
+	Serial.println("Params:");
+	Serial.print(argName);
+	Serial.print(':');
+	Serial.println(arg);
+	if(argName == "Color") {
+		aktueller_Effekt = nullptr;	// Wenn gerade Effekt gelaufen ist, ihn abschalten
+		for(unsigned short pixel = 0; pixel < RGB_LEDS.numPixels(); pixel++) {
+			RGB_LEDS.setPixelColor(pixel, RGBHexToColor(arg.c_str()));
+		}
+		RGB_LEDS.show();
+	} else if (argName == "Effekt") {
+		for(unsigned short i = 0; i < EffektContainer.size(); i++) {
+			if(EffektContainer[i].getName() == arg) {
+				if(arg == "Nothing") {
+					aktueller_Effekt = nullptr;
+				} else {
+					aktueller_Effekt = &EffektContainer[i];
 				}
-				RGB_LEDS.show();
-			}
-			/**
-			 * "plain" gibt nochmals die Argumente als ein String zurueck wie sie oben im Browser in der Titelleiste stehen wuerde,
-			 * wenn im html "method=GET" steht.
-			 */
-			else if(webserver.argName(i) == "plain") {
-				continue;
-			} else {
-				Serial.println("Unknow Arg:");
-				Serial.print(webserver.argName(i));
-				Serial.print(':');
-				Serial.println(webserver.arg(i));
 			}
 		}
+	} else if (argName == "EffektSpeed") {
+		EffektSpeed = arg.toInt();
+	} else if (argName == "WiFiAccessPointMode") {
+		WiFiAccessPointMode = arg.toInt();
+	} else if (argName == "WiFi-Name") {
+		WiFiName = arg;
+	} else if (argName == "WiFi-Passwort") {
+		WiFiPassword = arg;
+	} else if (argName == "MaxConnections") {
+		MaxWiFiCon = arg.toInt();
+	} else if(argName == "Hostname") {
+		Hostname = arg;
+	}
+	// Als letztes wird immer noch plain als arg gegeben - das nutze ich um am Ende die Configs in den Spiffs zu schreiben
+	else if (argName == "plain" && arg.indexOf("WiFiAccessPointMode") > 0 || arg.indexOf("WiFi-Name") > 0 || arg.indexOf("WiFi-Passwort") || arg.indexOf("MaxConnections") || arg.indexOf("Hostname") > 0) {
+		writeConfigs();
+		Serial.println("Write-Configs - changed");
+	}
+	/**
+	 * "plain" gibt nochmals die Argumente als ein String zurueck wie sie oben im Browser in der Titelleiste stehen wuerde,
+	 * wenn im html "method=GET" steht.
+	 */
+	else if(argName == "plain") {
+
+	} else {
+		Serial.println("Unknow Arg:");
+		Serial.print(argName);
+		Serial.print(':');
+		Serial.println(arg);
 	}
 }
 
