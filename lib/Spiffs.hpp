@@ -38,8 +38,9 @@ void readConfigs() {
 		File WiFiConfig = SPIFFS.open(CONFIG_FILE, "r");
 		if(! WiFiConfig) {
 			// Fehlermeldung(Dateioeffnung gescheitert)
-			Serial.println( String("Konnte Datei ") + CONFIG_FILE + " nicht zum Lesen oeffnen/erstellen!");
-			throw Spiffs_Exception( String("Konnte Datei ") + CONFIG_FILE + " nicht zum Lesen oeffnen/erstellen!");
+			String message = "Konnte Datei "; message += CONFIG_FILE; message += " nicht zum Lesen oeffnen/erstellen!";
+			Serial.println(message);
+			throw Spiffs_Exception(message.c_str());
 		}
 		while(WiFiConfig.position() < WiFiConfig.size()) {
 			String data;
