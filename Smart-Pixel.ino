@@ -24,6 +24,8 @@ String WiFiPassword;
 unsigned short MaxWiFiCon;
 
 ESP8266WebServer webserver(WiFi.localIP(), 80);
+// https://github.com/Links2004/arduinoWebSockets
+WebSocketsServer WebSocket(81);
 
 //ESP8266WiFiClass WiFi;
 
@@ -63,6 +65,9 @@ void setup() {
 	initWebServer();
 	Serial.println("Web-Server started");
 
+	initWebSockets();
+	Serial.println("Web-Sockets started");
+
 	RGB_LEDS.begin();
 	Serial.println("RGB-LEDS started");
 
@@ -94,6 +99,7 @@ void setup() {
 void loop() {
 
 	run_Effekt();
+	WebSocket.loop();
 	webserver.handleClient();
 	MDNS.update();
 	yield();

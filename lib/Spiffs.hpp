@@ -16,7 +16,7 @@ void initSpiffs() {
 	config.setAutoFormat(false);
 	SPIFFS.setConfig(config);
 	if (! SPIFFS.begin()) {
-		throw std::runtime_error("Spiff-Filesystem failed to mount!");
+		throw std::runtime_error("Spiffs-Dateisystem fehlgeschlagen zu mounten!");
 	}
 }
 

@@ -4,25 +4,54 @@
 		<h1>Smart-Pixel</h1>
 		<hr>
 	</head>
+	<!-- https://code-boxx.com/submit-form-without-refreshing-page/ -->
+	<script>
+		// WebSocket-Initialization
+			var connection = new WebSocket("ws://" + location.hostname + ":81/", ["arduino"]);
+			connection.onopen = function() { connection.send("Connect " + new Date()); }
+			connection.onerror = function (error) { console.log("WebSocket Error ", error); }
+			connection.onmessage = function (e) { console.log("Server: ", e.data()); }
+			connection.onclose = function () { console.log('WebSocket connection closed'); };
+		// WebSocket-Initialization
+
+		function sendRGB() {
+			var rgb = document.getElementById("RGB-Color").value;
+			//alert(rgb)
+			//console.log("RGB: " + rgb);
+			connection.send(rgb);
+		}
+		function sendEffekte() {
+			// https://www.techiedelight.com/get-value-of-selected-radio-button-javascript/ - 2. JavaScript
+			var radios = document.getElementsByClassName("Effekte");
+			var checked_radio;
+			for (var checked_radio of radios) {
+				if(checked_radio.checked) {
+					//alert(checked_radio.value);
+				}
+			}
+			var effektSpeed = document.getElementById("EffektSpeed").value;
+			//alert(effekt);
+			//connection.send("Effekt:" + checked_radio.value);
+			//connection.send("EffektSpeed:" + effektSpeed.value);
+		}
+	</script>
 	<body>
 		<h2>RGB</h2>
-		<form method="POST">
-			Farbe<input type="color" name="Color"/>
-			<br/>
-			<input type="submit" id="RGB-Color" value="Abschicken"/>
+		<form method="POST" oninput="sendRGB()">
+			Farbe<input id="RGB-Color" type="color" name="RGB-Color"/>
 		</form>
 		<hr/>
 		<h2>Effekte</h2>
-		<form method="POST">
-			<input type="radio" name="Effekt" value="Blink"/>Blink
+		<form method="POST" oninput="sendEffekte()">
+			<input type="radio" class="Effekte" name="Effekt" value="Blink"/>Blink
 			<br/>
-			<input type="radio" name="Effekt" value="RainbowCycle"/>Rainbow-Cycle
+			<input type="radio" class="Effekte" name="Effekt" value="RainbowCycle"/>Rainbow-Cycle
 			<br/>
-			<input type="radio" name="Effekt" value="Color-Wipe"/>Color-Wipe
+			<input type="radio" class="Effekte" name="Effekt" value="Color-Wipe"/>Color-Wipe
 			<br/>
-			<input type="radio" name="Effekt" value="Nothing"/>Nothing
+			<input type="radio" class="Effekte" name="Effekt" value="Nothing"/>Nothing
 			<br/>
-			Effekt-Speed<input name="EffektSpeed" type="range" min="1" max="100">
+			Effekt-Speed<input id="EffektSpeed" name="EffektSpeed" type="range" min="1" max="100">
 			<br/>
 			<input type="submit" value="Abschicken"/>
 		</form>

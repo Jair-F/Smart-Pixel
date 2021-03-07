@@ -2,6 +2,7 @@
 #define _WIFIUTILS_HPP_INCLUDED_
 
 #include <ESP8266WebServer.h>
+#include <WebSocketsServer.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 
@@ -12,9 +13,13 @@
 
 void initWifi();
 
+void initWebSockets();
+
 void initDNS();
 
 void initWebServer();
+
+void WebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght);
 
 /**
  * @param stat WiFi-Status
@@ -32,7 +37,7 @@ String getFileType(String filename);
  * Schickt die vom Cliente gefordereten Dateien, gibt Fehlermeldungen bei nicht gefundenen Dateien und
  * fuehrt Aktionen auf zurueckgesendete Daten aus.
  */
-void handleClientandActions();
+void handleWebServer();
 
 /**
  * Fuehrt die vom Client gesendeten Parameter aus
@@ -90,8 +95,13 @@ void initDNS() {
 //??
 // https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/server-examples.html
 void initWebServer() {
-	webserver.onNotFound(handleClientandActions);
+	webserver.onNotFound(handleWebServer);
 	webserver.begin();
+}
+
+void initWebSockets() {
+	WebSocket.begin();
+	WebSocket.onEvent(WebSocketEvent);
 }
 
 // https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html#check-return-codes
@@ -99,52 +109,84 @@ String wifiStatusUserOutput(wl_status_t stat) {
 	String message;	// Die Nachricht, die zurueckgegeben wird(Erfolg oder nicht)
 	switch (stat) {
 		case WL_CONNECTED: {
-			message = "Connected successfully to Network " + WiFi.SSID();
+			message = "Erfolgreich mit dem  Netzwerk " + WiFi.SSID() + " verbunden";
 			break;
 		}
 		case WL_NO_SHIELD: {
-			message = "No WiFi-Shield is connected to the board";
+			message = "Kein WiFi-Shield mit dem Board verbunden";
 			break;
 		}
 		case WL_IDLE_STATUS: {
-			message = "ESP8266 is connecting to " + WiFi.SSID();
+			message = "ESP8266 verbindet sich mit: " + WiFi.SSID();
 			break;
 		}
 		case WL_NO_SSID_AVAIL: {
-			message = "WiFi-Network " + WiFi.SSID() + " is not in range";
+			message = "WiFi-Netzwerk " + WiFi.SSID() + " ist ausser Reichweite";
 			break;
 		}
 		case WL_SCAN_COMPLETED: {
-			message = "WiFi-Scan completed";
+			message = "WiFi-Scan fertig";
 			break;
 		}
 		case WL_CONNECT_FAILED: {
-			message = "Failed to connect to Network: " + WiFi.SSID() + " - Wrong Password?";
+			message = "Verbindung mit dem Netzwerk: " + WiFi.SSID() + " ist fehlgeschlagen - Falsches Passwort?";
 			break;
 		}
 		case WL_CONNECTION_LOST: {
-			message = "Lost connection to Network " + WiFi.SSID();
+			message = "Verbindung zu Netzwerk " + WiFi.SSID() " verloren";
 			break;
 		}
 		case WL_DISCONNECTED: {
-			message = "WiFi is disconnected -> Connecting to network " + WiFi.SSID();
+			message = "WiFi ist nicht verbunden -> Verbinden mit dem Netzwerk " + WiFi.SSID();
 			break;
 		}
 		default: {
-			message = "An Unknow error occured!\n";
-			message += "A restart may help/solve the problem";
+			message = "Unbekannter Fehler aufgetreten!\n";
+			message += "Ein Neustart hilft vielleicht";
 			break;
 		}
 	}
 	return message;
 }
 
+// !! uint8_t = unsigned char !!
+// https://tttapa.github.io/ESP8266/Chap14%20-%20WebSocket.html
+void WebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
+	switch (type) {
+	case WStype_DISCONNECTED: {
+		Serial.print(num);
+		Serial.println(" Verbundung getrennt");
+		break;
+	}
+	case WStype_CONNECTED: {
+		IPAddress ip = WebSocket.remoteIP(num);
+		Serial.print("Verbindung hergestellt von ");
+		Serial.print(ip.toString());
+		Serial.println(reinterpret_cast<char*>(payload));
+		break;
+	}
+	case WStype_TEXT: {
+		Serial.println(num);
+		Serial.print("Text empfangen: ");
+		Serial.println(reinterpret_cast<char*>(payload));
+		if(payload[0] == '#') {
+			aktueller_Effekt = nullptr;
+			for(unsigned short i = 0; i < RGB_LEDS.numPixels(); i++) {
+				RGB_LEDS.setPixelColor(i, RGBHexToColor(reinterpret_cast<const char*>(payload)));
+			}
+			RGB_LEDS.show();
+		}
+	}
+	default:
+		break;
+	}
+}
 
-void handleClientandActions() {
+void handleWebServer() {
 	// Datei-streamen
 	String pathToFile = find_path_to_req_File(webserver.uri());
 	if(pathToFile.isEmpty()) {	// Wenn es den vom Client verlangten Pfad nicht gibt eine Fehlermeldung schicken
-		webserver.send(404, "text/plain", "404: Site not found");
+		webserver.send(404, "text/plain", "404: Seite nicht gefunden");
 	} else {
 		File file = SPIFFS.open(pathToFile, "r");
 		if(! file) {
@@ -169,13 +211,14 @@ void make_action(const String argName, const String arg) {
 	Serial.print(argName);
 	Serial.print(':');
 	Serial.println(arg);
-	if(argName == "Color") {
+	/*
+	if(argName == "RGB-Color") {
 		aktueller_Effekt = nullptr;	// Wenn gerade Effekt gelaufen ist, ihn abschalten
 		for(unsigned short pixel = 0; pixel < RGB_LEDS.numPixels(); pixel++) {
 			RGB_LEDS.setPixelColor(pixel, RGBHexToColor(arg.c_str()));
 		}
 		RGB_LEDS.show();
-	} else if (argName == "Effekt") {
+	} else*/ if (argName == "Effekt") {
 		for(unsigned short i = 0; i < EffektContainer.size(); i++) {
 			if(EffektContainer[i].getName() == arg) {
 				if(arg == "Nothing") {
@@ -199,11 +242,12 @@ void make_action(const String argName, const String arg) {
 		Hostname = arg;
 	}
 	// Als letztes wird immer noch plain als arg gegeben - das nutze ich um am Ende die Configs in den Spiffs zu schreiben
-	else if (argName == "plain" && arg.indexOf("WiFiAccessPointMode") > 0 || arg.indexOf("WiFi-Name") > 0 || arg.indexOf("WiFi-Passwort") || arg.indexOf("MaxConnections") || arg.indexOf("Hostname") > 0) {
+	else if (argName == "plain" && arg.indexOf("WiFiAccessPointMode") > 0 && arg.indexOf("WiFi-Name") > 0 && arg.indexOf("WiFi-Passwort") && arg.indexOf("MaxConnections") && arg.indexOf("Hostname") > 0) {
 		writeConfigs();
 		Serial.println("Write-Configs - changed");
 	}
 	/**
+	 * Bei Webserver:
 	 * "plain" gibt nochmals die Argumente als ein String zurueck wie sie oben im Browser in der Titelleiste stehen wuerde,
 	 * wenn im html "method=GET" steht.
 	 */
