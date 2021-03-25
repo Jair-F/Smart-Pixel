@@ -133,7 +133,7 @@ String wifiStatusUserOutput(wl_status_t stat) {
 			break;
 		}
 		case WL_CONNECTION_LOST: {
-			message = "Verbindung zu Netzwerk " + WiFi.SSID() " verloren";
+			message = "Verbindung zu Netzwerk " + WiFi.SSID() + " verloren";
 			break;
 		}
 		case WL_DISCONNECTED: {
@@ -155,7 +155,7 @@ void WebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 	switch (type) {
 	case WStype_DISCONNECTED: {
 		Serial.print(num);
-		Serial.println(" Verbundung getrennt");
+		Serial.println(" Verbindung getrennt");
 		break;
 	}
 	case WStype_CONNECTED: {
@@ -166,16 +166,14 @@ void WebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 		break;
 	}
 	case WStype_TEXT: {
-		Serial.println(num);
-		Serial.print("Text empfangen: ");
-		Serial.println(reinterpret_cast<char*>(payload));
-		if(payload[0] == '#') {
-			aktueller_Effekt = nullptr;
-			for(unsigned short i = 0; i < RGB_LEDS.numPixels(); i++) {
-				RGB_LEDS.setPixelColor(i, RGBHexToColor(reinterpret_cast<const char*>(payload)));
-			}
-			RGB_LEDS.show();
-		}
+		//Serial.print(num);
+		//Serial.print(" Text empfangen: ");
+		//Serial.println(reinterpret_cast<char*>(payload));
+		String req(reinterpret_cast<const char*>(payload));
+		String argName, arg;
+		argName = req.substring(0, req.indexOf(":"));
+		arg = req.substring(req.indexOf(":")+1, req.length() - 1);
+		make_action(argName, arg);
 	}
 	default:
 		break;
@@ -207,18 +205,19 @@ void handleWebServer() {
 }
 
 void make_action(const String argName, const String arg) {
+	/*
 	Serial.println("Params:");
 	Serial.print(argName);
 	Serial.print(':');
 	Serial.println(arg);
-	/*
+	*/
 	if(argName == "RGB-Color") {
 		aktueller_Effekt = nullptr;	// Wenn gerade Effekt gelaufen ist, ihn abschalten
 		for(unsigned short pixel = 0; pixel < RGB_LEDS.numPixels(); pixel++) {
 			RGB_LEDS.setPixelColor(pixel, RGBHexToColor(arg.c_str()));
 		}
 		RGB_LEDS.show();
-	} else*/ if (argName == "Effekt") {
+	} else if (argName == "Effekt") {
 		for(unsigned short i = 0; i < EffektContainer.size(); i++) {
 			if(EffektContainer[i].getName() == arg) {
 				if(arg == "Nothing") {
@@ -240,6 +239,8 @@ void make_action(const String argName, const String arg) {
 		MaxWiFiCon = arg.toInt();
 	} else if(argName == "Hostname") {
 		Hostname = arg;
+	} else if(argName == "Relay") {
+		relay.switchStatus();
 	}
 	// Als letztes wird immer noch plain als arg gegeben - das nutze ich um am Ende die Configs in den Spiffs zu schreiben
 	else if (argName == "plain" && arg.indexOf("WiFiAccessPointMode") > 0 && arg.indexOf("WiFi-Name") > 0 && arg.indexOf("WiFi-Passwort") && arg.indexOf("MaxConnections") && arg.indexOf("Hostname") > 0) {

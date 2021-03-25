@@ -35,14 +35,16 @@ WebSocketsServer WebSocket(81);
 #define RGB_LED_PIN D6
 Adafruit_NeoPixel RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
 
-#include "lib/Exception.hpp"
+
 #include "lib/Relay.hpp"
+Relay relay;
+
+#include "lib/Exception.hpp"
 #include "lib/WiFiUtils.hpp"
 #include "lib/PirSensor.hpp"
 #include "lib/TouchSensor.hpp"
 #include "lib/RGBRing.hpp"
 #include "lib/Spiffs.hpp"
-
 
 void setup() {
 	Serial.begin(9600);
@@ -94,12 +96,15 @@ void setup() {
 	EffektContainer.push_back(Effekt("Blink", rainbow_soft_blink));
 	EffektContainer.push_back(Effekt("RainbowCycle", rainbowCycle));
 	EffektContainer.push_back(Effekt("Color-Wipe", colorWipe));
+
+	relay.setPin(D5);
 }
 
 void loop() {
 
 	run_Effekt();
 	WebSocket.loop();
+	yield();
 	webserver.handleClient();
 	MDNS.update();
 	yield();
