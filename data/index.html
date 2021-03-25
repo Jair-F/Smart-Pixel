@@ -1,7 +1,40 @@
 <html>
 	<head>
-		<title>Smart-Pixel</title>
-		<h1>Smart-Pixel</h1>
+		<link rel="stylesheet" href="navstyle.css"/>
+    	<link rel="icon" type="image/png" href="fav.png" size="32x32"/>
+    	<title>Light is Power</title>
+
+		<div id="menuToggle">
+			<!--
+			 Eine Checkbock als Click empfaenger fuer den Menu Button
+			-->
+			<input type="checkbox" />
+			<!--
+			 Ein paar Spans fur das Menu
+			-->
+			<span></span>
+			<span></span>
+			<span></span>
+			<!--
+			Menu "in" der Checkbox
+			-->
+			<ul id="menu">
+			  <a href="#"><li>Home</li></a>    <!--Hier soll sich Temperatur/Luftfeuchte der RGB Regler : EINE SCHLICHTE SEITE befinden-->
+			  <a href="#"><li>Reminder</li></a>
+			  <a href="#"><li>Switches</li></a>
+			  <a href="#"><li>About</li></a>
+			  <a href="#" target="_blank"><li>Support</li></a>
+			</ul>
+		</div>
+	
+		<h1 style="text-align: center; color:rgb(180, 118, 118)">Micro Rainbow</h1>
+		<hr>
+		<p id="MidText">
+		  Temperature & Humidity
+		  <br/>
+		  Color Mixer
+		</p>
+
 		<hr>
 	</head>
 	<!-- https://code-boxx.com/submit-form-without-refreshing-page/ -->
@@ -14,22 +47,40 @@
 			connection.onclose = function () { console.log('WebSocket connection closed'); };
 		// WebSocket-Initialization
 
+		function websocketSend(argName, arg) {
+			var sendString = argName + ":" + arg;
+			console.log(sendString);
+			connection.send(sendString);
+		}
+
+		function sendRelay() {
+			var relays = document.getElementsByClassName("Relay");
+			for(var relayToChange of relays) {
+			}
+			var relayNum = 0;
+			websocketSend("Relay", "");
+		}
+		function sendPirSensor() {
+			websocketSend("PirSensorReset", "1");
+		}
 		function sendRGB() {
 			var rgb = document.getElementById("RGB-Color").value;
 			//alert(rgb)
 			//console.log("RGB: " + rgb);
-			connection.send(rgb);
+			//connection.send(rgb);
+			websocketSend("RGB-Color", rgb);
 		}
 		function sendEffekte() {
 			// https://www.techiedelight.com/get-value-of-selected-radio-button-javascript/ - 2. JavaScript
 			var radios = document.getElementsByClassName("Effekte");
-			var checked_radio;
 			for (var checked_radio of radios) {
 				if(checked_radio.checked) {
 					//alert(checked_radio.value);
+					websocketSend("Effekt", checked_radio.value);
 				}
 			}
 			var effektSpeed = document.getElementById("EffektSpeed").value;
+			websocketSend("EffektSpeed", effektSpeed);
 			//alert(effekt);
 			//connection.send("Effekt:" + checked_radio.value);
 			//connection.send("EffektSpeed:" + effektSpeed.value);
@@ -37,12 +88,12 @@
 	</script>
 	<body>
 		<h2>RGB</h2>
-		<form method="POST" oninput="sendRGB()">
+		<form method="POST" oninput="sendRGB();">
 			Farbe<input id="RGB-Color" type="color" name="RGB-Color"/>
 		</form>
 		<hr/>
 		<h2>Effekte</h2>
-		<form method="POST" oninput="sendEffekte()">
+		<form method="POST" oninput="sendEffekte();">
 			<input type="radio" class="Effekte" name="Effekt" value="Blink"/>Blink
 			<br/>
 			<input type="radio" class="Effekte" name="Effekt" value="RainbowCycle"/>Rainbow-Cycle
@@ -53,7 +104,18 @@
 			<br/>
 			Effekt-Speed<input id="EffektSpeed" name="EffektSpeed" type="range" min="1" max="100">
 			<br/>
-			<input type="submit" value="Abschicken"/>
+			<input type="submit" value="Abschicken">
+		</form>
+		<hr/>
+		<h2>Relay</h2>
+		<form method="POST" onclick="sendRGB();">
+			<input type="submit" class="Relay" name="Relay0" value="Relay">
+		</form>
+		<hr/>
+		<h2>Pir-Sensor</h2>
+		<form method="POST" onclick="sendPirSensor();">
+			<p style="height: 5em; width: 5em; background-color:red; border-radius: 0.7em;"></p>
+			<input type="button" name="resetPir" name="Reset" value="Reset">
 		</form>
 		<hr/>
 		<h2>Einstellungen</h2>

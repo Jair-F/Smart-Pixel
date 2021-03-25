@@ -54,32 +54,32 @@ void run_Effekt() {
 // Effekte
 
 void colorWipe(unsigned short wait) {
-  static byte pos=0;
-  static byte round=1;
-  switch(round){
-    case 1:{
-      RGB_LEDS.setPixelColor(pos, RGB_LEDS.Color(255, 0, 0));
-      break;
-    }
-    case 2:{
-      RGB_LEDS.setPixelColor(pos, RGB_LEDS.Color(0, 255, 0));
-      break;
-    }
-    case 3:{
-      RGB_LEDS.setPixelColor(pos, RGB_LEDS.Color(0, 0, 255));
-      break;
-    }
-  }
-  RGB_LEDS.show();
-  ++pos;
-  if(pos >= RGB_LEDS.numPixels()){
-    round++;
-    if(round > 3){
-      round = 1;
-    }
-    pos = 0;
-  }
-  delay((wait+2)*4); // Pause erhoehen, da es sonst viel zu schnell waere
+	static byte pos=0;
+	static byte round=1;
+	switch(round){
+		case 1:{
+			RGB_LEDS.setPixelColor(pos, RGB_LEDS.Color(255, 0, 0));
+			break;
+		}
+		case 2:{
+			RGB_LEDS.setPixelColor(pos, RGB_LEDS.Color(0, 255, 0));
+			break;
+		}
+		case 3:{
+			RGB_LEDS.setPixelColor(pos, RGB_LEDS.Color(0, 0, 255));
+			break;
+		}
+	}
+	RGB_LEDS.show();
+	++pos;
+	if(pos >= RGB_LEDS.numPixels()){
+		round++;
+		if(round > 3){
+		  round = 1;
+		}
+		pos = 0;
+	}
+	delay((wait+2)*4); // Pause erhoehen, da es sonst viel zu schnell waere
 }
 
 void rainbow_soft_blink(unsigned short wait) {

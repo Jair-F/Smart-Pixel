@@ -8,9 +8,10 @@ public:
 	Relay(const Relay&) = default;
 	~Relay() { }
 
-	void activate()		{ digitalWrite(pin, HIGH);	}
-	void deactivate()	{ digitalWrite(pin, LOW);	}
-	bool status()		{ return digitalRead(pin);	}
+	void activate()		{ digitalWrite(pin, HIGH);				}
+	void deactivate()	{ digitalWrite(pin, LOW);				}
+	void switchStatus()	{ digitalWrite(pin, !digitalRead(pin));	}
+	bool status()		{ return digitalRead(pin);				}
 	
 	String getName() { return name; }
 	void setName(String _name) { name = _name; }  
