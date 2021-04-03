@@ -26,6 +26,7 @@ unsigned short MaxWiFiCon;
 ESP8266WebServer webserver(WiFi.localIP(), 80);
 // https://github.com/Links2004/arduinoWebSockets
 WebSocketsServer WebSocket(81);
+#define DYNAMIC_WEBSITE_UPDATE_INTERVAL 5'000 // 1s = 1000(ms)
 
 //ESP8266WiFiClass WiFi;
 
@@ -34,10 +35,12 @@ WebSocketsServer WebSocket(81);
 #define RGB_LED_NUMPIXELS 16
 #define RGB_LED_PIN D6
 Adafruit_NeoPixel RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
+String RGBColor;
 
-
+#include "lib/PirSensor.hpp"
 #include "lib/Relay.hpp"
 Relay relay;
+PirSensor Pir_Sensor(D8);
 
 #include "lib/Exception.hpp"
 #include "lib/WiFiUtils.hpp"
@@ -95,17 +98,27 @@ void setup() {
 
 	EffektContainer.push_back(Effekt("Blink", rainbow_soft_blink));
 	EffektContainer.push_back(Effekt("RainbowCycle", rainbowCycle));
-	EffektContainer.push_back(Effekt("Color-Wipe", colorWipe));
+	EffektContainer.push_back(Effekt("ColorWipe", colorWipe));	
+	EffektContainer.push_back(Effekt("Nothing", Nothing));
+	for(unsigned short i = 0; i < EffektContainer.size(); i++) {
+		if(EffektContainer[i].getName() == "Nothing") {
+			aktueller_Effekt = &EffektContainer[i];
+			break;
+		}
+	}
 
 	relay.setPin(D5);
+	relay.setName("LED");
 }
 
 void loop() {
 
+	dynamicUpdateClientWebsite(); 
 	run_Effekt();
 	WebSocket.loop();
 	yield();
 	webserver.handleClient();
 	MDNS.update();
 	yield();
+	Pir_Sensor.check();
 }

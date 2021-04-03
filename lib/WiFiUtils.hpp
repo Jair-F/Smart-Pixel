@@ -9,6 +9,7 @@
 #include "Exception.hpp"
 #include "RGBRing.hpp"
 #include "Spiffs.hpp"
+#include "PirSensor.hpp"
 
 
 void initWifi();
@@ -19,7 +20,7 @@ void initDNS();
 
 void initWebServer();
 
-void WebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght);
+void handleWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght);
 
 /**
  * @param stat WiFi-Status
@@ -50,6 +51,19 @@ void make_action(const String argName, const String arg);
  */
 String find_path_to_req_File(String path);
 
+/**
+ * @param aim "From" oder "HTML" oder "CSS", je nachdem ob eine From oder ein Text im HTML geaendert wird
+ * @param aimType Das "Atribut", das geaendert werden soll(value, innerHTML, backgroundColor...)
+ * @param argName Die ID im HTML-Code
+ * @param arg Der Wert, der gesetzt werden soll
+ */
+void WebSocketSendData(String aim, String aimType, String argName, String arg);
+
+/**
+ * Die Website der Clients wird dynamisch durch den Websocket aktualisiert - Sensordaten, EffektSpeed, Effekt, RGB-Farbwert...
+ * @param force Wenn die Daten gesendet werden sollen, auch wenn der Timer noch nicht vorbei ist
+ */
+void dynamicUpdateClientWebsite(bool force = false);
 
 // --------------------------- Implementationen ---------------------------
 
@@ -101,7 +115,7 @@ void initWebServer() {
 
 void initWebSockets() {
 	WebSocket.begin();
-	WebSocket.onEvent(WebSocketEvent);
+	WebSocket.onEvent(handleWebSocket);
 }
 
 // https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html#check-return-codes
@@ -149,9 +163,45 @@ String wifiStatusUserOutput(wl_status_t stat) {
 	return message;
 }
 
+void WebSocketSendData(String aim, String aimType, String argName, String arg) {
+	WebSocket.broadcastTXT(String(aim + ":" + aimType + ":" + argName + ":" + arg).c_str());
+}
+
+void dynamicUpdateClientWebsite(bool force) {
+	static unsigned long last_update = 0;
+	if(WebSocket.connectedClients() > 0) {
+		if(last_update + DYNAMIC_WEBSITE_UPDATE_INTERVAL < millis() || force == true) {
+			WebSocketSendData("HTML",	"innerHTML", 		"Humidity", 					to_string(last_update));
+			WebSocketSendData("HTML",	"innerHTML", 		"Temperature", 					to_string(last_update));
+			WebSocketSendData("Form",	"value", 			"Relay0", 						relay.getName() + ' ' + ( relay.status() == true ? "ausschalten" : "einschalten" ));
+			WebSocketSendData("Form",	"innerHTML", 		"EffektSpeed", 					to_string(EffektSpeed));
+			WebSocketSendData("Form",	"value",			"RGB-Color", 					RGBColor);
+			WebSocketSendData("CSS",	"backgroundColor",	"Pir-Sensor", 					Pir_Sensor.getActiveReport() == true ? "red" : "green");
+			WebSocketSendData("Form",	"radio",			aktueller_Effekt->getName(),	"true");
+
+			if(force == true) {
+				WebSocketSendData("Form",	"checkbox", 	"WiFiAccessPointMode",	WiFiAccessPointMode == true ? "true" : "false");
+				WebSocketSendData("Form",	"value", 		"WiFi-Name", 			WiFiName);
+				WebSocketSendData("Form",	"value", 		"WiFi-Passwort",		WiFiPassword);
+				WebSocketSendData("Form",	"value", 		"Hostname",				Hostname);
+				WebSocketSendData("Form",	"value", 		"MaxConnections",		to_string(MaxWiFiCon));
+			}
+			/*
+			WebSocket.broadcastTXT(String("Humidity:" + to_string(last_update)).c_str());
+			WebSocket.broadcastTXT(String("Temperature:" + to_string(last_update)).c_str());
+			WebSocket.broadcastTXT(String("EffektSpeed:" + to_string(EffektSpeed)).c_str());
+			*/
+			//Serial.println("Websocket-daten Senden");
+			//Serial.println(last_update);
+			//Serial.println(EffektSpeed);
+			last_update = millis();
+		}
+	}
+}
+
 // !! uint8_t = unsigned char !!
 // https://tttapa.github.io/ESP8266/Chap14%20-%20WebSocket.html
-void WebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
+void handleWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
 	switch (type) {
 	case WStype_DISCONNECTED: {
 		Serial.print(num);
@@ -160,20 +210,30 @@ void WebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 	}
 	case WStype_CONNECTED: {
 		IPAddress ip = WebSocket.remoteIP(num);
+
 		Serial.print("Verbindung hergestellt von ");
 		Serial.print(ip.toString());
 		Serial.println(reinterpret_cast<char*>(payload));
+		Serial.println("Die aktuellen Sensordaten werden gesendet, da neue Verbindung");
+
+		dynamicUpdateClientWebsite(true);
 		break;
 	}
 	case WStype_TEXT: {
-		//Serial.print(num);
-		//Serial.print(" Text empfangen: ");
-		//Serial.println(reinterpret_cast<char*>(payload));
+		Serial.print(num);
+		Serial.print(" Text empfangen: ");
+		Serial.println(reinterpret_cast<char*>(payload));
+
 		String req(reinterpret_cast<const char*>(payload));
 		String argName, arg;
 		argName = req.substring(0, req.indexOf(":"));
-		arg = req.substring(req.indexOf(":")+1, req.length() - 1);
+		arg = req.substring(req.indexOf(":")+1, req.length());
 		make_action(argName, arg);
+		break;
+	}
+	case WStype_ERROR: {
+		Serial.println("Ein Fehler ist im WebSocket aufgetreten!");
+		break;
 	}
 	default:
 		break;
@@ -205,26 +265,27 @@ void handleWebServer() {
 }
 
 void make_action(const String argName, const String arg) {
-	/*
 	Serial.println("Params:");
 	Serial.print(argName);
 	Serial.print(':');
 	Serial.println(arg);
-	*/
 	if(argName == "RGB-Color") {
-		aktueller_Effekt = nullptr;	// Wenn gerade Effekt gelaufen ist, ihn abschalten
+		for(unsigned short i = 0; i < EffektContainer.size(); i++) {	// Wenn gerade Effekt gelaufen ist, ihn abschalten
+			if(EffektContainer[i].getName() == "Nothing") {
+				aktueller_Effekt = &EffektContainer[i];
+				break;
+			}
+		}
 		for(unsigned short pixel = 0; pixel < RGB_LEDS.numPixels(); pixel++) {
 			RGB_LEDS.setPixelColor(pixel, RGBHexToColor(arg.c_str()));
 		}
+		RGBColor = arg;
 		RGB_LEDS.show();
 	} else if (argName == "Effekt") {
 		for(unsigned short i = 0; i < EffektContainer.size(); i++) {
 			if(EffektContainer[i].getName() == arg) {
-				if(arg == "Nothing") {
-					aktueller_Effekt = nullptr;
-				} else {
-					aktueller_Effekt = &EffektContainer[i];
-				}
+				aktueller_Effekt = &EffektContainer[i];
+				break;
 			}
 		}
 	} else if (argName == "EffektSpeed") {
@@ -241,11 +302,16 @@ void make_action(const String argName, const String arg) {
 		Hostname = arg;
 	} else if(argName == "Relay") {
 		relay.switchStatus();
+	} else if(argName == "PirSensor") {
+		if(arg == "reset") {
+			Pir_Sensor.resetActiveReport();
+		}
 	}
 	// Als letztes wird immer noch plain als arg gegeben - das nutze ich um am Ende die Configs in den Spiffs zu schreiben
-	else if (argName == "plain" && arg.indexOf("WiFiAccessPointMode") > 0 && arg.indexOf("WiFi-Name") > 0 && arg.indexOf("WiFi-Passwort") && arg.indexOf("MaxConnections") && arg.indexOf("Hostname") > 0) {
+	else if (argName == "plain" && arg.indexOf("WiFi-Name") > 0 && arg.indexOf("WiFi-Passwort") && arg.indexOf("MaxConnections") && arg.indexOf("Hostname") > 0) {
 		writeConfigs();
 		Serial.println("Write-Configs - changed");
+
 	}
 	/**
 	 * Bei Webserver:
