@@ -1,6 +1,7 @@
 # Smart-Pixel
 
 ## Pin-Belegung
+**Bisher nur Beispliel - die Pins stimmen noch nicht - müssen richtig eingetragen werden!!**
 - Touch-Sensor: D1
 - Pir-Sensor: D2
 - Relay-0: D3
