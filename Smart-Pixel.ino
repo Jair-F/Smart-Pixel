@@ -26,7 +26,7 @@ unsigned short MaxWiFiCon;
 ESP8266WebServer webserver(WiFi.localIP(), 80);
 // https://github.com/Links2004/arduinoWebSockets
 WebSocketsServer WebSocket(81);
-#define DYNAMIC_WEBSITE_UPDATE_INTERVAL 5'000 // 1s = 1000(ms)
+#define DYNAMIC_WEBSITE_UPDATE_INTERVAL 5000 // 1s = 1000(ms)
 
 //ESP8266WiFiClass WiFi;
 
