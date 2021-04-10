@@ -17,6 +17,12 @@ bool WiFiAccessPointMode = true;
 String Hostname; // Lokale Domain
 String WiFiName;
 String WiFiPassword;
+
+/* Standard IP During programming WEB Server Mode */
+IPAddress local_ip(192, 168, 4, 1);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 255, 0);
+
 /**
  * Maximale Anzahl an Clients, die sich mit dem WiFi verbinden koennen.
  * Ist nur wichtig, wenn ein WiFi-Access-Point erstellet wird(WiFiAccessPointMode = true).
@@ -32,14 +38,14 @@ WebSocketsServer WebSocket(81);
 
 //MDNSResponder MDNS;
 
-#define RGB_LED_NUMPIXELS 16
-#define RGB_LED_PIN D6
+#define RGB_LED_NUMPIXELS  16
+#define RGB_LED_PIN        D6
 Adafruit_NeoPixel RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
-String RGBColor;
+String  RGBColor;
 
 #include "lib/PirSensor.hpp"
 #include "lib/Relay.hpp"
-Relay relay;
+Relay     relay;
 PirSensor Pir_Sensor(D8);
 
 #include "lib/Exception.hpp"
@@ -65,7 +71,7 @@ void setup() {
 	Serial.println(WiFi.localIP().toString());
 
 	initDNS();
-	Serial.println("DNS started");
+	Serial.println("DNS started currently uncommented");
 
 	initWebServer();
 	Serial.println("Web-Server started");

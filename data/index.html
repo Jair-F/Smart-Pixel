@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8"/>
-		<!-- <link rel="stylesheet" href="navstyle.css"/> -->
+		<link rel="stylesheet" href="navstyle.css"/>
     	<link rel="icon" type="image/png" href="fav.png" size="32x32"/>
     	<title>Light is Power</title>
 
@@ -21,30 +21,31 @@
 			Menu "in" der Checkbox
 			-->
 			<ul id="menu">
-			  <a href="#"><li>Home</li></a>    <!--Hier soll sich Temperatur/Luftfeuchte der RGB Regler : EINE SCHLICHTE SEITE befinden-->
+			  <a href="index.html"><li>Home</li></a>    <!--Hier soll sich Temperatur/Luftfeuchte der RGB Regler : EINE SCHLICHTE SEITE befinden-->
 			  <a href="#"><li>Reminder</li></a>
 			  <a href="#"><li>Switches</li></a>
 			  <a href="#"><li>About</li></a>
 			  <a href="#" target="_blank"><li>Support</li></a>
 			</ul>
 		</div>
-		<h1 style="text-align: center; color:rgb(180, 118, 118)">Micro Rainbow</h1>
-		<hr>
-		<p id="MidText">
-		  Temperature & Humidity
-		  <br/>
-		  Color Mixer
-		</p>
+		<h1 id="top" style="text-align: center; color:rgb(180, 118, 118);">Micro Rainbow</h1>
 
-		<hr>
+		<hr />
 	</head>
 	<body>
-		<h2>RGB</h2>
+		<div class="container">
+		<h2>Color Mixer</h2> <!-- Preview has to overlap to the right to prevent covering the lower containers -->
 		<form method="POST" oninput="sendRGB();">
-			Farbe<input id="RGB-Color" type="color" name="RGB-Color"/>
+			Farbe
+			<br />
+			<input id="RGB-Color" type="color" name="RGB-Color"/>			
 		</form>
+	    </div>
+
 		<hr/>
-		<h2>Effekte</h2>
+
+		<div class="container">
+		<h2>Effekte Panel</h2> <!-- Should look more atractive -->
 		<form method="POST" onchange="sendEffekte();">
 			<input type="radio" class="Effekte" name="Effekt" id="Blink" value="Blink"/>Blink
 			<br/>
@@ -54,38 +55,84 @@
 			<br/>
 			<input type="radio" class="Effekte" name="Effekt" id="Nothing" value="Nothing"/>Nothing
 			<br/>
-			Effekt-Speed<input id="EffektSpeed" name="EffektSpeed" type="range" min="1" max="100"/>
+			 Effekt Speed
+			 <br />
+			<input id="EffektSpeed" name="EffektSpeed" type="range" min="1" max="100"/>
 		</form>
+	    </div>
+
 		<hr/>
-		<h2>Temp-Hum-Sensor</h2>
-		<p>Temperature: <span id="Temperature">%TEMP%</div></p>
-		<p>Humidity: <span id="Humidity">%HUM%</div></p>
+
+		<div class="container">
+		<h3>Sensor Panel</h3> <!-- Should look like sensors=> Thermometer, Waterdrop ... -->
+		<p>Temperature: <span id="Temperature">%TEMP%</span></p>
+		<p>Humidity: <span id="Humidity">%HUM%</span></p>
+		</div>
 		<hr/>
-		<h2>Relay</h2>
+		
+
+		<div class="container">
+		<h3>Smart Switch</h3> <!--It should look like a switch-->
 		<form method="POST">
-			<input type="button" onclick="sendRelay();" id="Relay0" value="%NAME%">
+			<input class="button" type="button" onclick="sendRelay();"  id="Relay0" value="%NAME%"/>
 		</form>
+		</div>
+
 		<hr/>
-		<h2>Pir-Sensor</h2>
+        
+		<div class="container">
+		<h2>Motion Detector</h2>  <!--Here should be the running man like Mr. X-->
 		<form method="POST" onclick="sendPirSensor();">
-			<p id="Pir-Sensor" style="height: 5em; width: 5em; background-color:green; border-radius: 0.7em;"></p>
-			<input type="button" name="resetPir" name="Reset" value="Reset">
+			<!--<p id="Pir-Sensor" style="height: 5em; width: 5em; background-color:green; border-radius: 0.7em;"></p>-->
+			<img src="MotionHand2.png" style="background-color:transparent;" /> 
+			 <!--Background auf rgb(219, 219, 38); aendern wenn getriggert-->    <br />
+			<input class="button" type="button" name="resetPir" name="Reset" value="Reset">
 		</form>
+	    </div>
+
 		<hr/>
+
+		<div class="container">
 		<h2>Einstellungen</h2>
 		<form method="POST">
-			Eigenes WiFi erzeugen:<input id="WiFiAccessPointMode" type="checkbox" name="WiFiAccessPointMode"/>
-			<br/>
-			WiFi-Name:<input id="WiFi-Name" type="text" name="WiFi-Name" minlength="8" maxlength="12"/>
-			<br/>
-			WiFi-Passwort:<input id="WiFi-Passwort" type="text" name="WiFi-Passwort" minlength="8" maxlength="12"/>
-			<br/>
-			Hostname/Domain:<input id="Hostname" type="text" name="Hostname" minlength="1" maxlength="12"/>
-			<br/>
-			max. Anzahl an Clients:<input id="MaxConnections" type="number" min="1" max="8" name="MaxConnections"/>
-			<br/>
-			<input type="submit" value="Abschicken"/>
+			<table cellpadding="5px">
+				<colgroup>
+					<col width="30%"/>
+					<col width="30%"/>
+				</colgroup>
+				<tr>
+					<td>Eigenes WiFi erzeugen</td>
+					<td><input id="WiFiAccessPointMode" type="checkbox" name="WiFiAccessPointMode"/></td>
+				</tr>
+				<tr>
+					<td>WiFi-Name</td>
+                    <td><input id="WiFi-Name" type="text" name="WiFi-Name" minlength="8" maxlength="12"/></td>
+				</tr>
+				<tr>
+					<td>WiFi-Passwort</td>
+					<td><input id="WiFi-Passwort" type="text" name="WiFi-Passwort" minlength="8" maxlength="12"/></td>
+				</tr>
+				<tr>
+					<td>Hostname/Domain</td>
+					<td><input id="Hostname" type="text" name="Hostname" minlength="1" maxlength="12"/></td>
+				</tr>
+				<tr>
+					<td>Anzahl an Clients</td>
+					<td><input id="MaxConnections" type="number" min="1" max="8" name="MaxConnections"/></td>
+				</tr>
+				<tr></tr>
+				<tr>
+					<td colspan="2"><input type="submit" value="Abschicken"/></td>
+				</tr>
+			</table>
 		</form>
+      </div>
+	  <div id="bottom">
+	  <hr >
+	  <footer >
+		  &copy; By _____ and _____
+	  </footer>
+	</div>
 	</body>
 
 	<!-- https://code-boxx.com/submit-form-without-refreshing-page/ -->

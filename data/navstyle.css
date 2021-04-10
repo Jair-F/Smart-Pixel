@@ -12,12 +12,51 @@ h1 {
 	font-size: 2em;
 	background: linear-gradient(100deg,#e05252 0%, #99e052 25%, #52e0e0 50%,#9952e0 75%, #e05252 100%);
 	-webkit-text-fill-color:transparent;
+	
 	user-select: none;
 	-webkit-user-select: none;
+	
 	-webkit-background-clip:text; 
 	background-clip: text;
 }
 
+h2{
+	font-family:Arial, Helvetica, sans-serif; 
+	font-size: 2em;
+	display: table;
+	background: linear-gradient( 45deg, rgb(8, 102, 179),rgb(160, 205, 241));
+	-webkit-text-fill-color:transparent;
+	-webkit-background-clip:text; 
+	background-clip:text;
+}
+
+h3{
+	font-family:Arial, Helvetica, sans-serif; 
+	font-size: 2em;
+	display: table;
+	background: linear-gradient( 45deg, rgb(8, 179, 170),rgb(201, 255, 252));
+	-webkit-text-fill-color:transparent;
+	-webkit-background-clip:text; 
+	background-clip:text;
+}
+
+input{
+	border-radius:3px;
+	background-color:rgb(160, 205, 241);
+	color:rgb(8, 102, 179);
+	font-weight: bold;
+	border-color:rgb(125, 175, 233) ;
+}
+.button{
+	text-align: center;
+	padding:5px;
+	width:10%;
+} 
+.container{
+	display:block;
+	margin:10px;
+	
+}
 #MidText {
 	text-align: center;
 	font-size: 1.5em;
@@ -32,7 +71,7 @@ h1 {
 	left: 50px;
 	height:100%;
 	z-index: 1;
-
+   
 	-webkit-user-select: none;
 	user-select: none;
 }
