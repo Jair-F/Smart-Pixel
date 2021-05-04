@@ -1,18 +1,19 @@
 # Smart-Pixel
 
 ## Pin-Belegung
-**Bisher nur Beispliel - die Pins stimmen noch nicht - müssen richtig eingetragen werden!!**
-- Touch-Sensor: D1
-- Pir-Sensor: D2
-- Relay-0: D3
-- DHT-Sensor: D4
+**Bisher nur Beispliel - die Pins stimmen nur fürs erste - müssen später noch richtig eingetragen werden!!**
+- Touch-Sensor: **UNSET**
+- Pir-Sensor: **UNSET**
+- Relay-0: **UNSET**
+- DHT-Sensor: D0
+- RGB-LED: **UNSET**
 - Display:
-	* LED: D8
-	* SCK: D9
+	* LED: 3.3V
+	* SCK: D5
 	* SDA: D10
-	* A0:  D11
-	* RESET: D12
-	* CS: D13
+	* A0:  D4
+	* RESET: 3.3V
+	* CS: D8
 - (RTC:)
 
 
