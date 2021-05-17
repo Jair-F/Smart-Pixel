@@ -3,10 +3,10 @@
 ## Pin-Belegung
 **Bisher nur Beispliel - die Pins stimmen nur fürs erste - müssen später noch richtig eingetragen werden!!**
 - Touch-Sensor: **UNSET**
-- Pir-Sensor: **UNSET**
-- Relay-0: **UNSET**
+- Pir-Sensor: D1
+- Relay-0: D3
 - DHT-Sensor: D0
-- RGB-LED: **UNSET**
+- RGB-LED: D2
 - Display:
 	* LED: 3.3V
 	* SCK: D5
