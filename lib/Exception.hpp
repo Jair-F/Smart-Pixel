@@ -19,7 +19,7 @@ private:
 
 class WiFi_Exception: public ESPException {
 public:
-	WiFi_Exception(const char* _msg, bool _restartESP = false): WiFi_Exception(_msg, _restartESP) { }
+	WiFi_Exception(const char* _msg, bool _restartESP = false): ESPException(_msg, _restartESP) { }
 	WiFi_Exception& operator=(WiFi_Exception&) = default;
 	WiFi_Exception(const WiFi_Exception&) = default;
 	virtual ~WiFi_Exception() { }
