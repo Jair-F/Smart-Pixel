@@ -25,6 +25,7 @@
 - [Websocket](https://github.com/Links2004/arduinoWebSockets)
 	* Unter [releases](https://github.com/Links2004/arduinoWebSockets/releases) die neuste 'SourceCode.zip' herunterladen
 	* Arduino-IDE: (*Sketch* > *Bibliothek einbinden* > *Zip Bibliothek hinzufügen*)
+- DNS Library
 - [Adafruit Neopixel](https://github.com/adafruit/Adafruit_NeoPixel) 
 	* [Installationsanweisungen auf der Seite folgen](https://github.com/adafruit/Adafruit_NeoPixel#installation)
 - Display
