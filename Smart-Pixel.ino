@@ -48,7 +48,7 @@ WebSocketsServer WebSocket(81);
 Adafruit_ST7735 display(TFT_CS, TFT_DC, TFT_RST);
 
 #define RGB_LED_NUMPIXELS 16
-#define RGB_LED_PIN D6
+#define RGB_LED_PIN D2
 Adafruit_NeoPixel RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
 String RGBColor;
 
@@ -60,7 +60,7 @@ DHT dht(DHT_PIN, DHT_TYPE);
 #include "lib/PirSensor.hpp"
 #include "lib/Relay.hpp"
 Relay relay;
-PirSensor Pir_Sensor(D8);
+PirSensor Pir_Sensor(D1);
 
 #include "lib/Exception.hpp"
 #include "lib/WiFiUtils.hpp"
@@ -75,6 +75,8 @@ void setup() {
 	Serial.println("Serial started");
 
 	display.initR(INITR_BLACKTAB);      // Init ST7735S chip, black tab
+	Serial.println("Display started");
+	
 	display.fillScreen(ST7735_BLACK);
 	display.setRotation(1);
 	display.setTextWrap(true);
@@ -147,6 +149,10 @@ void setup() {
 
 	Serial.println("DHT started");
 	dht.begin();
+	Serial.print("Humidity: ");
+	Serial.println(dht.readHumidity());
+	Serial.print("Temp: ");
+	Serial.println(dht.readTemperature());
 
 	EffektContainer.push_back(Effekt("Blink", rainbow_soft_blink));
 	EffektContainer.push_back(Effekt("RainbowCycle", rainbowCycle));
@@ -159,46 +165,9 @@ void setup() {
 		}
 	}
 
-	relay.setPin(D1);
+	relay.setPin(D3);
 	relay.setName("LED");
 
-	display.setTextWrap(false);
-	display.fillScreen(ST7735_BLACK);
-	display.setCursor(0,0 );
-	display.setTextSize(2);
-	display.setTextColor(ST7735_YELLOW);
-	display.println("WiFi-Settings");
-
-	display.drawFastHLine(0, display.getCursorY() + 3, display.width(), ST7735_WHITE);
-
-	display.setTextSize(1);
-	display.println();
-	
-	display.setTextColor(ST77XX_CYAN);
-	display.print("Name: ");
-	display.setTextColor(ST7735_WHITE);
-	display.println(WiFiName);
-
-	display.println();
-
-	display.setTextColor(ST77XX_CYAN);
-	display.print("Passwort: ");
-	display.setTextColor(ST7735_WHITE);
-	display.println(WiFiPassword);
-	
-	display.println();
-
-	display.setTextColor(ST77XX_CYAN);
-	display.print("Hostname: ");
-	display.setTextColor(ST7735_WHITE);
-	display.println(Hostname + ".local");
-	
-	display.println();
-
-	display.setTextColor(ST77XX_CYAN);
-	display.print("Lokale IP: ");
-	display.setTextColor(ST7735_WHITE);
-	display.println(WiFi.localIP().toString());
 }
 
 void loop() {
@@ -208,8 +177,55 @@ void loop() {
 	display.print(dht.readTemperature());
 	delay(1000);
 	*/
+	static unsigned long timer = 0;
+	if(timer < millis()) {
+		display.setTextWrap(false);
+		display.fillScreen(ST7735_BLACK);
+		display.setCursor(0,0 );
+		display.setTextSize(2);
+		display.setTextColor(ST7735_YELLOW);
+		display.println("WiFi-Settings");
 
-	dynamicUpdateClientWebsite(); 
+		display.drawFastHLine(0, display.getCursorY() + 3, display.width(), ST7735_WHITE);
+
+		display.setTextSize(1);
+		display.println();
+
+		display.setTextColor(ST77XX_CYAN);
+		display.println("Name: ");
+		display.setTextColor(ST7735_WHITE);
+		display.println(WiFiName);
+
+		display.println();
+
+		display.setTextColor(ST77XX_CYAN);
+		display.println("Passwort: ");
+		display.setTextColor(ST7735_WHITE);
+		display.println(WiFiPassword);
+
+		display.println();
+
+		display.setTextColor(ST77XX_CYAN);
+		display.println("Hostname: ");
+		display.setTextColor(ST7735_WHITE);
+		display.println(Hostname + ".local");
+
+		display.println();
+
+		display.setTextColor(ST77XX_CYAN);
+		display.println("Lokale IP: ");
+		display.setTextColor(ST7735_WHITE);
+		display.println(WiFi.localIP().toString());
+
+		display.println();
+
+		display.setTextColor(ST77XX_CYAN);
+		display.print("Verbundene Clients: ");
+		display.setTextColor(ST7735_WHITE);
+		display.println(WebSocket.connectedClients());
+		timer = millis() + 1500;
+	}
+
 	run_Effekt();
 	WebSocket.loop();
 	yield();

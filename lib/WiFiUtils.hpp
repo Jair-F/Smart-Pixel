@@ -42,8 +42,11 @@ void handleWebServer();
 
 /**
  * Fuehrt die vom Client gesendeten Parameter aus
+ * @param argName "Schluesselwort" welche Aktion ausgefuehrt / welche Daten geandert werden werden soll/en z.B. RGB-Ring/Effekte...
+ * @param arg Auf was sollen die Daten gesetzt werden / Parameter der Aktion z.B. auf welche Farbe der RGB-Ring gesetzt werden soll
+ * @param clientID ID vom Client(nur beim Websocket sinnvoll und wichtig richtig zu setzen)
  */
-void make_action(const String argName, const String arg);
+void make_action(const String argName, const String arg, uint8_t clientID);
 
 /**
  * @return leerer String wenn es die Datei nicht gibt, sonst Pfad zur Datei
@@ -60,10 +63,10 @@ String find_path_to_req_File(String path);
 void WebSocketSendData(String aim, String aimType, String argName, String arg);
 
 /**
- * Die Website der Clients wird dynamisch durch den Websocket aktualisiert - Sensordaten, EffektSpeed, Effekt, RGB-Farbwert...
- * @param force Wenn die Daten gesendet werden sollen, auch wenn der Timer noch nicht vorbei ist
+ * Die Website des Clients wird beim Aufruf dynamisch durch den Websocket aktualisiert - Sensordaten, EffektSpeed, Effekt, RGB-Farbwert...
+ * @param clientID ID des Clients
  */
-void dynamicUpdateClientWebsite(bool force = false);
+void dynamicUpdateClientWebsite(uint8_t clientID);
 
 // --------------------------- Implementationen ---------------------------
 
@@ -89,7 +92,6 @@ void initWifi() {
 			wifiStatus = WiFi.status();
 
 			Serial.println(wifiStatusUserOutput(wifiStatus));
-			delay(1000);
 		}
 	}
 }
@@ -163,40 +165,54 @@ String wifiStatusUserOutput(wl_status_t stat) {
 	return message;
 }
 
+// Sendet die Daten an alle Clients(Broadcast)
 void WebSocketSendData(String aim, String aimType, String argName, String arg) {
-	WebSocket.broadcastTXT(String(aim + ":" + aimType + ":" + argName + ":" + arg).c_str());
+	if(WebSocket.connectedClients() > 0) {
+		WebSocket.broadcastTXT(String(aim + ":" + aimType + ":" + argName + ":" + arg).c_str());
+	}
+}
+// Sendet die Daten nur an den Client(Client-ID), wenn er verbunden ist
+void WebSocketSendData(String aim, String aimType, String argName, String arg, uint8_t clientID) {
+	if(WebSocket.clientIsConnected(clientID)) {
+		WebSocket.sendTXT(clientID, String(aim + ":" + aimType + ":" + argName + ":" + arg).c_str());
+	} else {
+		Serial.print("Fehler beim senden von Daten zum Client: ");
+		Serial.print(clientID);
+		Serial.print("/");
+		Serial.print(WebSocket.remoteIP(clientID).toString());
+		Serial.print(" | Daten: ");
+		Serial.print(aim);
+		Serial.print("|");
+		Serial.print(aimType);
+		Serial.print("|");
+		Serial.print(argName);
+		Serial.print("|");
+		Serial.println(arg);
+	}
 }
 
-void dynamicUpdateClientWebsite(bool force) {
-	static unsigned long last_update = 0;
-	if(WebSocket.connectedClients() > 0) {
-		if(last_update + DYNAMIC_WEBSITE_UPDATE_INTERVAL < millis() || force == true) {
-			WebSocketSendData("HTML",	"innerHTML", 		"Humidity", 					to_string(last_update));
-			WebSocketSendData("HTML",	"innerHTML", 		"Temperature", 					to_string(last_update));
-			WebSocketSendData("Form",	"value", 			"Relay0", 						relay.getName() + ' ' + ( relay.status() == true ? "ausschalten" : "einschalten" ));
-			WebSocketSendData("Form",	"innerHTML", 		"EffektSpeed", 					to_string(EffektSpeed));
-			WebSocketSendData("Form",	"value",			"RGB-Color", 					RGBColor);
-			WebSocketSendData("CSS",	"backgroundColor",	"Pir-Sensor", 					Pir_Sensor.getActiveReport() == true ? "red" : "green");
-			WebSocketSendData("Form",	"radio",			aktueller_Effekt->getName(),	"true");
+void dynamicUpdateClientWebsite(uint8_t clientID) {
+	WebSocketSendData("HTML",	"innerHTML", 		"Humidity", 					to_string(dht.readHumidity()), clientID);
+	WebSocketSendData("HTML",	"innerHTML", 		"Temperature", 					to_string(dht.readTemperature()), clientID);
+	WebSocketSendData("Form",	"value", 			"Relay0", 						relay.getName() + ' ' + ( relay.status() == true ? "ausschalten" : "einschalten" ), clientID);
+	WebSocketSendData("Form",	"innerHTML", 		"EffektSpeed", 					to_string(EffektSpeed), clientID);
+	WebSocketSendData("Form",	"value",			"RGB-Color", 					RGBColor, clientID);
+	WebSocketSendData("CSS",	"backgroundColor",	"Pir-Sensor", 					Pir_Sensor.getActiveReport() == true ? "red" : "green", clientID);
+	WebSocketSendData("Form",	"radio",			aktueller_Effekt->getName(),	"true", clientID);
 
-			if(force == true) {
-				WebSocketSendData("Form",	"checkbox", 	"WiFiAccessPointMode",	WiFiAccessPointMode == true ? "true" : "false");
-				WebSocketSendData("Form",	"value", 		"WiFi-Name", 			WiFiName);
-				WebSocketSendData("Form",	"value", 		"WiFi-Passwort",		WiFiPassword);
-				WebSocketSendData("Form",	"value", 		"Hostname",				Hostname);
-				WebSocketSendData("Form",	"value", 		"MaxConnections",		to_string(MaxWiFiCon));
-			}
-			/*
-			WebSocket.broadcastTXT(String("Humidity:" + to_string(last_update)).c_str());
-			WebSocket.broadcastTXT(String("Temperature:" + to_string(last_update)).c_str());
-			WebSocket.broadcastTXT(String("EffektSpeed:" + to_string(EffektSpeed)).c_str());
-			*/
-			//Serial.println("Websocket-daten Senden");
-			//Serial.println(last_update);
-			//Serial.println(EffektSpeed);
-			last_update = millis();
-		}
-	}
+	WebSocketSendData("Form",	"checkbox", 	"WiFiAccessPointMode",	WiFiAccessPointMode == true ? "true" : "", clientID);
+	WebSocketSendData("Form",	"value", 		"WiFi-Name", 			WiFiName, clientID);
+	WebSocketSendData("Form",	"value", 		"WiFi-Passwort",		WiFiPassword, clientID);
+	WebSocketSendData("Form",	"value", 		"Hostname",				Hostname, clientID);
+	WebSocketSendData("Form",	"value", 		"MaxConnections",		to_string(MaxWiFiCon), clientID);
+	/*
+	WebSocket.broadcastTXT(String("Humidity:" + to_string(last_update)).c_str(), clientID);
+	WebSocket.broadcastTXT(String("Temperature:" + to_string(last_update)).c_str(), clientID);
+	WebSocket.broadcastTXT(String("EffektSpeed:" + to_string(EffektSpeed)).c_str(), clientID);
+	*/
+	//Serial.println("Websocket-daten Senden");
+	//Serial.println(last_update);
+	//Serial.println(EffektSpeed);
 }
 
 // !! uint8_t = unsigned char !!
@@ -205,7 +221,10 @@ void handleWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lengh
 	switch (type) {
 	case WStype_DISCONNECTED: {
 		Serial.print(num);
-		Serial.println(" Verbindung getrennt");
+		Serial.print(" Verbindung getrennt von ");
+		Serial.print(num);
+		Serial.print("/");
+		Serial.println(WebSocket.remoteIP(num).toString());
 		break;
 	}
 	case WStype_CONNECTED: {
@@ -216,19 +235,23 @@ void handleWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lengh
 		Serial.println(reinterpret_cast<char*>(payload));
 		Serial.println("Die aktuellen Sensordaten werden gesendet, da neue Verbindung");
 
-		dynamicUpdateClientWebsite(true);
+		// Die Daten gleich an Den Client schicken
+		dynamicUpdateClientWebsite(num);
 		break;
 	}
 	case WStype_TEXT: {
+		IPAddress ip = WebSocket.remoteIP(num);
 		Serial.print(num);
-		Serial.print(" Text empfangen: ");
+		Serial.print(" Text empfangen von Client(");
+		Serial.print(ip.toString());
+		Serial.print("): ");
 		Serial.println(reinterpret_cast<char*>(payload));
 
 		String req(reinterpret_cast<const char*>(payload));
 		String argName, arg;
 		argName = req.substring(0, req.indexOf(":"));
 		arg = req.substring(req.indexOf(":")+1, req.length());
-		make_action(argName, arg);
+		make_action(argName, arg, num);
 		break;
 	}
 	case WStype_ERROR: {
@@ -259,12 +282,14 @@ void handleWebServer() {
 	// Aktionen auf zurueckgesendete Daten
 	if(webserver.method() == HTTP_POST) {
 		for(unsigned short i = 0; i < webserver.args(); i++) {
-			make_action(webserver.argName(i), webserver.arg(i));
+			// arg -1 ist ein fake argument - wird nur beim Websocket gebraucht - Client ID.
+			// Gibt es beim Webserver nicht, da er die Verbindung immer schliesst, nachdem er die Daten gesendet hat.
+			make_action(webserver.argName(i), webserver.arg(i), 200);
 		}
 	}
 }
 
-void make_action(const String argName, const String arg) {
+void make_action(const String argName, const String arg, const uint8_t clientID) {
 	Serial.println("Params:");
 	Serial.print(argName);
 	Serial.print(':');
@@ -281,6 +306,9 @@ void make_action(const String argName, const String arg) {
 		}
 		RGBColor = arg;
 		RGB_LEDS.show();
+		WebSocketSendData("Form", "value", "RGB-Color", RGBColor);
+		// Effekt koennte sich ja auf Nothing aendern!
+		WebSocketSendData("Form", "radio", aktueller_Effekt->getName(), "true");
 	} else if (argName == "Effekt") {
 		for(unsigned short i = 0; i < EffektContainer.size(); i++) {
 			if(EffektContainer[i].getName() == arg) {
@@ -288,8 +316,10 @@ void make_action(const String argName, const String arg) {
 				break;
 			}
 		}
+		WebSocketSendData("Form", "radio", aktueller_Effekt->getName(), "true");
 	} else if (argName == "EffektSpeed") {
 		EffektSpeed = arg.toInt();
+		WebSocketSendData("Form", "innerHTML", "EffektSpeed", to_string(EffektSpeed));
 	} else if (argName == "WiFiAccessPointMode") {
 		WiFiAccessPointMode = arg.toInt();
 	} else if (argName == "WiFi-Name") {
@@ -302,16 +332,25 @@ void make_action(const String argName, const String arg) {
 		Hostname = arg;
 	} else if(argName == "Relay") {
 		relay.switchStatus();
+		// Button updaten von Relay(auf "einschalten" oder "ausschalten") - Broadcast(bei allen)
+		WebSocketSendData("Form", "value", "Relay0", relay.getName() + ' ' + ( relay.status() == true ? "ausschalten" : "einschalten" ));
 	} else if(argName == "PirSensor") {
 		if(arg == "reset") {
 			Pir_Sensor.resetActiveReport();
+		}
+		WebSocketSendData("CSS", "backgroundColor", "Pir-Sensor", Pir_Sensor.getActiveReport() == true ? "red" : "green");
+	} else if(arg == "Command") {
+		if(argName == "writeSpiffsConfigs") {
+			writeConfigs();
+			Serial.println("Write-Configs - changed");
+		} else if(argName == "dynamicWebsiteUpdate") {
+			//dynamicUpdateClientWebsite(clientID);
 		}
 	}
 	// Als letztes wird immer noch plain als arg gegeben - das nutze ich um am Ende die Configs in den Spiffs zu schreiben
 	else if (argName == "plain" && arg.indexOf("WiFi-Name") > 0 && arg.indexOf("WiFi-Passwort") && arg.indexOf("MaxConnections") && arg.indexOf("Hostname") > 0) {
 		writeConfigs();
 		Serial.println("Write-Configs - changed");
-
 	}
 	/**
 	 * Bei Webserver:
