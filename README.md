@@ -3,10 +3,10 @@
 ## Pin-Belegung
 **Bisher nur Beispliel - die Pins stimmen nur fürs erste - müssen später noch richtig eingetragen werden!!**
 - Touch-Sensor: **UNSET**
-- Pir-Sensor: **UNSET**
-- Relay-0: **UNSET**
+- Pir-Sensor: D1
+- Relay-0: D3
 - DHT-Sensor: D0
-- RGB-LED: **UNSET**
+- RGB-LED: D2
 - Display:
 	* LED: 3.3V
 	* SCK: D5
@@ -25,7 +25,6 @@
 - [Websocket](https://github.com/Links2004/arduinoWebSockets)
 	* Unter [releases](https://github.com/Links2004/arduinoWebSockets/releases) die neuste 'SourceCode.zip' herunterladen
 	* Arduino-IDE: (*Sketch* > *Bibliothek einbinden* > *Zip Bibliothek hinzufügen*)
-- DNS Library
 - [Adafruit Neopixel](https://github.com/adafruit/Adafruit_NeoPixel) 
 	* [Installationsanweisungen auf der Seite folgen](https://github.com/adafruit/Adafruit_NeoPixel#installation)
 - Display
