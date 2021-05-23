@@ -94,7 +94,7 @@
 
 		<div class="container">
 		<h2>Einstellungen</h2>
-		<form method="POST">
+		<form>
 			<table cellpadding="5px">
 				<colgroup>
 					<col width="30%"/>
@@ -118,20 +118,20 @@
 				</tr>
 				<tr>
 					<td>Anzahl an Clients</td>
-					<td><input id="MaxConnections" type="number" min="1" max="8" name="MaxConnections"/></td>
+					<td><input id="MaxConnections" type="number" min="1" max="8" name="MaxConnections" title="Maximale Anzahl an Clients, die sich mit dem Wlan verbinden koennen(ist nur Einstellbar wenn 'Eigenes WiFi erzeugen' aktiviert ist)"/></td>
 				</tr>
 				<tr></tr>
 				<tr>
-					<td colspan="2"><input type="submit" value="Abschicken"/></td>
+					<button onclick="SendWiFiSettings(); return false;">Abschicken</button>
 				</tr>
 			</table>
 		</form>
       </div>
-	  <div id="bottom">
-	  <hr >
-	  <footer >
-		  &copy; By _____ and _____
-	  </footer>
+	<div id="bottom">
+		<hr >
+		<footer >
+			&copy; By _____ and _____
+		</footer>
 	</div>
 	</body>
 
@@ -141,7 +141,15 @@
 		// WebSocket-Initialization
 			var Socket = new WebSocket("ws://" + location.hostname + ":81/", ["arduino"]);
 			Socket.onopen = function() { console.log("Verbindung " + new Date()); }
-			Socket.onerror = function (error) { console.log("WebSocket Error ", error); }
+			websocket.onclose = function() {
+				console.log("WebSocket Verbindung getrennt");
+				alert("Verbindung zu Server getrtennt! Daten koennen nicht mehr im Hintergrund aktualisiert werden - Website neuladen(reload)");
+			}
+			websocket.onerror = function(error) {
+				console.log("Websocket Fehler ", error);
+				alert("Fehler bei der Verbindung zum Server! Daten koennen nicht im Hintergrund aktualisiert werden - Website neuladen(reload)");
+			}
+
 			Socket.onmessage = function (sendData) {
 				var splitPosFirst = sendData.data.indexOf(":");
 				var splitPosSecond = sendData.data.indexOf(":", splitPosFirst + 1);
@@ -184,7 +192,6 @@
 				//document.getElementById("Debug").value += sendData.data;
 				//console.log("Server: ", sendData.data());
 			}
-			Socket.onclose = function () { console.log('WebSocket connection closed'); };
 		// WebSocket-Initialization
 
 		function websocketSend(argName, arg) {
@@ -222,6 +229,20 @@
 			var effektSpeed = document.getElementById("EffektSpeed").value;
 			websocketSend("EffektSpeed", effektSpeed);
 			//alert(effekt);
+		}
+		function SendWiFiSettings() {
+			var WiFiAccessPointMode = document.getElementById("WiFiAccessPointMode").checked == true ? "1" : "0";
+			var WiFiName = document.getElementById("WiFi-Name").data();
+			var WiFiPasswort = document.getElementById("WiFi-Passwort").data();
+			var Hostname = document.getElementById("Hostname").data();
+			var maxConnections = document.getElementById("MaxConnections").data();
+
+			websocket.send("WiFiAccessPointMode", WiFiAccessPointMode);
+			websocket.send("WiFi-Name", WiFiName);
+			websocket.send("WiFi-Passwort", WiFiPasswort);
+			websocket.send("MaxConnections", maxConnections);
+			websocket.send("Hostname", Hostname);
+			websocket.send("Command", "writeSpiffsConfigs");
 		}
 	</script>
 </html>
