@@ -300,7 +300,7 @@ public:
 
 
 	void setPath(const String _path) {
-		if(SPIFFS.exists(_path)) {
+		if(filesystem.exists(_path)) {
 			path = _path;
 		} else {
 			Serial.print("Error - path: ");
