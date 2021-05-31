@@ -230,7 +230,6 @@ public:
 
 			// and then read Read-Line
 			String line = file.readStringUntil('\n');
-			//Serial.println(line);
 
 			// line[0] is maybe a ConfigGroup if it is "["
 
@@ -243,7 +242,8 @@ public:
 					insertConfigGroup = configGroupName;
 					// Insert ConfigGroup if does not exist;
 					if(!this->existConfigGroup(configGroupName)) {
-						ConfigGroups.push_back(ConfigGroup(configGroupName));
+						// more efficient than push_back if we have a temporary object like here(takes the temporary Object in)
+						ConfigGroups.emplace_back(ConfigGroup(configGroupName));
 					}
 					break;
 				}
@@ -277,7 +277,8 @@ public:
 	// If the object co already exist the function will change it. Otherwise it will create a new object
 	void insertConfigGroup(const String _configGroupName) {
 		if(this->existConfigGroup(_configGroupName)) {
-			ConfigGroups.push_back(ConfigGroup(_configGroupName));
+			// more efficient than push_back if we have a temporary object like here(takes the temporary Object in)
+			ConfigGroups.emplace_back(ConfigGroup(_configGroupName));
 		}
 	}
 	// If the object co already exist the function will change it. Otherwise it will create a new object
