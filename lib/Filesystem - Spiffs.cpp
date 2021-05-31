@@ -220,8 +220,9 @@ public:
 
 		while(file.position() < file.size()) {
 			// Ignore Spaces - seek forward
-			char buffer = '\0';
-			while(buffer != '\t' && buffer != ' ') {
+			char buffer;
+			file.readBytes(&buffer, 1);
+			while(buffer == '\t' || buffer == ' ' || buffer == '\n' && file.position() < file.size()) {
 				file.readBytes(&buffer, 1);
 			}
 			// go 1 back - then we are on the beging of the text
@@ -229,27 +230,29 @@ public:
 
 			// and then read Read-Line
 			String line = file.readStringUntil('\n');
+			//Serial.println(line);
 
 			// line[0] is maybe a ConfigGroup if it is "["
 
 			switch(line[0]) {
 				case '[': {
 					std::size_t endCharacterPos = line.indexOf(']', 1); // Position of the End-Character from ConfigGroup("]")
-					// 									   "["					"]"
-					String configGroupName = line.substring(1, endCharacterPos - 1);
+					// 									   "["			"]"
+					String configGroupName = line.substring(1, endCharacterPos);
 
 					insertConfigGroup = configGroupName;
 					// Insert ConfigGroup if does not exist;
 					if(!this->existConfigGroup(configGroupName)) {
-						ConfigGroups.emplace_back(ConfigGroup(configGroupName));
+						ConfigGroups.push_back(ConfigGroup(configGroupName));
 					}
+					break;
 				}
 				default: {
 					std::size_t endConfigKeywordPos	= line.indexOf('=', 0);
-					// dont take '=' - therefre - 1
-					String configKeyWord = line.substring(0, endConfigKeywordPos - 1);
-					// dont take '=' - therefre + 1
-					String configValue = line.substring(endConfigKeywordPos + 1, line.length() - 1);
+
+					String configKeyWord = line.substring(0, endConfigKeywordPos);
+					String configValue = line.substring(endConfigKeywordPos + 1, line.length());
+
 					this->insert(insertConfigGroup, configKeyWord, configValue);
 				}
 			}
@@ -257,11 +260,24 @@ public:
 		file.close();
 	}
 
+	/*
+	void print() {
+		for(auto groups : ConfigGroups) {
+			Serial.println(groups.get_ConfigGroupName());
+			for(auto co : groups.ConfigObjects) {
+				Serial.print('\t');
+				Serial.print(co.get_configKeyWord());
+				Serial.print(':');
+				Serial.println(co.get_configValue());
+			}
+		}
+	}
+	*/
 
 	// If the object co already exist the function will change it. Otherwise it will create a new object
 	void insertConfigGroup(const String _configGroupName) {
 		if(this->existConfigGroup(_configGroupName)) {
-			ConfigGroups.emplace_back(ConfigGroup(_configGroupName));
+			ConfigGroups.push_back(ConfigGroup(_configGroupName));
 		}
 	}
 	// If the object co already exist the function will change it. Otherwise it will create a new object
