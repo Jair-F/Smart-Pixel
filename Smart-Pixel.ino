@@ -5,7 +5,6 @@
 #include <ESP8266mDNS.h>
 #include <exception>
 #include <stdexcept>
-#include <FS.h>
 #include <DHT.h>
 #include <Adafruit_NeoPixel.h>
 //#include <Adafruit_SSD1306.h>
