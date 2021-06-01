@@ -141,11 +141,11 @@
 		// WebSocket-Initialization
 			var Socket = new WebSocket("ws://" + location.hostname + ":81/", ["arduino"]);
 			Socket.onopen = function() { console.log("Verbindung " + new Date()); }
-			websocket.onclose = function() {
+			Socket.onclose = function() {
 				console.log("WebSocket Verbindung getrennt");
 				alert("Verbindung zu Server getrtennt! Daten koennen nicht mehr im Hintergrund aktualisiert werden - Website neuladen(reload)");
 			}
-			websocket.onerror = function(error) {
+			Socket.onerror = function(error) {
 				console.log("Websocket Fehler ", error);
 				alert("Fehler bei der Verbindung zum Server! Daten koennen nicht im Hintergrund aktualisiert werden - Website neuladen(reload)");
 			}

@@ -173,6 +173,7 @@ void ConfigFile::readConfigFile() {
 				String configValue = line.substring(endConfigKeywordPos + 1, line.length());
 
 				this->insert(insertConfigGroup, configKeyWord, configValue);
+				break;
 			}
 		}
 	}
