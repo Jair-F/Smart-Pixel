@@ -44,27 +44,41 @@ public:
 	void insert(const String _configGroupName, const ConfigObject& _cfo);
 
 	/**
-	 * @return pointer to the object. If Object with _configGroupname does not exist it returns a nullptr;
+	 * @return reference to the object. If Object with _configGroupname it throws an exception;
 	 */
-	ConfigGroup* getConfigGroup(const String _configGroupName);
+	ConfigGroup& getConfigGroup(const String _configGroupName);
+
+	ConfigGroup& operator[](const String _configGroupName);
 
 	bool existConfigGroup(const String _configGroupName) const;
 
 	void setPath(const String _path);
 
-    /*
-	void print() {
-		for(auto groups : ConfigGroups) {
-			Serial.println(groups.get_ConfigGroupName());
-			for(auto co : groups.ConfigObjects) {
-				Serial.print('\t');
-				Serial.print(co.get_configKeyWord());
-				Serial.print(':');
-				Serial.println(co.get_configValue());
+	std::size_t numOfConfigGroups() { return ConfigGroups.size(); }
+
+	ConfigGroup& operator[](std::size_t _pos) { return ConfigGroups[_pos]; }
+
+	// return the whole config data structure as a string for printing out ...
+	String print() {
+		String ret;
+		for(std::size_t i = 0; i < ConfigGroups.size(); ++i) {
+			ret += ConfigGroups[i].get_ConfigGroupName();
+			ret += '\n';
+			//Serial.println(ConfigGroups[i].get_ConfigGroupName());
+			for(std::size_t a = 0; a < ConfigGroups[i].numOfConfigObjects(); ++a) {
+				ret += '\t';
+				//Serial.print('\t');
+				ret += ConfigGroups[i][a].get_configKeyWord();
+				//Serial.print(ConfigGroups[i][a].get_configKeyWord());
+				ret += ':';
+				//Serial.print(':');
+				ret += ConfigGroups[i][a].get_configValue();
+				//Serial.println(ConfigGroups[i][a].get_configValue());
+				ret += '\n';
 			}
 		}
+		return ret;
 	}
-	*/
 };
 
 // Implementations
@@ -77,24 +91,28 @@ void ConfigFile::insertConfigGroup(const String _configGroupName) {
 }
 
 void ConfigFile::insert(const String _configGroupName, const String _configKeyWord, const String _configValue) {
-	ConfigGroup* cfg = this->getConfigGroup(_configGroupName);
+	ConfigGroup& cfg = this->getConfigGroup(_configGroupName);
 	//cfg->set_ConfigObject(_configKeyWord, _configValue);
-	cfg->set_ConfigObject(ConfigObject(_configKeyWord, _configValue));
+	cfg.set_ConfigObject(ConfigObject(_configKeyWord, _configValue));
 }
 
 void ConfigFile::insert(const String _configGroupName, const ConfigObject& _cfo) {
-	ConfigGroup* cfg = this->getConfigGroup(_configGroupName);
+	ConfigGroup& cfg = this->getConfigGroup(_configGroupName);
 	//cfg->set_ConfigObject(_cfo.get_configKeyWord(), _cfo.get_configValue());
-	cfg->set_ConfigObject(_cfo);
+	cfg.set_ConfigObject(_cfo);
 }
 
-ConfigGroup* ConfigFile::getConfigGroup(const String _configGroupName) {
+ConfigGroup& ConfigFile::operator[](const String _configGroupName) {
 	for(std::size_t i = 0; i < ConfigGroups.size(); i++) {
 		if(ConfigGroups[i].get_ConfigGroupName() == _configGroupName) {
-			return &(ConfigGroups[i]);
+			return ConfigGroups[i];
 		}
 	}
-	return nullptr;
+	throw config_error("ConfigGroup " + _configGroupName + " not found in config-file " + path + "!");
+}
+
+ConfigGroup& ConfigFile::getConfigGroup(const String _configGroupName) {
+	return this->operator[](_configGroupName);
 }
 
 bool ConfigFile::existConfigGroup(const String _configGroupName) const {
@@ -107,14 +125,12 @@ bool ConfigFile::existConfigGroup(const String _configGroupName) const {
 }
 
 void ConfigFile::setPath(const String _path) {
-		if(filesystem.exists(_path)) {
-			path = _path;
-		} else {
-			Serial.print("Error - path: ");
-			Serial.print(_path);
-			Serial.println(" does not exist!!");
-		}
+	if(filesystem.exists(_path)) {
+		path = _path;
+	} else {
+		throw filesystem_error("Error - path: " + _path + " does not exist!!");
 	}
+}
 
 void ConfigFile::readConfigFile() {
 	File file = filesystem.open(path.c_str(), "r");
