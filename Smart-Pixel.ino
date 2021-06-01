@@ -120,13 +120,9 @@ void setup() {
 		WiFiName = config["WiFi"]["WiFiName"];
 		WiFiPassword = config["WiFi"]["WiFiPassword"];
 
-		String tmp = config["WiFi"]["WiFiAccessPointMode"];
-		if(tmp == "true" || tmp == "1") {
-			WiFiAccessPointMode == true;
-		} else if(tmp == "false" || tmp == "0") {
-			WiFiAccessPointMode == false;
-		}
+		WiFiAccessPointMode = config["WiFi"]["WiFiAccessPointMode"].toInt();
 		Hostname = config["Server"]["Hostname"];
+		MaxWiFiCon =  config["WiFi"]["MaxConnections"].toInt();
 
 	}
 	catch(config_error& ce) {
