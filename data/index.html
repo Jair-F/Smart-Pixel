@@ -86,7 +86,7 @@
 			<p id="Pir-Sensor" style="height: 5em; width: 5em; background-color:green; border-radius: 0.7em;"></p>
 			<!-- <img src="MotionHand2.png" style="background-color:transparent;" /> -->
 			 <!--Background auf rgb(219, 219, 38); aendern wenn getriggert-->    <br />
-			<input class="button" type="button" name="resetPir" name="Reset" value="Reset">
+			<input class="button" type="button" name="Reset" value="Reset">
 		</form>
 	    </div>
 
@@ -122,9 +122,11 @@
 				</tr>
 				<tr></tr>
 				<tr>
-					<button onclick="SendWiFiSettings(); return false;">Abschicken</button>
+					
+					<!-- <button onclick="SendWiFiSettings(); return false;">Abschicken</button> -->
 				</tr>
 			</table>
+			<input class="button" type="button" value="Abschicken" onclick="SendWiFiSettings();">
 		</form>
       </div>
 	<div id="bottom">
@@ -228,21 +230,20 @@
 			}
 			var effektSpeed = document.getElementById("EffektSpeed").value;
 			websocketSend("EffektSpeed", effektSpeed);
-			//alert(effekt);
 		}
 		function SendWiFiSettings() {
 			var WiFiAccessPointMode = document.getElementById("WiFiAccessPointMode").checked == true ? "1" : "0";
-			var WiFiName = document.getElementById("WiFi-Name").data();
-			var WiFiPasswort = document.getElementById("WiFi-Passwort").data();
-			var Hostname = document.getElementById("Hostname").data();
-			var maxConnections = document.getElementById("MaxConnections").data();
+			var WiFiName = document.getElementById("WiFi-Name").value;
+			var WiFiPasswort = document.getElementById("WiFi-Passwort").value;
+			var Hostname = document.getElementById("Hostname").value;
+			var maxConnections = document.getElementById("MaxConnections").value;
 
-			websocket.send("WiFiAccessPointMode", WiFiAccessPointMode);
-			websocket.send("WiFi-Name", WiFiName);
-			websocket.send("WiFi-Passwort", WiFiPasswort);
-			websocket.send("MaxConnections", maxConnections);
-			websocket.send("Hostname", Hostname);
-			websocket.send("Command", "writeSpiffsConfigs");
+			websocketSend("WiFiAccessPointMode", WiFiAccessPointMode);
+			websocketSend("WiFi-Name", WiFiName);
+			websocketSend("WiFi-Passwort", WiFiPasswort);
+			websocketSend("MaxConnections", maxConnections);
+			websocketSend("Hostname", Hostname);
+			websocketSend("Command", "writeSpiffsConfigs");
 		}
 	</script>
 </html>

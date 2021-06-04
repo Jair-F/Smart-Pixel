@@ -113,16 +113,19 @@ void setup() {
 
 	config.setPath("/config.config");
 	config.readConfigFile();
+	#ifdef DEBUG
+		Serial.println(config.print());
+	#endif // DEBUG
 	Serial.println("Configs read");
 
 	// Setting up Envirement variables
 	try {
-		WiFiName = config["WiFi"]["WiFiName"];
-		WiFiPassword = config["WiFi"]["WiFiPassword"];
+		WiFiName = config["WiFi"]["WiFiName"].get_Value();
+		WiFiPassword = config["WiFi"]["WiFiPassword"].get_Value();
 
-		WiFiAccessPointMode = config["WiFi"]["WiFiAccessPointMode"].toInt();
-		Hostname = config["Server"]["Hostname"];
-		MaxWiFiCon =  config["WiFi"]["MaxConnections"].toInt();
+		WiFiAccessPointMode = config["WiFi"]["WiFiAccessPointMode"].get_Value().toInt();
+		Hostname = config["Server"]["Hostname"].get_Value();
+		MaxWiFiCon =  config["WiFi"]["MaxConnections"].get_Value().toInt();
 
 	}
 	catch(config_error& ce) {
@@ -137,10 +140,6 @@ void setup() {
 		Serial.print("Exception: ");
 		Serial.println(exc.what());
 	}
-
-	#ifdef DEBUG
-		Serial.println(config.print());
-	#endif // DEBUG
 
 
 	initWifi();

@@ -34,6 +34,9 @@ public:
 
 	void readConfigFile();
 
+	// Write the actual configFile-Object, like it is now.
+	void writeConfigFile();
+
 	// If the object co already exist the function will change it. Otherwise it will create a new object
 	void insertConfigGroup(const String _configGroupName);
 
@@ -59,26 +62,7 @@ public:
 	ConfigGroup& operator[](std::size_t _pos) { return ConfigGroups[_pos]; }
 
 	// return the whole config data structure as a string for printing out ...
-	String print() {
-		String ret;
-		for(std::size_t i = 0; i < ConfigGroups.size(); ++i) {
-			ret += ConfigGroups[i].get_ConfigGroupName();
-			ret += '\n';
-			//Serial.println(ConfigGroups[i].get_ConfigGroupName());
-			for(std::size_t a = 0; a < ConfigGroups[i].numOfConfigObjects(); ++a) {
-				ret += '\t';
-				//Serial.print('\t');
-				ret += ConfigGroups[i][a].get_configKeyWord();
-				//Serial.print(ConfigGroups[i][a].get_configKeyWord());
-				ret += ':';
-				//Serial.print(':');
-				ret += ConfigGroups[i][a].get_configValue();
-				//Serial.println(ConfigGroups[i][a].get_configValue());
-				ret += '\n';
-			}
-		}
-		return ret;
-	}
+	String print();
 };
 
 // Implementations
@@ -104,11 +88,11 @@ void ConfigFile::insert(const String _configGroupName, const ConfigObject& _cfo)
 
 ConfigGroup& ConfigFile::operator[](const String _configGroupName) {
 	for(std::size_t i = 0; i < ConfigGroups.size(); i++) {
-		if(ConfigGroups[i].get_ConfigGroupName() == _configGroupName) {
+		if(ConfigGroups[i].get_GroupName() == _configGroupName) {
 			return ConfigGroups[i];
 		}
 	}
-	throw config_error("ConfigGroup " + _configGroupName + " not found in config-file " + path + "!");
+	throw config_error("ConfigGroup: " + _configGroupName + " not found in config-file " + path + "!");
 }
 
 ConfigGroup& ConfigFile::getConfigGroup(const String _configGroupName) {
@@ -117,7 +101,7 @@ ConfigGroup& ConfigFile::getConfigGroup(const String _configGroupName) {
 
 bool ConfigFile::existConfigGroup(const String _configGroupName) const {
 	for(std::size_t i = 0; i < ConfigGroups.size(); i++) {
-		if(ConfigGroups[i].get_ConfigGroupName() == _configGroupName) {
+		if(ConfigGroups[i].get_GroupName() == _configGroupName) {
 			return true;
 		}
 	}
@@ -134,6 +118,9 @@ void ConfigFile::setPath(const String _path) {
 
 void ConfigFile::readConfigFile() {
 	File file = filesystem.open(path.c_str(), "r");
+	if(!file) {
+		throw filesystem_error("Error while opening file " + path + " for reading!");
+	}
 
 	// ConfigGroup in which we actually insert the ConfigObjects
 	String insertConfigGroup;
@@ -156,26 +143,71 @@ void ConfigFile::readConfigFile() {
 			case '[': {
 				std::size_t endCharacterPos = line.indexOf(']', 1); // Position of the End-Character from ConfigGroup("]")
 				// 									   "["			"]"
-				String configGroupName = line.substring(1, endCharacterPos);
+				String GroupName = line.substring(1, endCharacterPos);
 
-				insertConfigGroup = configGroupName;
+				insertConfigGroup = GroupName;
 				// Insert ConfigGroup if does not exist;
-				if(!this->existConfigGroup(configGroupName)) {
+				if(!this->existConfigGroup(GroupName)) {
 					// more efficient than push_back if we have a temporary object like here(takes the temporary Object in)
-					ConfigGroups.emplace_back(ConfigGroup(configGroupName));
+					ConfigGroups.emplace_back(ConfigGroup(GroupName));
 				}
 				break;
 			}
 			default: {
-				std::size_t endConfigKeywordPos	= line.indexOf('=', 0);
+				std::size_t endKeywordPos	= line.indexOf('=', 0);
 
-				String configKeyWord = line.substring(0, endConfigKeywordPos);
-				String configValue = line.substring(endConfigKeywordPos + 1, line.length());
+				String KeyWord = line.substring(0, endKeywordPos);
+				String Value = line.substring(endKeywordPos + 1, line.length());
 
-				this->insert(insertConfigGroup, configKeyWord, configValue);
+				this->insert(insertConfigGroup, KeyWord, Value);
 				break;
 			}
 		}
 	}
 	file.close();
 }
+
+void ConfigFile::writeConfigFile() {
+	Serial.println(path);
+	// The file will be truncated
+	File file = filesystem.open(path.c_str(), "w");
+	if(!file) {
+		throw filesystem_error("Error while opening file " + path + " for writing!");
+	}
+
+	for(std::size_t i = 0; i < ConfigGroups.size(); ++i) {
+		file.write('[');
+		file.write(ConfigGroups[i].get_GroupName().c_str(), ConfigGroups[i].get_GroupName().length());
+		file.write(']');
+		for(std::size_t a = 0; a < ConfigGroups[i].numOfConfigObjects(); ++a) {
+			file.write('\n');
+			file.write('\t');
+			file.write(ConfigGroups[i][a].get_KeyWord().c_str(), ConfigGroups[i][a].get_KeyWord().length());
+			file.write('=');
+			file.write(ConfigGroups[i][a].get_Value().c_str(), ConfigGroups[i][a].get_Value().length());
+		}
+		file.write('\n');
+	}
+	file.close();
+}
+
+String ConfigFile::print() {
+		String ret;
+		for(std::size_t i = 0; i < ConfigGroups.size(); ++i) {
+			ret += ConfigGroups[i].get_GroupName();
+			ret += '\n';
+			//Serial.println(ConfigGroups[i].get_GroupName());
+			for(std::size_t a = 0; a < ConfigGroups[i].numOfConfigObjects(); ++a) {
+				ret += '\t';
+				//Serial.print('\t');
+				ret += ConfigGroups[i][a].get_KeyWord();
+				//Serial.print(ConfigGroups[i][a].get_KeyWord());
+				ret += ':';
+				//Serial.print(':');
+				ret += ConfigGroups[i][a].get_Value();
+				//Serial.println(ConfigGroups[i][a].get_Value());
+				ret += '\n';
+			}
+		}
+		return ret;
+	}

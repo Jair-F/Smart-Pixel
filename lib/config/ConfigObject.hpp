@@ -14,11 +14,11 @@ public:
 	bool operator==(const ConfigObject& co);
 	bool operator!=(const ConfigObject& co) { return ! (*this == co); }
 
-	String get_configKeyWord() const	{ return configKeyWord;	}
-	String get_configValue() const		{ return configValue;	}
+	String get_KeyWord() const	{ return configKeyWord;	}
+	String get_Value() const		{ return configValue;	}
 
-	void set_configKeyWord(String _configKeyWord)	{ configKeyWord = _configKeyWord;	}
-	void set_configValue(String _configValue)		{ configValue = _configValue;		}
+	void set_KeyWord(String _configKeyWord)	{ configKeyWord = _configKeyWord;	}
+	void set_Value(String _configValue)		{ configValue = _configValue;		}
 	void set(String _configKeyWord, String _configValue);
 };
 
@@ -28,5 +28,5 @@ void ConfigObject::set(String _configKeyWord, String _configValue) {
 }
 
 bool ConfigObject::operator==(const ConfigObject& co) {
-	return this->configKeyWord == co.get_configKeyWord() && this->configValue == co.get_configValue();
+	return this->configKeyWord == co.get_KeyWord() && this->configValue == co.get_Value();
 }
