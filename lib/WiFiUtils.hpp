@@ -321,15 +321,15 @@ void make_action(const String argName, const String arg, const uint8_t clientID)
 		EffektSpeed = arg.toInt();
 		WebSocketSendData("Form", "innerHTML", "EffektSpeed", to_string(EffektSpeed));
 	} else if (argName == "WiFiAccessPointMode") {
-		WiFiAccessPointMode = arg.toInt();
+		config["WiFi"]["WiFiAccessPointMode"].set_Value(arg);
 	} else if (argName == "WiFi-Name") {
-		WiFiName = arg;
+		config["WiFi"]["WiFiName"].set_Value(arg);
 	} else if (argName == "WiFi-Passwort") {
-		WiFiPassword = arg;
+		config["WiFi"]["WiFiPassword"].set_Value(arg);
 	} else if (argName == "MaxConnections") {
-		MaxWiFiCon = arg.toInt();
+		config["WiFi"]["MaxConnections"].set_Value(arg);
 	} else if(argName == "Hostname") {
-		Hostname = arg;
+		config["Server"]["Hostname"].set_Value(arg);
 	} else if(argName == "Relay") {
 		relay.switchStatus();
 		// Button updaten von Relay(auf "einschalten" oder "ausschalten") - Broadcast(bei allen)
@@ -339,11 +339,11 @@ void make_action(const String argName, const String arg, const uint8_t clientID)
 			Pir_Sensor.resetActiveReport();
 		}
 		WebSocketSendData("CSS", "backgroundColor", "Pir-Sensor", Pir_Sensor.getActiveReport() == true ? "red" : "green");
-	} else if(arg == "Command") {
-		if(argName == "writeSpiffsConfigs") {
-			writeConfigs();
+	} else if(argName == "Command") {
+		if(arg == "writeSpiffsConfigs") {
+			config.writeConfigFile();
 			Serial.println("Write-Configs - changed");
-		} else if(argName == "dynamicWebsiteUpdate") {
+		} else if(arg == "dynamicWebsiteUpdate") {
 			//dynamicUpdateClientWebsite(clientID);
 		}
 	}
