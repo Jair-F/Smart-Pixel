@@ -6,11 +6,11 @@
 
 /* SPIFFS ist
  FS SPIFFS = FS(FSImplPtr(new spiffs_impl::SPIFFSImpl(
-                             FS_PHYS_ADDR,
-                             FS_PHYS_SIZE,
-                             FS_PHYS_PAGE,
-                             FS_PHYS_BLOCK,
-                             SPIFFS_MAX_OPEN_FILES)));
+							 FS_PHYS_ADDR,
+							 FS_PHYS_SIZE,
+							 FS_PHYS_PAGE,
+							 FS_PHYS_BLOCK,
+							 SPIFFS_MAX_OPEN_FILES)));
 */
 
 // https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html
@@ -29,7 +29,7 @@ public:
 			beginning of the file.
 
 		r+	Open for reading and writing.  The stream is positioned at the
-       		beginning of the file.
+			beginning of the file.
 
 		w	Truncate file to zero length or create text file for writing.
 			The stream is positioned at the beginning of the file.
