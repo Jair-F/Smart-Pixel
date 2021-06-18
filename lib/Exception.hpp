@@ -47,4 +47,10 @@ public:
 	virtual ~filesystem_error() { }
 };
 
+class LED_error: public std::logic_error {
+public:
+	LED_error(const String _msg): std::logic_error(_msg.c_str()) { }
+	virtual ~LED_error() { }
+};
+
 #endif // _EXCEPTION_HPP_INCLUDED_

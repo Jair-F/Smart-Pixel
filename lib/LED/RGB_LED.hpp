@@ -25,14 +25,18 @@ public:
 	RGB_LED(uint16_t numPixels, unsigned short pin, neoPixelType type);
 
 	void setActualEffekt(Effect& _effekt);
-	Effect& getActualEffekt() { return actualEffekt; }
+	// Returns nullptr if there is no effect running
+	Effect& getActualEffekt() { return effectIsRunning == true ? actualEffekt : throw LED_error("Tried to get actualEfect - but no effect is running!"); }
+
+	// returns wether there runs a effect or not
+	bool effectRunning() { return effectIsRunning; }
 
 	void operator()(unsigned short effektSpeed);
 
 	// Functions which must to be sepcialized - deactivate Effect if expicit set Color on the led's.
-	void setPixelColor(uint16_t pixelPos, RGB_Utils::RGB_Color _color)								{ effectIsRunning = false; LEDS.setPixelColor(pixelPos, _color);			}
+	void setPixelColor(uint16_t pixelPos, RGB_Utils::RGB_Color _color)					{ effectIsRunning = false; LEDS.setPixelColor(pixelPos, _color);			}
 	void setPixelColor(uint16_t pixelPos, uint8_t red, uint8_t green, uint8_t blue)		{ effectIsRunning = false; LEDS.setPixelColor(pixelPos, red, green, blue);	}
-	void clear()																		{ LEDS.clear();																}
+	void clear()																		{ effectIsRunning = false; LEDS.clear();																}
 	void show()																			{ LEDS.show();																}
 	void setPin(uint16_t _pin)															{ LEDS.setPin(_pin);														}
 	void fill(uint32_t color, uint16_t firstPixelPos=0, uint16_t count=0)				{ effectIsRunning = false; LEDS.fill(color, firstPixelPos, count);			}
