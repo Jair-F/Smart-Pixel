@@ -29,6 +29,7 @@
 	* [Installationsanweisungen auf der Seite folgen](https://github.com/adafruit/Adafruit_NeoPixel#installation)
 - Display
 - RTC
+- DHT-Sensor
 - [SPIFFS-Uploader](https://github.com/esp8266/Arduino#installing-with-boards-manager) - **Das ist nur der File-Uploader für die Arduino IDE. Die Library für das ESP8266-Spiffs ist schon in der 'Arduino-Core für ESP8266-WiFi-Chip' Library enthalten.**
 	* [Installationsanweisung auf der Seite folgen](https://github.com/esp8266/arduino-esp8266fs-plugin#installation)
-
+	* Unter Linux muss die Datei bzw. der Ordner(tools/...) in das **'Arduino'** Verzeichniss hineinkopiert werden. Höchstwahrscheinlich direkt im **home-folder!**
