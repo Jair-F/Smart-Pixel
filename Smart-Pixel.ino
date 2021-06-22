@@ -1,15 +1,20 @@
+#include <Arduino.h>
 #include <ESP8266WebServer.h>
 #include <WebSocketsServer.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <exception>
 #include <stdexcept>
-#include <FS.h>
 #include <DHT.h>
 #include <Adafruit_NeoPixel.h>
 //#include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>		// Include core graphics library
 #include <Adafruit_ST7735.h>	// Include Adafruit_ST7735 library to drive the display
+
+#define DEBUG
+
+#include "lib/Filesystem.hpp"
+#include "lib/config/ConfigFile.hpp"
 
 /**
  * Definiert ob man ein WiFi Access Point erstellen soll oder sich zu einem bestehende WiFi verbinden soll
@@ -62,12 +67,14 @@ DHT dht(DHT_PIN, DHT_TYPE);
 Relay relay;
 PirSensor Pir_Sensor(D1);
 
+Filesystem filesystem;
+ConfigFile config(filesystem);
+
 #include "lib/Exception.hpp"
 #include "lib/WiFiUtils.hpp"
 #include "lib/PirSensor.hpp"
 #include "lib/TouchSensor.hpp"
 #include "lib/RGBRing.hpp"
-#include "lib/Spiffs.hpp"
 #include "lib/Display.hpp"
 
 void setup() {
@@ -104,11 +111,36 @@ void setup() {
 		delay(10);
 	}
 
-	initSpiffs();
-	Serial.println("SPIFFS started");
-
-	readConfigs();
+	config.setPath("/config.config");
+	config.readConfigFile();
+	#ifdef DEBUG
+		Serial.println(config.print());
+	#endif // DEBUG
 	Serial.println("Configs read");
+
+	// Setting up Envirement variables
+	try {
+		WiFiName = config["WiFi"]["WiFiName"].get_Value();
+		WiFiPassword = config["WiFi"]["WiFiPassword"].get_Value();
+
+		WiFiAccessPointMode = config["WiFi"]["WiFiAccessPointMode"].get_Value().toInt();
+		Hostname = config["Server"]["Hostname"].get_Value();
+		MaxWiFiCon =  config["WiFi"]["MaxConnections"].get_Value().toInt();
+
+	}
+	catch(config_error& ce) {
+		Serial.print("Config_ERROR: ");
+		Serial.println(ce.what());
+	}
+	catch(filesystem_error& fe) {
+		Serial.print("Filesystem_ERROR: ");
+		Serial.println(fe.what());
+	}
+	catch(std::exception& exc) {
+		Serial.print("Exception: ");
+		Serial.println(exc.what());
+	}
+
 
 	initWifi();
 	Serial.println("WiFi started");

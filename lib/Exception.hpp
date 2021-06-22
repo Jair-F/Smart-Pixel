@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <exception>
 #include <stdexcept>
 
@@ -31,6 +32,19 @@ public:
 	Spiffs_Exception& operator=(Spiffs_Exception&) = default;
 	Spiffs_Exception(const Spiffs_Exception&) = default;
 	virtual ~Spiffs_Exception() { }
+};
+
+
+class config_error: public std::invalid_argument {
+public:
+	config_error(const String _msg): std::invalid_argument(_msg.c_str()) { } 
+	virtual ~config_error() { }
+};
+
+class filesystem_error: public std::runtime_error {
+public:
+	filesystem_error(const String _msg): std::runtime_error(_msg.c_str()) { } 
+	virtual ~filesystem_error() { }
 };
 
 #endif // _EXCEPTION_HPP_INCLUDED_

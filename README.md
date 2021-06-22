@@ -17,6 +17,9 @@
 - (RTC:)
 
 
+## Planung
+- Datei **"Klassen Planung.io"** ist auf der Platfrom [Draw IO](https://app.diagrams.net/) gemacht worden.
+
 ## Library's - Voraussetzungen
 - [Arduino-Core für ESP8266-WiFiChip](https://github.com/esp8266/Arduino) (Nodemcu Library)
 	* [Installationsanweisung auf der Seite folgen](https://github.com/esp8266/Arduino#installing-with-boards-manager)
