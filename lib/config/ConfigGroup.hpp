@@ -1,10 +1,10 @@
+#pragma once
+
 #include <Arduino.h>
 #include <vector>
 
 #include "ConfigObject.hpp"
 #include "../Exception.hpp"
-
-#pragma once
 
 
 class ConfigGroup {

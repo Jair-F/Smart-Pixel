@@ -1,11 +1,11 @@
+#pragma once
+
 #include <Arduino.h>
 #include <vector>
 
 #include "ConfigGroup.hpp"
 #include "../Filesystem.hpp"
-
-#pragma once
-
+#include "../Exception.hpp"
 
 /**
  * Anweisungen, wie die ConfigFile auszusehen hat:
