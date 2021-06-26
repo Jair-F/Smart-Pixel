@@ -1,8 +1,5 @@
 #include <Arduino.h>
 #include <ESP8266WebServer.h>
-#include <WebSocketsServer.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
 #include "Filesystem.hpp"
 #include "Exception.hpp"
 
