@@ -55,6 +55,6 @@ Filesystem::Filesystem(): FS(SPIFFS) {
 	config.setAutoFormat(false);
 	this->setConfig(config);
 	if(! this->begin()) {
-		throw filesystem_error("Failed to start Filesystem");
+		throw Filesystem_error("Failed to start Filesystem");
 	}
 }
