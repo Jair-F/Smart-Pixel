@@ -54,7 +54,4 @@ Filesystem::Filesystem(): FS(SPIFFS) {
 	// We define here, that he should not format itself if he failed to mount
 	config.setAutoFormat(false);
 	this->setConfig(config);
-	if(! this->begin()) {
-		throw Filesystem_error("Failed to start Filesystem");
-	}
 }
