@@ -1,13 +1,10 @@
 #include <Arduino.h>
-#include <ESP8266WebServer.h>
 #include <WebSocketsServer.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <exception>
 #include <stdexcept>
 #include <DHT.h>
-#include <Adafruit_NeoPixel.h>
-//#include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>		// Include core graphics library
 #include <Adafruit_ST7735.h>	// Include Adafruit_ST7735 library to drive the display
 
@@ -15,6 +12,10 @@
 
 #include "lib/Filesystem.hpp"
 #include "lib/config/ConfigFile.hpp"
+#include "lib/LED/RGB_LED.hpp"
+#include "lib/LED/Effects.hpp"
+#include "lib/Effect_Functions.hpp"
+#include "lib/Webserver.hpp"
 
 /**
  * Definiert ob man ein WiFi Access Point erstellen soll oder sich zu einem bestehende WiFi verbinden soll
@@ -37,7 +38,7 @@ IPAddress subnet(255, 255, 255, 0);
  */
 unsigned short MaxWiFiCon;
 
-ESP8266WebServer webserver(WiFi.localIP(), 80);
+//ESP8266WebServer webserver(WiFi.localIP(), 80);
 // https://github.com/Links2004/arduinoWebSockets
 WebSocketsServer WebSocket(81);
 #define DYNAMIC_WEBSITE_UPDATE_INTERVAL 5000 // 1s = 1000(ms)
@@ -54,8 +55,13 @@ Adafruit_ST7735 display(TFT_CS, TFT_DC, TFT_RST);
 
 #define RGB_LED_NUMPIXELS 16
 #define RGB_LED_PIN D2
-Adafruit_NeoPixel RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
+//Adafruit_NeoPixel RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
 String RGBColor;
+
+// New RGB-Objects
+RGB_LED RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
+EffectGroup Effects;
+unsigned short EffektSpeed = 10;
 
 #define DHT_PIN D0
 #define DHT_TYPE DHT11
@@ -74,12 +80,17 @@ ConfigFile config(filesystem);
 #include "lib/WiFiUtils.hpp"
 #include "lib/PirSensor.hpp"
 #include "lib/TouchSensor.hpp"
-#include "lib/RGBRing.hpp"
+//#include "lib/RGBRing.hpp"
+#include "lib/LED/RGB_Utils.hpp"
 #include "lib/Display.hpp"
+
+Webserver webserver(filesystem, 80);
 
 void setup() {
 	Serial.begin(9600);
 	Serial.println("Serial started");
+
+	webserver.setWorkingDir("/www");
 
 	display.initR(INITR_BLACKTAB);      // Init ST7735S chip, black tab
 	Serial.println("Display started");
@@ -111,8 +122,32 @@ void setup() {
 		delay(10);
 	}
 
-	config.setPath("/config.config");
-	config.readConfigFile();
+	try {
+		if(! filesystem.begin()) {
+			throw Filesystem_error("Failed to start Filesystem");
+		} else {
+			Serial.println("Filesystem started");
+		}
+
+		config.setPath("/config.config");
+		config.readConfigFile();
+	}
+	catch(Filesystem_error& fe) {
+		Serial.println("Filesystem ERROR: ");
+		Serial.println(fe.what());
+		Serial.println("Aborting...");
+		exit(-1);
+	}
+	catch(std::exception& exc) {
+		Serial.println("ERROR: ");
+		Serial.println(exc.what());
+		Serial.println("Aborting...");
+	}
+	catch(...) {
+		Serial.println("Unknown ERROR");
+		Serial.println("Aborting...");
+	}
+
 	#ifdef DEBUG
 		Serial.println(config.print());
 	#endif // DEBUG
@@ -128,16 +163,16 @@ void setup() {
 		MaxWiFiCon =  config["WiFi"]["MaxConnections"].get_Value().toInt();
 
 	}
-	catch(config_error& ce) {
+	catch(Config_error& ce) {
 		Serial.print("Config_ERROR: ");
 		Serial.println(ce.what());
 	}
-	catch(filesystem_error& fe) {
+	catch(Filesystem_error& fe) {
 		Serial.print("Filesystem_ERROR: ");
 		Serial.println(fe.what());
 	}
 	catch(std::exception& exc) {
-		Serial.print("Exception: ");
+		Serial.print("ERROR: ");
 		Serial.println(exc.what());
 	}
 
@@ -150,12 +185,14 @@ void setup() {
 	initDNS();
 	Serial.println("DNS started");
 
-	initWebServer();
+	//initWebServer();
+	webserver.begin();
 	Serial.println("Web-Server started");
 
 	initWebSockets();
 	Serial.println("Web-Sockets started");
 
+/*
 	RGB_LEDS.begin();
 	Serial.println("RGB-LEDS started");
 
@@ -178,6 +215,7 @@ void setup() {
 		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixel::Color(0, 0, 0));
 	}
 	RGB_LEDS.show();
+*/
 
 	Serial.println("DHT started");
 	dht.begin();
@@ -186,16 +224,22 @@ void setup() {
 	Serial.print("Temp: ");
 	Serial.println(dht.readTemperature());
 
-	EffektContainer.push_back(Effekt("Blink", rainbow_soft_blink));
-	EffektContainer.push_back(Effekt("RainbowCycle", rainbowCycle));
-	EffektContainer.push_back(Effekt("ColorWipe", colorWipe));	
-	EffektContainer.push_back(Effekt("Nothing", Nothing));
+	// Initialising the effectsGroup - until now only a example - need to rewrite the effects
+	Effects.add(Effect("Blink", blink));
+	RGB_LEDS.setActualEffekt(Effects["Blink"]);
+
+/*
+	EffektContainer.push_back(Effect("Blink", rainbow_soft_blink));
+	EffektContainer.push_back(Effect("RainbowCycle", rainbowCycle));
+	EffektContainer.push_back(Effect("ColorWipe", colorWipe));	
+	EffektContainer.push_back(Effect("Nothing", Nothing));
 	for(unsigned short i = 0; i < EffektContainer.size(); i++) {
 		if(EffektContainer[i].getName() == "Nothing") {
 			aktueller_Effekt = &EffektContainer[i];
 			break;
 		}
 	}
+*/
 
 	relay.setPin(D3);
 	relay.setName("LED");
@@ -258,7 +302,9 @@ void loop() {
 		timer = millis() + 1500;
 	}
 
-	run_Effekt();
+
+	//run_Effekt();
+	RGB_LEDS(EffektSpeed);
 	WebSocket.loop();
 	yield();
 	webserver.handleClient();
