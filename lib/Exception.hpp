@@ -59,4 +59,10 @@ public:
 	virtual ~Websocket_error() { }
 };
 
+class Webserver_error: public std::runtime_error {
+public:
+	Webserver_error(String _msg): std::runtime_error(_msg.c_str()) { }
+	virtual ~Webserver_error() { }
+};
+
 #endif // _EXCEPTION_HPP_INCLUDED_
