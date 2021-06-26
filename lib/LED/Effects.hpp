@@ -16,7 +16,7 @@ public:
 	~RGB_Pixel_Colors() { }
 	RGB_Utils::RGB_Color& operator[](unsigned short pixelPos) { return colors[pixelPos]; }
 	RGB_Utils::RGB_Color& at(unsigned short pixelPos) { return colors.at(pixelPos); }
-	unsigned short numOfPixels() { return colors.size(); }
+	unsigned short numOfPixels() const { return colors.size(); }
 };
 
 
@@ -37,7 +37,7 @@ public:
 
 	RGB_Pixel_Colors& operator()(RGB_Pixel_Colors& PixelColors);
 
-	String getName() { return EffectName; }
+	String getName() const { return EffectName; }
 	void setName(String _EffectName) { EffectName = _EffectName; }
 };
 
@@ -54,7 +54,7 @@ public:
 	Effect& operator[](std::size_t n) { return effects[n]; }
 	Effect& find(String EffectName);
 
-	bool exist(String EffectName);
+	bool exist(String EffectName) const;
 
 	// Adds the effect in every Case(if there already exist an Object with the same EffectName it overwrites it!!!)
 	void add(Effect ef);
@@ -117,7 +117,7 @@ void EffectGroup::add(Effect ef) {
 	}
 }
 
-bool EffectGroup::exist(String EffectName) {
+bool EffectGroup::exist(String EffectName) const {
 	for(std::size_t i = 0; i < effects.size(); ++i) {
 		if(effects[i].getName() == EffectName) {
 			return true;

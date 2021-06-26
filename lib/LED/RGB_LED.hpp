@@ -29,7 +29,7 @@ public:
 	Effect& getActualEffekt() { return effectIsRunning == true ? actualEffekt : throw LED_error("Tried to get actualEfect - but no effect is running!"); }
 
 	// returns wether there runs a effect or not
-	bool effectRunning() { return effectIsRunning; }
+	bool effectRunning() const { return effectIsRunning; }
 
 	void operator()(unsigned short effektSpeed);
 
@@ -42,10 +42,10 @@ public:
 	void fill(uint32_t color, uint16_t firstPixelPos=0, uint16_t count=0)				{ effectIsRunning = false; LEDS.fill(color, firstPixelPos, count);			}
 	void setBrightness(uint8_t brightness)												{ LEDS.setBrightness(brightness);											}
 
-	uint8_t getBrightness()																{ return LEDS.getBrightness();			}
-	int16_t getPin()																	{ return LEDS.getPin();					}
-	uint16_t numPixels()																{ return LEDS.numPixels();				}
-	uint32_t getPixelColor(uint16_t pixelPos)											{ return LEDS.getPixelColor(pixelPos);	}
+	uint8_t getBrightness()						const									{ return LEDS.getBrightness();			}
+	int16_t getPin()							const									{ return LEDS.getPin();					}
+	uint16_t numPixels()						const									{ return LEDS.numPixels();				}
+	uint32_t getPixelColor(uint16_t pixelPos)	const									{ return LEDS.getPixelColor(pixelPos);	}
 };
 
 
