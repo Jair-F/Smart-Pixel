@@ -17,6 +17,7 @@ private:
 public:
 	Websocket(uint16_t port, const String& origin="", const String& protocol="arduino");
 	Websocket(WebsocketActionGroup& wag, uint16_t port, const String& origin="", const String& protocol="arduino");
+	virtual ~Websocket() { }
 
 	void addAction(const WebsocketAction& ag);
 	void addAction(String keyValue, Websocket_handler handler);
@@ -129,10 +130,9 @@ Websocket::Websocket(uint16_t port, const String& origin, const String& protocol
 	this->onEvent(WebsocketEvent);
 	// Reduce resources of transfer unneeded data
 	//this->disableHeartbeat();
-	this->begin();
 }
 
-Websocket::Websocket(WebsocketActionGroup& wag, uint16_t port, const String& origin, const String& protocol):WebSocketsServer(port, origin, protocol), actions(wag) { }
+Websocket::Websocket(WebsocketActionGroup& wag, uint16_t port, const String& origin, const String& protocol): WebSocketsServer(port, origin, protocol), actions(wag) { }
 
 void Websocket::addAction(const WebsocketAction& ag) {
 	actions.add(ag);

@@ -30,7 +30,6 @@ private:
 	String path;
 public:
 	ConfigFile(Filesystem& _filesystem): filesystem(_filesystem) { }
-	ConfigFile(Filesystem& _filesystem, const String _path): filesystem(_filesystem), path(_path) { }
 
 	void readConfigFile();
 

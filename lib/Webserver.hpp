@@ -21,7 +21,9 @@ private:
 
 public:
 	Webserver(Filesystem& _filesystem, int port = 80);
+	virtual ~Webserver() { }
 
+	// !!! It checks not if the directory _path is valid/exists !!!
 	void setWorkingDir(String _path);
 
 protected:
@@ -59,6 +61,16 @@ protected:
 			// https://developer.mozilla.org/de/docs/Web/HTTP/Status
 			this->send(404, "text/plain", "404: Not Found");
 		}
+
+		switch (this->method()) {
+			case HTTP_POST: {
+				// An action
+				break;
+			}		
+			default:{
+				break;
+			}
+		}
 	};
 };
 
@@ -66,21 +78,20 @@ protected:
 
 // Implementation
 String Webserver::fileType(String pathToFile) const {
-	if		(pathToFile.isEmpty())			return "";
-	else if	(pathToFile.endsWith(".html"))	return "text/html";
+	if		(pathToFile.isEmpty())				return "";
+	else if	(pathToFile.endsWith(".html"))		return "text/html";
 	else if	(pathToFile.endsWith(".css"))		return "text/css";
 	else if (pathToFile.endsWith(".js"))		return "text/javascript";
 	else if	(pathToFile.endsWith(".ico"))		return "image/vnd.microsoft.icon";
 	else if (pathToFile.endsWith(".gz"))		return "application/gzip";
-	else if (pathToFile.endsWith(".jpeg"))	return "image/jpeg";
+	else if (pathToFile.endsWith(".jpeg"))		return "image/jpeg";
 	else if (pathToFile.endsWith("jpg"))		return "image/jpeg";
-	else									return "text/plain";
+	else										return "text/plain";
 }
 
 Webserver::Webserver(Filesystem& _filesystem, int port): filesystem(_filesystem), ESP8266WebServer(port) {
 	// https://www.c-plusplus.net/forum/topic/282024/zeiger-auf-gebundene-funktion-als-funktionsparameter
 	this->onNotFound(this->handleWebServer);
-	this->begin();
 }
 
 void Webserver::setWorkingDir(String _path) {
