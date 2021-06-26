@@ -55,7 +55,7 @@ String ConfigGroup::get_ConfigObjectValue(const String _configKeyWord) const {
 			return co.get_Value();
 		}
 	}
-	throw config_error("Config " + _configKeyWord + " not found ");
+	throw Config_error("Config " + _configKeyWord + " not found ");
 }
 
 ConfigObject& ConfigGroup::operator[](const String& _configKeyWord) {
@@ -72,7 +72,7 @@ ConfigObject& ConfigGroup::get_ConfigObject(const String& _configKeyWord) {
 			return ConfigObjects[i];
 		}
 	}
-	throw config_error("Config " + _configKeyWord + " not found in ConfigGroup " + ConfigGroupName + "!");
+	throw Config_error("Config " + _configKeyWord + " not found in ConfigGroup " + ConfigGroupName + "!");
 }
 
 
