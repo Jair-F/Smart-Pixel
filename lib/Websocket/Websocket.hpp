@@ -6,7 +6,11 @@
 #include "../Exception.hpp"
 #include "../Helper.hpp"	// for to_string()
 
+typedef std::function<void(uint8_t ClientNum)> ConnectionHandler;
 
+String to_string(WStype_t WebsocketStatus) {
+	return to_string((unsigned short)WebsocketStatus);
+}
 
 class Websocket: public WebSocketsServer {
 private:
@@ -26,7 +30,16 @@ public:
 	 * @param _seperator seperator between the keyValue and their arguments(WebsocketAction) in the string which sends the client back to the server
 	 */
 	void set_seperator(char _seperator) { seperator = _seperator; }
+
+	void set_onConnectHandler(ConnectionHandler handler)	{ onConnectHandler = handler;		}
+	void set_onDisconnectHandler(ConnectionHandler handler)	{ onDisconnectHandler = handler;	}
+
+	bool sendTXT(uint8_t ClientNum, String keyValue, String value);
+	bool broadcastTXT(String keyValue, String value);
 protected:
+	ConnectionHandler onConnectHandler;
+	ConnectionHandler onDisconnectHandler;
+
 	/** 
 	 * Function, which is called on a Websocket Event, it directs it to the function saved in actions according to their keyValue
 	 * !!-- Cant be a class member function because then I cant pass it to at the Constructuro at this->onEvent(...). Therefore
@@ -37,10 +50,12 @@ protected:
 		switch(WebsocketStatus) {
 			case WStype_CONNECTED: {
 				Serial.println("Client: " + remoteIP(ClientNum).toString() + " connected");
+				onConnectHandler(ClientNum);
 				break;
 			}
 			case WStype_DISCONNECTED: {
 				Serial.println("Client: " + remoteIP(ClientNum).toString() + " disconnected");
+				onDisconnectHandler(ClientNum);
 				break;
 			}
 			case WStype_ERROR: {
@@ -143,3 +158,17 @@ void Websocket::addAction(String keyValue, Websocket_handler handler) {
 	this->addAction(WebsocketAction(keyValue, handler));
 }
 */
+
+bool Websocket::sendTXT(uint8_t ClientNum, String keyValue, String value) {
+	String send = keyValue;
+	send += seperator;
+	send += value; 
+	return WebSocketsServer::sendTXT(ClientNum, send);
+}
+
+bool Websocket::broadcastTXT(String keyValue, String value) {
+	String send = keyValue;
+	send += seperator;
+	send += value;
+	return WebSocketsServer::broadcastTXT(send);
+}
