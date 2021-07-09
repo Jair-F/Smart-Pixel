@@ -47,13 +47,13 @@
 		<div class="container">
 		<h2>Effekte Panel</h2> <!-- Should look more atractive -->
 		<form method="POST" onchange="sendEffekte();">
+			<input type="checkbox" id="EffectIsRunning" name="EffectIsRunning">Run Effect
+			<br/>
 			<input type="radio" class="Effecte" name="Effekt" id="Blink" value="Blink"/>Blink
 			<br/>
 			<input type="radio" class="Effecte" name="Effekt" id="RainbowCycle" value="RainbowCycle"/>RainbowCycle
 			<br/>
 			<input type="radio" class="Effecte" name="Effekt" id="ColorWipe" value="ColorWipe"/>ColorWipe
-			<br/>
-			<input type="radio" class="Effecte" name="Effekt" id="Nothing" value="Nothing"/>Nothing
 			<br/>
 			 Effekt Speed
 			 <br />
@@ -143,6 +143,7 @@
 		const WebsocketKeyValues = {
 			RGB_COLOR					: "RGB-Color",
 			EFFECT						: "Effect",
+			EFFECT_RUNNING				: "EffektRunning",
 			EFFECT_SPEED				: "EffectSpeed",
 			HUMIDITY					: "Humidity",
 			TEMPERATURE					: "Temperature",
@@ -184,27 +185,24 @@
 				var splitPosSecond = sendData.data.indexOf(":", splitPosFirst + 1);
 				var splitPosLast = sendData.data.lastIndexOf(":");
 
-				var aim = sendData.data.substring(0, splitPosFirst);
-				var aimType = sendData.data.substring(splitPosFirst + 1, splitPosSecond);
 				var argName = sendData.data.substring(splitPosSecond + 1, splitPosLast);
 				var arg = sendData.data.substring(splitPosLast + 1);
-				
-				/*
-				alert(sendData);
-				alert(aim);
-				alert(aimType);
-				alert(argName);
-				alert(arg);
-				*/
 
-				//console.log(aim);
-				//console.log(aimType);
-				console.log(argName);
-				console.log(arg);
+				console.log(argName + ':' + arg);
+				
 
 				switch (argName) {
 					case WebsocketKeyValues.RGB_COLOR: {
 						document.getElementById("RGB-Color").value = arg;
+						break;
+					}
+					case WebsocketKeyValues.EFFECT_RUNNING: {
+						if(arg == "1" || arg == "true"){
+							document.getElementById("EffectIsRunning").checked = true;
+						}
+						else {
+							document.getElementById("EffectIsRunning").checked = false;
+						}
 						break;
 					}
 					case WebsocketKeyValues.EFFECT: {
@@ -286,27 +284,6 @@
 						break;
 					}
 				}
-
-
-				if(aim == "Form") {
-					if(aimType == "radio" || aimType == "checkbox") {
-						document.getElementById(argName).checked = arg;
-					} else {
-						document.getElementById(argName).value = arg;
-					}
-				} else if(aim == "HTML") {
-					if(aimType == "innerHTML") {
-						document.getElementById(argName).innerHTML = arg;
-					}
-				} else if(aim == "CSS") {
-					if(argName == "Pir-Sensor") {
-						if(aimType == "backgroundColor") {}
-						document.getElementById("Pir-Sensor").style.backgroundColor = arg;
-					}
-				} else { }
-				//document.getElementById("Humidity").innerHTML = sendData.data;
-				//document.getElementById("Debug").value += sendData.data;
-				//console.log("Server: ", sendData.data());
 			}
 		// WebSocket-Initialization
 
@@ -342,6 +319,8 @@
 					websocketSend(WebsocketKeyValues.EFFECT, checked_radio.value);
 				}
 			}
+			var effectRunning = document.getElementById("EffectIsRunning").checked;
+			websocketSend(WebsocketKeyValues.EFFECT_RUNNING, effectRunning == true ? "true" : "false");
 			var effektSpeed = document.getElementById("EffectSpeed").value;
 			websocketSend(WebsocketKeyValues.EFFECT_SPEED, effektSpeed);
 		}
