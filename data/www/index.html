@@ -47,17 +47,17 @@
 		<div class="container">
 		<h2>Effekte Panel</h2> <!-- Should look more atractive -->
 		<form method="POST" onchange="sendEffekte();">
-			<input type="radio" class="Effekte" name="Effekt" id="Blink" value="Blink"/>Blink
+			<input type="radio" class="Effecte" name="Effekt" id="Blink" value="Blink"/>Blink
 			<br/>
-			<input type="radio" class="Effekte" name="Effekt" id="RainbowCycle" value="RainbowCycle"/>RainbowCycle
+			<input type="radio" class="Effecte" name="Effekt" id="RainbowCycle" value="RainbowCycle"/>RainbowCycle
 			<br/>
-			<input type="radio" class="Effekte" name="Effekt" id="ColorWipe" value="ColorWipe"/>ColorWipe
+			<input type="radio" class="Effecte" name="Effekt" id="ColorWipe" value="ColorWipe"/>ColorWipe
 			<br/>
-			<input type="radio" class="Effekte" name="Effekt" id="Nothing" value="Nothing"/>Nothing
+			<input type="radio" class="Effecte" name="Effekt" id="Nothing" value="Nothing"/>Nothing
 			<br/>
 			 Effekt Speed
 			 <br />
-			<input id="EffektSpeed" name="EffektSpeed" type="range" min="1" max="100"/>
+			<input id="EffectSpeed" name="EffektSpeed" type="range" min="1" max="100"/>
 		</form>
 	    </div>
 
@@ -102,7 +102,7 @@
 				</colgroup>
 				<tr>
 					<td>Eigenes WiFi erzeugen</td>
-					<td><input id="WiFiAccessPointMode" type="checkbox" name="WiFiAccessPointMode"/></td>
+					<td><input onchange="handleWiFiAccessPointModeCheckbox()"id="WiFiAccessPointMode" type="checkbox" name="WiFiAccessPointMode"/></td>
 				</tr>
 				<tr>
 					<td>WiFi-Name</td>
@@ -132,6 +132,7 @@
 	<div id="bottom">
 		<hr >
 		<footer >
+			<p>Connected Clients: <span id="NumOfConnectedClients">%NUM%</span></p>
 			&copy; By _____ and _____
 		</footer>
 	</div>
@@ -139,9 +140,35 @@
 
 	<!-- https://code-boxx.com/submit-form-without-refreshing-page/ -->
 	<script>
-		document.getElementById("WiFiAccessPointMode").value = true;
+		const WebsocketKeyValues = {
+			RGB_COLOR					: "RGB-Color",
+			EFFECT						: "Effect",
+			EFFECT_SPEED				: "EffectSpeed",
+			HUMIDITY					: "Humidity",
+			TEMPERATURE					: "Temperature",
+			RELAY_STATUS				: "RelayStatus",
+			RELAY_NAME					: "RelayName",
+			WRITE_CONFIG				: "write-config",
+			PIR_SENSOR_ACTIVE_REPORT	: "PirSensorActiveReport",
+			REBOOT						: "reboot",
+			CLIENT_ALERT				: "ClientAlert",
+			NUM_OF_CONNECTED_CLIENTS	: "NumOfConnectedClients",
+			WIFI_NAME					: "WiFiName",
+			WIFI_PASSWORD				: "WiFiPassword",
+			MAX_CONNECTIONS				: "MaxConnections",
+			WIFI_ACCESSPOINT_MODE		: "WiFiAccessPointMode",
+			HOSTNAME					: "Hostname"
+		};
+		const Effects = {
+			Blink			: "Blink",
+			RainbowCycle	: "RainbowCycle",
+			ColorWipe		: "ColorWipe",
+			Noting			: "Nothing"
+		};
+		
 		// WebSocket-Initialization
 			var Socket = new WebSocket("ws://" + location.hostname + ":81/", ["arduino"]);
+			var RelayName;
 			Socket.onopen = function() { console.log("Verbindung " + new Date()); }
 			Socket.onclose = function() {
 				console.log("WebSocket Verbindung getrennt");
@@ -170,10 +197,97 @@
 				alert(arg);
 				*/
 
-				console.log(aim);
-				console.log(aimType);
+				//console.log(aim);
+				//console.log(aimType);
 				console.log(argName);
 				console.log(arg);
+
+				switch (argName) {
+					case WebsocketKeyValues.RGB_COLOR: {
+						document.getElementById("RGB-Color").value = arg;
+						break;
+					}
+					case WebsocketKeyValues.EFFECT: {
+						document.getElementById(arg).checked = arg;
+						break;
+					}
+					case WebsocketKeyValues.EFFECT_SPEED: {
+						document.getElementById("EffectSpeed").value = arg;
+						break;
+					}
+					case WebsocketKeyValues.HUMIDITY: {
+						document.getElementById("Humidity").innerHTML = arg;
+						break;
+					}
+					case WebsocketKeyValues.TEMPERATURE: {
+						document.getElementById("Temperature").innerHTML = arg;
+						break;
+					}
+					case WebsocketKeyValues.RELAY_STATUS: {
+						if(arg == "1") {
+							buttonText = " ausschalten";
+						} else {
+							buttonText = " einschalten";
+						}
+						document.getElementById("Relay0").value = RelayName + buttonText;
+						break;
+					}
+					case WebsocketKeyValues.RELAY_NAME: {
+						document.getElementById("Relay0").value = arg;
+						RelayName = arg;
+						break;
+					}
+					case WebsocketKeyValues.PIR_SENSOR_ACTIVE_REPORT: {
+						var color = String;
+						if(arg == 1) {
+							color = "red";
+						} else {
+							color = "green";
+						}
+						document.getElementById("Pir-Sensor").style.backgroundColor = color;
+						break;
+					}
+					case WebsocketKeyValues.CLIENT_ALERT: {
+						alert(arg);
+						break;
+					}
+					case WebsocketKeyValues.NUM_OF_CONNECTED_CLIENTS: {
+						document.getElementById("NumOfConnectedClients").innerHTML = arg;
+						break;
+					}
+					case WebsocketKeyValues.WIFI_ACCESSPOINT_MODE: {
+						if(arg == "1") {
+							document.getElementById("WiFiAccessPointMode").checked = true;
+						} else {
+							document.getElementById("WiFiAccessPointMode").checked = false;
+						}
+						// Grey out Field for MaxConnections if not creating WiFiAccessPointMode
+						handleWiFiAccessPointModeCheckbox();
+						break;
+					}
+					case WebsocketKeyValues.WIFI_NAME: {
+						document.getElementById("WiFi-Name").value = arg;
+						break;
+					}
+					case WebsocketKeyValues.WIFI_PASSWORD: {
+						document.getElementById("WiFi-Passwort").value = arg;
+						break;
+					}
+					case WebsocketKeyValues.HOSTNAME: {
+						document.getElementById("Hostname").value = arg;
+						break;
+					}
+					case WebsocketKeyValues.MAX_CONNECTIONS: {
+						document.getElementById("MaxConnections").value = arg;
+						break;
+					}
+					default: {
+						console.log("Error got not supported action: " + argName + ':' + arg);
+						break;
+					}
+				}
+
+
 				if(aim == "Form") {
 					if(aimType == "radio" || aimType == "checkbox") {
 						document.getElementById(argName).checked = arg;
@@ -207,7 +321,7 @@
 			for(var relayToChange of relays) {
 			}
 			var relayNum = 0;
-			websocketSend("Relay", "0");
+			websocketSend("RelayStatus", "0");
 		}
 		function sendPirSensor() {
 			websocketSend("PirSensor", "reset");
@@ -221,15 +335,15 @@
 		}
 		function sendEffekte() {
 			// https://www.techiedelight.com/get-value-of-selected-radio-button-javascript/ - 2. JavaScript
-			var radios = document.getElementsByClassName("Effekte");
+			var radios = document.getElementsByClassName("Effecte");
 			for (var checked_radio of radios) {
 				if(checked_radio.checked) {
 					//alert(checked_radio.value);
-					websocketSend("Effekt", checked_radio.value);
+					websocketSend(WebsocketKeyValues.EFFECT, checked_radio.value);
 				}
 			}
-			var effektSpeed = document.getElementById("EffektSpeed").value;
-			websocketSend("EffektSpeed", effektSpeed);
+			var effektSpeed = document.getElementById("EffectSpeed").value;
+			websocketSend(WebsocketKeyValues.EFFECT_SPEED, effektSpeed);
 		}
 		function SendWiFiSettings() {
 			var WiFiAccessPointMode = document.getElementById("WiFiAccessPointMode").checked == true ? "1" : "0";
@@ -238,12 +352,31 @@
 			var Hostname = document.getElementById("Hostname").value;
 			var maxConnections = document.getElementById("MaxConnections").value;
 
-			websocketSend("WiFiAccessPointMode", WiFiAccessPointMode);
+			websocketSend("WiFiAccessPointMode" + WiFiAccessPointMode);
 			websocketSend("WiFi-Name", WiFiName);
 			websocketSend("WiFi-Passwort", WiFiPasswort);
 			websocketSend("MaxConnections", maxConnections);
 			websocketSend("Hostname", Hostname);
 			websocketSend("Command", "writeSpiffsConfigs");
+		}
+		function HideField(ID, Hide) {
+			if(Hide == true) {
+				document.getElementById(ID).setAttribute("disabled", true);
+			}
+			else {
+				document.getElementById(ID).removeAttribute("disabled");
+			}
+		}
+		function FiledIsHidden(ID) {
+			return document.getElementById(ID).getAttribute("disabled") == "true" ? true : false;
+		}
+		function handleWiFiAccessPointModeCheckbox() {
+			if(document.getElementById("WiFiAccessPointMode").checked == true) {
+				HideField('MaxConnections', false);
+			}
+			else {
+				HideField('MaxConnections', true);
+			}
 		}
 	</script>
 </html>
