@@ -119,11 +119,12 @@ void initWebServer() {
 }
 */
 
-
+/*
 void initWebSockets() {
 	WebSocket.begin();
 	WebSocket.onEvent(handleWebSocket);
 }
+*/
 
 // https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html#check-return-codes
 String wifiStatusUserOutput(wl_status_t stat) {
@@ -170,12 +171,16 @@ String wifiStatusUserOutput(wl_status_t stat) {
 	return message;
 }
 
+/*
 // Sendet die Daten an alle Clients(Broadcast)
 void WebSocketSendData(String aim, String aimType, String argName, String arg) {
 	if(WebSocket.connectedClients() > 0) {
 		WebSocket.broadcastTXT(String(aim + ":" + aimType + ":" + argName + ":" + arg).c_str());
 	}
 }
+*/
+
+/*
 // Sendet die Daten nur an den Client(Client-ID), wenn er verbunden ist
 void WebSocketSendData(String aim, String aimType, String argName, String arg, uint8_t clientID) {
 	if(WebSocket.clientIsConnected(clientID)) {
@@ -195,7 +200,9 @@ void WebSocketSendData(String aim, String aimType, String argName, String arg, u
 		Serial.println(arg);
 	}
 }
+*/
 
+/*
 void dynamicUpdateClientWebsite(uint8_t clientID) {
 	WebSocketSendData("HTML",	"innerHTML", 		"Humidity", 					to_string(dht.readHumidity()), clientID);
 	WebSocketSendData("HTML",	"innerHTML", 		"Temperature", 					to_string(dht.readTemperature()), clientID);
@@ -215,11 +222,14 @@ void dynamicUpdateClientWebsite(uint8_t clientID) {
 	WebSocket.broadcastTXT(String("Temperature:" + to_string(last_update)).c_str(), clientID);
 	WebSocket.broadcastTXT(String("EffektSpeed:" + to_string(EffektSpeed)).c_str(), clientID);
 	*/
+	/*
 	//Serial.println("Websocket-daten Senden");
 	//Serial.println(last_update);
 	//Serial.println(EffektSpeed);
 }
+*/
 
+/*
 // !! uint8_t = unsigned char !!
 // https://tttapa.github.io/ESP8266/Chap14%20-%20WebSocket.html
 void handleWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
@@ -267,6 +277,7 @@ void handleWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lengh
 			break;
 	}
 }
+*/
 
 /*
 void handleWebServer() {
@@ -296,6 +307,7 @@ void handleWebServer() {
 }
 */
 
+/*
 void make_action(const String argName, const String arg, const uint8_t clientID) {
 	Serial.println("Params:");
 	Serial.print(argName);
@@ -306,7 +318,7 @@ void make_action(const String argName, const String arg, const uint8_t clientID)
 		RGB_LEDS.fill(RGB_Utils::RGBHexToColor(arg), 0, RGB_LEDS.numPixels());
 		RGB_LEDS.show();
 		//WebSocketSendData("Form", "value", "RGB-Color", RGB_Utils::RGBColorToHex(RGB_LEDS.getPixelColor(0)));
-		if(RGB_LEDS.effectRunning()) {
+		if(RGB_LEDS.get_effectRunning()) {
 			WebSocketSendData("Form", "radio", RGB_LEDS.getActualEffekt().getName(), "true");
 		} else {
 			WebSocketSendData("Form", "radio", "Nothing", "true");
@@ -315,7 +327,6 @@ void make_action(const String argName, const String arg, const uint8_t clientID)
 		if(arg == "Blink") {
 			RGB_LEDS.setActualEffekt(Effects[arg]);
 		}
-		/*
 		for(unsigned short i = 0; i < EffektContainer.size(); i++) {
 			if(EffektContainer[i].getName() == arg) {
 				aktueller_Effekt = &EffektContainer[i];
@@ -323,7 +334,6 @@ void make_action(const String argName, const String arg, const uint8_t clientID)
 			}
 		}
 		WebSocketSendData("Form", "radio", aktueller_Effekt->getName(), "true");
-		*/
 	} else if (argName == "EffektSpeed") {
 		EffektSpeed = arg.toInt();
 		WebSocketSendData("Form", "innerHTML", "EffektSpeed", to_string(EffektSpeed));
@@ -364,6 +374,7 @@ void make_action(const String argName, const String arg, const uint8_t clientID)
 	 * "plain" gibt nochmals die Argumente als ein String zurueck wie sie oben im Browser in der Titelleiste stehen wuerde,
 	 * wenn im html "method=GET" steht.
 	 */
+	/*
 	else if(argName == "plain") {
 
 	} else {
@@ -373,6 +384,7 @@ void make_action(const String argName, const String arg, const uint8_t clientID)
 		Serial.println(arg);
 	}
 }
+*/
 
 // https://tttapa.github.io/ESP8266/Chap11%20-%20SPIFFS.html
 String find_path_to_req_File(String path) {
