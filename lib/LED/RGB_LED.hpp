@@ -12,6 +12,8 @@ change the LED color without switching itself off. So I can use the functions of
 and only have to use the other functions once for the user write
 */
 
+// Add effectSpeed to RGB_LED class
+
 class RGB_LED {
 private:
 	Adafruit_NeoPixel LEDS;
@@ -26,19 +28,24 @@ public:
 
 	void setActualEffekt(Effect& _effekt);
 	// Returns nullptr if there is no effect running
-	Effect& getActualEffekt() { return effectIsRunning == true ? actualEffekt : throw LED_error("Tried to get actualEfect - but no effect is running!"); }
+	Effect& getActualEffekt() { return actualEffekt; }
 
 	// returns wether there runs a effect or not
-	bool effectRunning() const { return effectIsRunning; }
+	bool get_effectRunning() const 				{ return effectIsRunning; }
+	void set_effectRunning(bool _effectRunning)	{ effectIsRunning = _effectRunning; }
 
 	void operator()(unsigned short effektSpeed);
 
 	// Functions which must to be sepcialized - deactivate Effect if expicit set Color on the led's.
 	void setPixelColor(uint16_t pixelPos, RGB_Utils::RGB_Color _color)					{ effectIsRunning = false; LEDS.setPixelColor(pixelPos, _color);			}
 	void setPixelColor(uint16_t pixelPos, uint8_t red, uint8_t green, uint8_t blue)		{ effectIsRunning = false; LEDS.setPixelColor(pixelPos, red, green, blue);	}
-	void clear()																		{ effectIsRunning = false; LEDS.clear();																}
+	void clear()																		{ effectIsRunning = false; LEDS.clear();									}
 	void show()																			{ LEDS.show();																}
 	void setPin(uint16_t _pin)															{ LEDS.setPin(_pin);														}
+	/**
+	 * @param firstPixelPos at which pixel to begin
+	 * @param count if count=0 fill from firstPixelPos to the end otherwise to the given Pixel
+	 */
 	void fill(uint32_t color, uint16_t firstPixelPos=0, uint16_t count=0)				{ effectIsRunning = false; LEDS.fill(color, firstPixelPos, count);			}
 	void setBrightness(uint8_t brightness)												{ LEDS.setBrightness(brightness);											}
 
@@ -61,6 +68,8 @@ void RGB_LED::setActualEffekt(Effect& _effekt) {
 }
 
 RGB_LED::RGB_LED(unsigned short numPixels, unsigned short pin, neoPixelType type): LEDS(numPixels, pin, type), PixelColors(LEDS.numPixels()) {
+	// Set to something, that it would not throw an exception if the user doesn't set it!
+	actualEffekt = Effect(String("Effect not set"), EffectFuncPointer{});
 	LEDS.begin();
 }
 
