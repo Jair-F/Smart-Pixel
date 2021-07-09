@@ -29,6 +29,10 @@ String to_string(float num) {
 	return String(num);
 }
 
+bool to_bool(String str) {
+	return str == "true" || str == "1";
+}
+
 // Funktionen um den RGB-Hex-Code zu konvertieren und in dezimal Werte von 0-255 umwandeln
 std::size_t power(unsigned short num, unsigned short times) {
 	if(times >= 1) {
