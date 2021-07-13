@@ -51,31 +51,24 @@ Websocket websocket(81);
 
 //MDNSResponder MDNS;
 
-#define TFT_CS		15	// D8
-#define TFT_RST		0	// goes to ground
-#define TFT_DC		2	// DC = A0 - D4
 
 Adafruit_ST7735 display(TFT_CS, TFT_DC, TFT_RST);
 
-#define RGB_LED_NUMPIXELS 16
-#define RGB_LED_PIN D2
+
 //Adafruit_NeoPixel RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
 String RGBColor;
-
 // New RGB-Objects
 RGB_LED RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
 EffectGroup Effects;
 unsigned short EffektSpeed = 10;
 
-#define DHT_PIN D0
-#define DHT_TYPE DHT11
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
 #include "lib/PirSensor.hpp"
 #include "lib/Relay.hpp"
-Relay relay;
-PirSensor Pir_Sensor(D1);
+Relay relay(RELAY_PIN, "LED");
+PirSensor Pir_Sensor(PIR_SENSOR_PIN);
 
 Filesystem filesystem;
 ConfigFile config(filesystem);
@@ -218,7 +211,7 @@ void setup() {
 		websocket.broadcastTXT(NUM_OF_CONNECTED_CLIENTS,		to_string(static_cast<unsigned short>(websocket.connectedClients())));
 	});
 
-	websocket.addAction(WebsocketAction(RGB_COLOR,					[&RGB_LEDS](String& arguments)				{ RGB_LEDS.fill(RGB_Utils::RGBHexToColor(arguments)); websocket.broadcastTXT(RGB_COLOR, arguments); }));
+	websocket.addAction(WebsocketAction(RGB_COLOR,					[&RGB_LEDS](String& arguments)				{ RGB_LEDS.fill(RGB_Utils::RGBHexToColor(arguments)); RGB_LEDS.show(); websocket.broadcastTXT(EFFECT_RUNNING, to_string(RGB_LEDS.get_effectRunning())); websocket.broadcastTXT(RGB_COLOR, arguments); }));
 	websocket.addAction(WebsocketAction(EFFECT,						[&Effects, &RGB_LEDS](String& arguments)	{ RGB_LEDS.setActualEffekt(Effects[arguments]); websocket.broadcastTXT(EFFECT, arguments); }));
 	websocket.addAction(WebsocketAction(EFFECT_RUNNING,				[&RGB_LEDS](String& arguments)				{ RGB_LEDS.set_effectRunning(to_bool(arguments)); websocket.broadcastTXT(EFFECT_RUNNING, to_string(RGB_LEDS.get_effectRunning())); }));
 	websocket.addAction(WebsocketAction(EFFECT_SPEED,				[&EffektSpeed](String& arguments)			{ EffektSpeed = arguments.toInt(); websocket.broadcastTXT(EFFECT_SPEED, arguments); }));
@@ -280,9 +273,6 @@ void setup() {
 		}
 	}
 */
-
-	relay.setPin(D3);
-	relay.setName("LED");
 
 }
 
