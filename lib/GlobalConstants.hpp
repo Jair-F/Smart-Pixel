@@ -29,3 +29,42 @@
 // conifg-Groups
 #define WIFI	"WiFi"
 #define SERVER	"Server"
+
+
+
+
+// Display
+/*
+Pinouts:
+VCC			3.3V
+GND			GND
+CS			D8
+Reset		3.3v
+A0 or D/C	D4
+SDA (MOSI)	D7 
+SCK			D5 
+LED			3.3V
+*/
+
+#define TFT_CS		D8	//15	// D8
+#define TFT_RST		0	// goes to ground
+#define TFT_DC		D4	//2	// DC = A0 - D4
+// Display
+
+// RGB-LED
+#define RGB_LED_NUMPIXELS 16
+#define RGB_LED_PIN D2
+// RGB-LED
+
+// DHT-Temperature-Humidity-Sensor
+#define DHT_PIN D0
+#define DHT_TYPE DHT11
+// DHT-Temperature-Humidity-Sensor
+
+// Pir-Sensor
+#define PIR_SENSOR_PIN D1
+// Pir-Sensor
+
+// Relay
+#define RELAY_PIN D3
+// Relay
