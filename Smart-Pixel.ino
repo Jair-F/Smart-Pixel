@@ -41,11 +41,7 @@ IPAddress subnet(255, 255, 255, 0);
  */
 unsigned short MaxWiFiCon;
 
-//ESP8266WebServer webserver(WiFi.localIP(), 80);
-// https://github.com/Links2004/arduinoWebSockets
-//WebSocketsServer WebSocket(81);
 Websocket websocket(81);
-#define DYNAMIC_WEBSITE_UPDATE_INTERVAL 5000 // 1s = 1000(ms)
 
 //ESP8266WiFiClass WiFi;
 
@@ -55,9 +51,8 @@ Websocket websocket(81);
 Adafruit_ST7735 display(TFT_CS, TFT_DC, TFT_RST);
 
 
-//Adafruit_NeoPixel RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
 String RGBColor;
-// New RGB-Objects
+
 RGB_LED RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
 EffectGroup Effects;
 unsigned short EffektSpeed = 10;
@@ -77,9 +72,8 @@ ConfigFile config(filesystem);
 #include "lib/WiFiUtils.hpp"
 #include "lib/PirSensor.hpp"
 #include "lib/TouchSensor.hpp"
-//#include "lib/RGBRing.hpp"
 #include "lib/LED/RGB_Utils.hpp"
-#include "lib/Display.hpp"
+//#include "lib/Display.hpp"
 
 Webserver webserver(filesystem, 80);
 
@@ -182,11 +176,9 @@ void setup() {
 	initDNS();
 	Serial.println("DNS started");
 
-	//initWebServer();
 	webserver.begin();
 	Serial.println("Web-Server started");
 
-	//initWebSockets();
 	websocket.set_seperator(':');
 
 	websocket.set_onConnectHandler([&](uint8_t ClientNum){
@@ -230,25 +222,6 @@ void setup() {
 	websocket.begin();
 	Serial.println("Web-Sockets started");
 
-/*
-	RGB_LEDS.begin();
-	Serial.println("RGB-LEDS started");
-
-	for(int i = 0; i < RGB_LEDS.numPixels(); i++) {
-		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixel::Color(255, 0, 0));
-	}
-	RGB_LEDS.show();
-	delay(500);
-	for(int i = 0; i < RGB_LEDS.numPixels(); i++) {
-		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixel::Color(0, 255, 0));
-	}
-	RGB_LEDS.show();
-	delay(500);
-	for(int i = 0; i < RGB_LEDS.numPixels(); i++) {
-		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixelWebSocket::Color(0, 0, 0));
-	}
-	RGB_LEDS.show();
-*/
 
 	Serial.println("DHT started");
 	dht.begin();
@@ -263,18 +236,6 @@ void setup() {
 	Effects.add(Effect(RAINBOW_CYCLE,		rainbowCycle));
 	RGB_LEDS.setActualEffekt(Effects[RAINBOW_SOFT_BLINK]);
 
-/*
-	EffektContainer.push_back(Effect("Blink", rainbow_soft_blink));
-	EffektContainer.push_back(Effect("RainbowCycle", rainbowCycle));
-	EffektContainer.push_back(Effect("ColorWipe", colorWipe));	
-	EffektContainer.push_back(Effect("Nothing", Nothing));
-	for(unsigned short i = 0; i < EffektContainer.size(); i++) {
-		if(EffektContainer[i].getName() == "Nothing") {
-			aktueller_Effekt = &EffektContainer[i];
-			break;
-		}
-	}
-*/
 
 }
 
@@ -335,7 +296,6 @@ void loop() {
 	}
 
 
-	//run_Effekt();
 	RGB_LEDS(EffektSpeed);
 	websocket.loop();
 	yield();
