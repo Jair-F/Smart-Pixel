@@ -122,7 +122,7 @@ void rainbow_soft_blink(unsigned short wait) {
 	RGB_LEDS.show();
 	delay(wait);
 }
-
+/*
 uint32_t Wheel(byte WheelPos) {
   WheelPos = 255 - WheelPos;
   if(WheelPos < 85) {
@@ -146,6 +146,6 @@ void rainbowCycle(unsigned short wait) {
     RGB_LEDS.show();
     delay(wait);
 }
-
+*/
 
 #endif // _RGBRING_HPP_INCLUDED_

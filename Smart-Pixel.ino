@@ -258,8 +258,10 @@ void setup() {
 	Serial.println(dht.readTemperature());
 
 	// Initialising the effectsGroup - until now only a example - need to rewrite the effects
-	Effects.add(Effect("Blink", blink));
-	RGB_LEDS.setActualEffekt(Effects["Blink"]);
+	Effects.add(Effect(RAINBOW_SOFT_BLINK,	rainbow_soft_blink));
+	Effects.add(Effect(COLOR_WIPE,			colorWipe));
+	Effects.add(Effect(RAINBOW_CYCLE,		rainbowCycle));
+	RGB_LEDS.setActualEffekt(Effects[RAINBOW_SOFT_BLINK]);
 
 /*
 	EffektContainer.push_back(Effect("Blink", rainbow_soft_blink));

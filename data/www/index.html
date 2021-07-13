@@ -49,7 +49,7 @@
 		<form method="POST" onchange="sendEffekte();">
 			<input type="checkbox" id="EffectIsRunning" name="EffectIsRunning">Run Effect
 			<br/>
-			<input type="radio" class="Effecte" name="Effekt" id="Blink" value="Blink"/>Blink
+			<input type="radio" class="Effecte" name="Effekt" id="rainbowSoftBlink" value="rainbowSoftBlink"/>Blink
 			<br/>
 			<input type="radio" class="Effecte" name="Effekt" id="RainbowCycle" value="RainbowCycle"/>RainbowCycle
 			<br/>
@@ -161,9 +161,9 @@
 			HOSTNAME					: "Hostname"
 		};
 		const Effects = {
-			Blink			: "Blink",
-			RainbowCycle	: "RainbowCycle",
-			ColorWipe		: "ColorWipe"
+			RainbowSoftBlink	: "rainbowSoftBlink",
+			RainbowCycle		: "RainbowCycle",
+			ColorWipe			: "ColorWipe"
 		};
 		
 		// WebSocket-Initialization

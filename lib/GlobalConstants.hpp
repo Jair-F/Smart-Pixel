@@ -30,7 +30,10 @@
 #define WIFI	"WiFi"
 #define SERVER	"Server"
 
-
+// Effects
+#define COLOR_WIPE			"ColorWipe"
+#define RAINBOW_SOFT_BLINK	"rainbowSoftBlink"
+#define RAINBOW_CYCLE		"RainbowCycle"
 
 
 // Display
