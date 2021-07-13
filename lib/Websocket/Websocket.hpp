@@ -12,6 +12,7 @@ String to_string(WStype_t WebsocketStatus) {
 	return to_string((unsigned short)WebsocketStatus);
 }
 
+// https://github.com/Links2004/arduinoWebSockets
 class Websocket: public WebSocketsServer {
 private:
 	WebsocketActionGroup actions;
