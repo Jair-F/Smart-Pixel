@@ -56,8 +56,10 @@ public:
 };
 
 
-
-
+// "Effect" which is set on default when the user yet set a effect
+RGB_Pixel_Colors& default_Effect(RGB_Pixel_Colors& _pixelColors) {
+	return _pixelColors;
+}
 
 
 // Implementationen
@@ -69,7 +71,7 @@ void RGB_LED::setActualEffekt(Effect& _effekt) {
 
 RGB_LED::RGB_LED(unsigned short numPixels, unsigned short pin, neoPixelType type): LEDS(numPixels, pin, type), PixelColors(LEDS.numPixels()) {
 	// Set to something, that it would not throw an exception if the user doesn't set it!
-	actualEffekt = Effect(String("Effect not set"), EffectFuncPointer{});
+	actualEffekt = Effect(String("Effect not set"), default_Effect);
 	LEDS.begin();
 }
 
