@@ -145,9 +145,35 @@ Websocket::Websocket(uint16_t port, const String& origin, const String& protocol
 	this->onEvent(WebsocketEvent);
 	// Reduce resources of transfer unneeded data
 	//this->disableHeartbeat();
+
+	// Set default on connect/disconnect-Handler - if the user doesnt set
+	onConnectHandler = [this](uint8_t ClientNum) {
+		Serial.print("Client ");
+		Serial.print(this->remoteIP(ClientNum));
+		Serial.println(" connected to the Websocket");
+	};
+	onDisconnectHandler = [this](uint8_t ClientNum) {
+		Serial.print("Client ");
+		Serial.print(this->remoteIP(ClientNum));
+		Serial.println(" disconnected to the Websocket");
+		
+	};
 }
 
-Websocket::Websocket(WebsocketActionGroup& wag, uint16_t port, const String& origin, const String& protocol): WebSocketsServer(port, origin, protocol), actions(wag) { }
+Websocket::Websocket(WebsocketActionGroup& wag, uint16_t port, const String& origin, const String& protocol): actions(wag), WebSocketsServer(port, origin, protocol) {
+	// Set default on connect/disconnect-Handler - if the user doesnt set
+	onConnectHandler = [this](uint8_t ClientNum) {
+		Serial.print("Client ");
+		Serial.print(this->remoteIP(ClientNum));
+		Serial.println(" connected to the Websocket");
+	};
+	onDisconnectHandler = [this](uint8_t ClientNum) {
+		Serial.print("Client ");
+		Serial.print(this->remoteIP(ClientNum));
+		Serial.println(" disconnected to the Websocket");
+		
+	};
+}
 
 void Websocket::addAction(const WebsocketAction& ag) {
 	actions.add(ag);
