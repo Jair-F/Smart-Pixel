@@ -9,7 +9,7 @@
 void rainbow_soft_blink(unsigned short wait);
 void rainbowCycle(unsigned short wait);
 void colorWipe(unsigned short wait);
-class Effekt;
+class Effect;
 enum class Effekt_ID;
 
 unsigned short EffektSpeed;
@@ -18,20 +18,20 @@ unsigned short EffektSpeed;
  * Wird bei make_action durchgelaufen und geprueft, ob der Name mit einem von hier uebereinstimmt.
  * Dann wird die ID in aktuellerEffekt gespeichert, und in loop aufgerufen
  */
-std::vector<Effekt> EffektContainer;
+std::vector<Effect> EffektContainer;
 // Zeiger auf den aktuellen Effekt, nullptr wenn aktueller Effekt nichts/nothing ist
-Effekt* aktueller_Effekt;
+Effect* aktueller_Effekt;
 
 
 // Wird benoetigt um in Funktion getEffektFunction ein Funktionspointer zurueckzugeben
 // https://stackoverflow.com/questions/997821/how-to-make-a-function-return-a-pointer-to-a-function-c
 typedef void (*EffektFunktionPointer)(unsigned short speed);
 
-class Effekt {
+class Effect {
 public:
-	Effekt(String _name, void (*_effectFunction)(unsigned short speed)): name(_name), effectFunction(_effectFunction) { }
-	~Effekt() { }
-	Effekt& operator=(const Effekt& ef) {
+	Effect(String _name, EffektFunktionPointer _effectFunction): name(_name), effectFunction(_effectFunction) { }
+	~Effect() { }
+	Effect& operator=(const Effect& ef) {
 		this->name = ef.getName();
 		this->effectFunction = ef.getEffektFunction();
 		return *this;
@@ -122,7 +122,7 @@ void rainbow_soft_blink(unsigned short wait) {
 	RGB_LEDS.show();
 	delay(wait);
 }
-
+/*
 uint32_t Wheel(byte WheelPos) {
   WheelPos = 255 - WheelPos;
   if(WheelPos < 85) {
@@ -146,6 +146,6 @@ void rainbowCycle(unsigned short wait) {
     RGB_LEDS.show();
     delay(wait);
 }
-
+*/
 
 #endif // _RGBRING_HPP_INCLUDED_

@@ -1,15 +1,17 @@
 #ifndef _WIFIUTILS_HPP_INCLUDED_
 #define _WIFIUTILS_HPP_INCLUDED_
 
+#include <Arduino.h>
 #include <ESP8266WebServer.h>
 #include <WebSocketsServer.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 
 #include "Exception.hpp"
-#include "RGBRing.hpp"
+//#include "RGBRing.hpp"
 #include "Spiffs.hpp"
 #include "PirSensor.hpp"
+#include "Helper.hpp"
 
 
 void initWifi();
@@ -108,17 +110,21 @@ void initDNS() {
 // https://tttapa.github.io/ESP8266/Chap10%20-%20Simple%20Web%20Server.html
 // https://arduino.stackexchange.com/questions/39599/esp8266-cannot-read-post-parameters
 
+/*
 //??
 // https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/server-examples.html
 void initWebServer() {
 	webserver.onNotFound(handleWebServer);
 	webserver.begin();
 }
+*/
 
+/*
 void initWebSockets() {
 	WebSocket.begin();
 	WebSocket.onEvent(handleWebSocket);
 }
+*/
 
 // https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html#check-return-codes
 String wifiStatusUserOutput(wl_status_t stat) {
@@ -165,12 +171,16 @@ String wifiStatusUserOutput(wl_status_t stat) {
 	return message;
 }
 
+/*
 // Sendet die Daten an alle Clients(Broadcast)
 void WebSocketSendData(String aim, String aimType, String argName, String arg) {
 	if(WebSocket.connectedClients() > 0) {
 		WebSocket.broadcastTXT(String(aim + ":" + aimType + ":" + argName + ":" + arg).c_str());
 	}
 }
+*/
+
+/*
 // Sendet die Daten nur an den Client(Client-ID), wenn er verbunden ist
 void WebSocketSendData(String aim, String aimType, String argName, String arg, uint8_t clientID) {
 	if(WebSocket.clientIsConnected(clientID)) {
@@ -190,15 +200,17 @@ void WebSocketSendData(String aim, String aimType, String argName, String arg, u
 		Serial.println(arg);
 	}
 }
+*/
 
+/*
 void dynamicUpdateClientWebsite(uint8_t clientID) {
 	WebSocketSendData("HTML",	"innerHTML", 		"Humidity", 					to_string(dht.readHumidity()), clientID);
 	WebSocketSendData("HTML",	"innerHTML", 		"Temperature", 					to_string(dht.readTemperature()), clientID);
-	WebSocketSendData("Form",	"value", 			"Relay0", 						relay.getName() + ' ' + ( relay.status() == true ? "ausschalten" : "einschalten" ), clientID);
+	WebSocketSendData("Form",	"value", 			"Relay0", 						relay.getName() + " " + ( relay.status() == true ? "ausschalten" : "einschalten" ), clientID);
 	WebSocketSendData("Form",	"innerHTML", 		"EffektSpeed", 					to_string(EffektSpeed), clientID);
-	WebSocketSendData("Form",	"value",			"RGB-Color", 					RGBColor, clientID);
+	WebSocketSendData("Form",	"value",			"RGB-Color", 					RGB_Utils::RGBColorToHex(RGB_LEDS.getPixelColor(0)), clientID);
 	WebSocketSendData("CSS",	"backgroundColor",	"Pir-Sensor", 					Pir_Sensor.getActiveReport() == true ? "red" : "green", clientID);
-	WebSocketSendData("Form",	"radio",			aktueller_Effekt->getName(),	"true", clientID);
+	WebSocketSendData("Form",	"radio",			RGB_LEDS.getActualEffekt().getName(),	"true", clientID);
 
 	WebSocketSendData("Form",	"checkbox", 	"WiFiAccessPointMode",	WiFiAccessPointMode == true ? "true" : "", clientID);
 	WebSocketSendData("Form",	"value", 		"WiFi-Name", 			WiFiName, clientID);
@@ -210,59 +222,64 @@ void dynamicUpdateClientWebsite(uint8_t clientID) {
 	WebSocket.broadcastTXT(String("Temperature:" + to_string(last_update)).c_str(), clientID);
 	WebSocket.broadcastTXT(String("EffektSpeed:" + to_string(EffektSpeed)).c_str(), clientID);
 	*/
+	/*
 	//Serial.println("Websocket-daten Senden");
 	//Serial.println(last_update);
 	//Serial.println(EffektSpeed);
 }
+*/
 
+/*
 // !! uint8_t = unsigned char !!
 // https://tttapa.github.io/ESP8266/Chap14%20-%20WebSocket.html
 void handleWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
 	switch (type) {
-	case WStype_DISCONNECTED: {
-		Serial.print(num);
-		Serial.print(" Verbindung getrennt von ");
-		Serial.print(num);
-		Serial.print("/");
-		Serial.println(WebSocket.remoteIP(num).toString());
-		break;
-	}
-	case WStype_CONNECTED: {
-		IPAddress ip = WebSocket.remoteIP(num);
+		case WStype_DISCONNECTED: {
+			Serial.print(num);
+			Serial.print(" Verbindung getrennt von ");
+			Serial.print(num);
+			Serial.print("/");
+			Serial.println(WebSocket.remoteIP(num).toString());
+			break;
+		}
+		case WStype_CONNECTED: {
+			IPAddress ip = WebSocket.remoteIP(num);
 
-		Serial.print("Verbindung hergestellt von ");
-		Serial.print(ip.toString());
-		Serial.println(reinterpret_cast<char*>(payload));
-		Serial.println("Die aktuellen Sensordaten werden gesendet, da neue Verbindung");
+			Serial.print("Verbindung hergestellt von ");
+			Serial.print(ip.toString());
+			Serial.println(reinterpret_cast<char*>(payload));
+			Serial.println("Die aktuellen Sensordaten werden gesendet, da neue Verbindung");
 
-		// Die Daten gleich an Den Client schicken
-		dynamicUpdateClientWebsite(num);
-		break;
-	}
-	case WStype_TEXT: {
-		IPAddress ip = WebSocket.remoteIP(num);
-		Serial.print(num);
-		Serial.print(" Text empfangen von Client(");
-		Serial.print(ip.toString());
-		Serial.print("): ");
-		Serial.println(reinterpret_cast<char*>(payload));
+			// Die Daten gleich an Den Client schicken
+			dynamicUpdateClientWebsite(num);
+			break;
+		}
+		case WStype_TEXT: {
+			IPAddress ip = WebSocket.remoteIP(num);
+			Serial.print(num);
+			Serial.print(" Text empfangen von Client(");
+			Serial.print(ip.toString());
+			Serial.print("): ");
+			Serial.println(reinterpret_cast<char*>(payload));
 
-		String req(reinterpret_cast<const char*>(payload));
-		String argName, arg;
-		argName = req.substring(0, req.indexOf(":"));
-		arg = req.substring(req.indexOf(":")+1, req.length());
-		make_action(argName, arg, num);
-		break;
-	}
-	case WStype_ERROR: {
-		Serial.println("Ein Fehler ist im WebSocket aufgetreten!");
-		break;
-	}
-	default:
-		break;
+			String req(reinterpret_cast<const char*>(payload));
+			String argName, arg;
+			argName = req.substring(0, req.indexOf(":"));
+			arg = req.substring(req.indexOf(":")+1, req.length());
+			make_action(argName, arg, num);
+			break;
+		}
+		case WStype_ERROR: {
+			Serial.println("Ein Fehler ist im WebSocket aufgetreten!");
+			break;
+		}
+		default:
+			break;
 	}
 }
+*/
 
+/*
 void handleWebServer() {
 	// Datei-streamen
 	String pathToFile = find_path_to_req_File(webserver.uri());
@@ -288,28 +305,28 @@ void handleWebServer() {
 		}
 	}
 }
+*/
 
+/*
 void make_action(const String argName, const String arg, const uint8_t clientID) {
 	Serial.println("Params:");
 	Serial.print(argName);
 	Serial.print(':');
 	Serial.println(arg);
+	
 	if(argName == "RGB-Color") {
-		for(unsigned short i = 0; i < EffektContainer.size(); i++) {	// Wenn gerade Effekt gelaufen ist, ihn abschalten
-			if(EffektContainer[i].getName() == "Nothing") {
-				aktueller_Effekt = &EffektContainer[i];
-				break;
-			}
-		}
-		for(unsigned short pixel = 0; pixel < RGB_LEDS.numPixels(); pixel++) {
-			RGB_LEDS.setPixelColor(pixel, RGBHexToColor(arg.c_str()));
-		}
-		RGBColor = arg;
+		RGB_LEDS.fill(RGB_Utils::RGBHexToColor(arg), 0, RGB_LEDS.numPixels());
 		RGB_LEDS.show();
-		WebSocketSendData("Form", "value", "RGB-Color", RGBColor);
-		// Effekt koennte sich ja auf Nothing aendern!
-		WebSocketSendData("Form", "radio", aktueller_Effekt->getName(), "true");
+		//WebSocketSendData("Form", "value", "RGB-Color", RGB_Utils::RGBColorToHex(RGB_LEDS.getPixelColor(0)));
+		if(RGB_LEDS.get_effectRunning()) {
+			WebSocketSendData("Form", "radio", RGB_LEDS.getActualEffekt().getName(), "true");
+		} else {
+			WebSocketSendData("Form", "radio", "Nothing", "true");
+		}
 	} else if (argName == "Effekt") {
+		if(arg == "Blink") {
+			RGB_LEDS.setActualEffekt(Effects[arg]);
+		}
 		for(unsigned short i = 0; i < EffektContainer.size(); i++) {
 			if(EffektContainer[i].getName() == arg) {
 				aktueller_Effekt = &EffektContainer[i];
@@ -357,6 +374,7 @@ void make_action(const String argName, const String arg, const uint8_t clientID)
 	 * "plain" gibt nochmals die Argumente als ein String zurueck wie sie oben im Browser in der Titelleiste stehen wuerde,
 	 * wenn im html "method=GET" steht.
 	 */
+	/*
 	else if(argName == "plain") {
 
 	} else {
@@ -366,6 +384,7 @@ void make_action(const String argName, const String arg, const uint8_t clientID)
 		Serial.println(arg);
 	}
 }
+*/
 
 // https://tttapa.github.io/ESP8266/Chap11%20-%20SPIFFS.html
 String find_path_to_req_File(String path) {
