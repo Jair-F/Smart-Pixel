@@ -1,11 +1,11 @@
+#pragma once
+
 #include <Arduino.h>
 #include <vector>
 
 #include "ConfigGroup.hpp"
 #include "../Filesystem.hpp"
-
-#pragma once
-
+#include "../Exception.hpp"
 
 /**
  * Anweisungen, wie die ConfigFile auszusehen hat:
@@ -30,7 +30,6 @@ private:
 	String path;
 public:
 	ConfigFile(Filesystem& _filesystem): filesystem(_filesystem) { }
-	ConfigFile(Filesystem& _filesystem, const String _path): filesystem(_filesystem), path(_path) { }
 
 	void readConfigFile();
 
@@ -92,7 +91,7 @@ ConfigGroup& ConfigFile::operator[](const String _configGroupName) {
 			return ConfigGroups[i];
 		}
 	}
-	throw config_error("ConfigGroup: " + _configGroupName + " not found in config-file " + path + "!");
+	throw Config_error("ConfigGroup: " + _configGroupName + " not found in config-file " + path + "!");
 }
 
 ConfigGroup& ConfigFile::getConfigGroup(const String _configGroupName) {
@@ -112,14 +111,14 @@ void ConfigFile::setPath(const String _path) {
 	if(filesystem.exists(_path)) {
 		path = _path;
 	} else {
-		throw filesystem_error("Error - path: " + _path + " does not exist!!");
+		throw Filesystem_error("Error - path: " + _path + " does not exist!!");
 	}
 }
 
 void ConfigFile::readConfigFile() {
 	File file = filesystem.open(path.c_str(), "r");
 	if(!file) {
-		throw filesystem_error("Error while opening file " + path + " for reading!");
+		throw Filesystem_error("Error while opening file " + path + " for reading!");
 	}
 
 	// ConfigGroup in which we actually insert the ConfigObjects
@@ -172,7 +171,7 @@ void ConfigFile::writeConfigFile() {
 	// The file will be truncated
 	File file = filesystem.open(path.c_str(), "w");
 	if(!file) {
-		throw filesystem_error("Error while opening file " + path + " for writing!");
+		throw Filesystem_error("Error while opening file " + path + " for writing!");
 	}
 
 	for(std::size_t i = 0; i < ConfigGroups.size(); ++i) {

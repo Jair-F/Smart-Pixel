@@ -1,9 +1,8 @@
-#ifndef _HELPER_HPP_INCLUDED_
-#define _HELPER_HPP_INCLUDED_
+#pragma once
 
 #include "Exception.hpp"
 
-// Nur fuer ganze und positive Zahlen
+
 String to_string(unsigned long num) {
 	String ret;
 	while(num > 0) {
@@ -12,6 +11,26 @@ String to_string(unsigned long num) {
 	}
 	std::reverse(ret.begin(), ret.end());
 	return ret;
+}
+
+String to_string(unsigned short num) {
+	return to_string((unsigned long)(num));
+}
+
+String to_string(bool num) {
+	return String(num == true ? '1' : '0');
+}
+
+String to_string(uint8_t num) {
+	return to_string((unsigned short)num);
+}
+
+String to_string(float num) {
+	return String(num);
+}
+
+bool to_bool(String str) {
+	return str == "true" || str == "1";
 }
 
 // Funktionen um den RGB-Hex-Code zu konvertieren und in dezimal Werte von 0-255 umwandeln
@@ -44,21 +63,32 @@ unsigned short hexToDec(const char* hex, std::size_t size_of_num){
 	return ret;
 }
 
+// https://www.geeksforgeeks.org/program-decimal-hexadecimal-conversion/
+String decToHex(std::size_t n)
+{
+    String hexaDeciNum;
 
-// https://www.developintelligence.com/blog/2017/02/rgb-to-hex-understanding-the-major-web-color-codes/
-// Adafruit_NeoPixel::Color()
-static uint32_t RGBHexToColor(const char* rgb_hex) {
-	byte red;
-	byte green;
-	byte blue;
-
-	// Erstes Zeichein ignorieren - ist das #
-	red = hexToDec(rgb_hex + 1, 2);
-	green = hexToDec(rgb_hex + 3, 2);
-	blue = hexToDec(rgb_hex + 5, 2);
-
-	return Adafruit_NeoPixel::Color(red, green, blue);
+    // counter for hexadecimal number array
+    int i = 0;
+    while (n != 0) {
+        // temporary variable to store remainder
+        int temp = 0;
+ 
+        // storing remainder in temp variable.
+        temp = n % 16;
+ 
+        // check if temp < 10
+        if (temp < 10) {
+            hexaDeciNum[i] += temp + 48;
+            i++;
+        }
+        else {
+            hexaDeciNum[i] += temp + 55;
+            i++;
+        }
+ 
+        n = n / 16;
+    }
+ 
+    return hexaDeciNum;
 }
-
-
-#endif // _HELPER_HPP_INCLUDED_

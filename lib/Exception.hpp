@@ -35,16 +35,34 @@ public:
 };
 
 
-class config_error: public std::invalid_argument {
+class Config_error: public std::invalid_argument {
 public:
-	config_error(const String _msg): std::invalid_argument(_msg.c_str()) { } 
-	virtual ~config_error() { }
+	Config_error(const String _msg): std::invalid_argument(_msg.c_str()) { } 
+	virtual ~Config_error() { }
 };
 
-class filesystem_error: public std::runtime_error {
+class Filesystem_error: public std::runtime_error {
 public:
-	filesystem_error(const String _msg): std::runtime_error(_msg.c_str()) { } 
-	virtual ~filesystem_error() { }
+	Filesystem_error(const String _msg): std::runtime_error(_msg.c_str()) { } 
+	virtual ~Filesystem_error() { }
+};
+
+class LED_error: public std::logic_error {
+public:
+	LED_error(const String _msg): std::logic_error(_msg.c_str()) { }
+	virtual ~LED_error() { }
+};
+
+class Websocket_error: public std::runtime_error {
+public:
+	Websocket_error(String _msg): std::runtime_error(_msg.c_str()) { }
+	virtual ~Websocket_error() { }
+};
+
+class Webserver_error: public std::runtime_error {
+public:
+	Webserver_error(String _msg): std::runtime_error(_msg.c_str()) { }
+	virtual ~Webserver_error() { }
 };
 
 #endif // _EXCEPTION_HPP_INCLUDED_

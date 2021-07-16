@@ -1,13 +1,10 @@
 #include <Arduino.h>
-#include <ESP8266WebServer.h>
 #include <WebSocketsServer.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <exception>
 #include <stdexcept>
 #include <DHT.h>
-#include <Adafruit_NeoPixel.h>
-//#include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>		// Include core graphics library
 #include <Adafruit_ST7735.h>	// Include Adafruit_ST7735 library to drive the display
 
@@ -15,6 +12,13 @@
 
 #include "lib/Filesystem.hpp"
 #include "lib/config/ConfigFile.hpp"
+#include "lib/LED/RGB_LED.hpp"
+#include "lib/LED/Effects.hpp"
+#include "lib/Effect_Functions.hpp"
+#include "lib/Webserver.hpp"
+#include "lib/Websocket/Websocket.hpp"
+
+#include "lib/GlobalConstants.hpp"
 
 /**
  * Definiert ob man ein WiFi Access Point erstellen soll oder sich zu einem bestehende WiFi verbinden soll
@@ -37,35 +41,29 @@ IPAddress subnet(255, 255, 255, 0);
  */
 unsigned short MaxWiFiCon;
 
-ESP8266WebServer webserver(WiFi.localIP(), 80);
-// https://github.com/Links2004/arduinoWebSockets
-WebSocketsServer WebSocket(81);
-#define DYNAMIC_WEBSITE_UPDATE_INTERVAL 5000 // 1s = 1000(ms)
+Websocket websocket(81);
 
 //ESP8266WiFiClass WiFi;
 
 //MDNSResponder MDNS;
 
-#define TFT_CS		15	// D8
-#define TFT_RST		0	// goes to ground
-#define TFT_DC		2	// DC = A0 - D4
 
 Adafruit_ST7735 display(TFT_CS, TFT_DC, TFT_RST);
 
-#define RGB_LED_NUMPIXELS 16
-#define RGB_LED_PIN D2
-Adafruit_NeoPixel RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
+
 String RGBColor;
 
-#define DHT_PIN D0
-#define DHT_TYPE DHT11
+RGB_LED RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
+EffectGroup Effects;
+unsigned short EffektSpeed = 10;
+
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
 #include "lib/PirSensor.hpp"
 #include "lib/Relay.hpp"
-Relay relay;
-PirSensor Pir_Sensor(D1);
+Relay relay(RELAY_PIN, "LED");
+PirSensor Pir_Sensor(PIR_SENSOR_PIN);
 
 Filesystem filesystem;
 ConfigFile config(filesystem);
@@ -74,12 +72,16 @@ ConfigFile config(filesystem);
 #include "lib/WiFiUtils.hpp"
 #include "lib/PirSensor.hpp"
 #include "lib/TouchSensor.hpp"
-#include "lib/RGBRing.hpp"
-#include "lib/Display.hpp"
+#include "lib/LED/RGB_Utils.hpp"
+//#include "lib/Display.hpp"
+
+Webserver webserver(filesystem, 80);
 
 void setup() {
 	Serial.begin(9600);
 	Serial.println("Serial started");
+
+	webserver.setWorkingDir("/www");
 
 	display.initR(INITR_BLACKTAB);      // Init ST7735S chip, black tab
 	Serial.println("Display started");
@@ -111,8 +113,32 @@ void setup() {
 		delay(10);
 	}
 
-	config.setPath("/config.config");
-	config.readConfigFile();
+	try {
+		if(! filesystem.begin()) {
+			throw Filesystem_error("Failed to start Filesystem");
+		} else {
+			Serial.println("Filesystem started");
+		}
+
+		config.setPath("/config.config");
+		config.readConfigFile();
+	}
+	catch(Filesystem_error& fe) {
+		Serial.println("Filesystem ERROR: ");
+		Serial.println(fe.what());
+		Serial.println("Aborting...");
+		exit(-1);
+	}
+	catch(std::exception& exc) {
+		Serial.println("ERROR: ");
+		Serial.println(exc.what());
+		Serial.println("Aborting...");
+	}
+	catch(...) {
+		Serial.println("Unknown ERROR");
+		Serial.println("Aborting...");
+	}
+
 	#ifdef DEBUG
 		Serial.println(config.print());
 	#endif // DEBUG
@@ -120,24 +146,24 @@ void setup() {
 
 	// Setting up Envirement variables
 	try {
-		WiFiName = config["WiFi"]["WiFiName"].get_Value();
-		WiFiPassword = config["WiFi"]["WiFiPassword"].get_Value();
+		WiFiName = config[WIFI][WIFI_NAME].get_Value();
+		WiFiPassword = config[WIFI][WIFI_PASSWORD].get_Value();
 
-		WiFiAccessPointMode = config["WiFi"]["WiFiAccessPointMode"].get_Value().toInt();
-		Hostname = config["Server"]["Hostname"].get_Value();
-		MaxWiFiCon =  config["WiFi"]["MaxConnections"].get_Value().toInt();
+		WiFiAccessPointMode = config[WIFI][WIFI_ACCESSPOINT_MODE].get_Value().toInt();
+		Hostname = config[SERVER][HOSTNAME].get_Value();
+		MaxWiFiCon =  config[WIFI][MAX_CONNECTIONS].get_Value().toInt();
 
 	}
-	catch(config_error& ce) {
+	catch(Config_error& ce) {
 		Serial.print("Config_ERROR: ");
 		Serial.println(ce.what());
 	}
-	catch(filesystem_error& fe) {
+	catch(Filesystem_error& fe) {
 		Serial.print("Filesystem_ERROR: ");
 		Serial.println(fe.what());
 	}
 	catch(std::exception& exc) {
-		Serial.print("Exception: ");
+		Serial.print("ERROR: ");
 		Serial.println(exc.what());
 	}
 
@@ -150,34 +176,52 @@ void setup() {
 	initDNS();
 	Serial.println("DNS started");
 
-	initWebServer();
+	webserver.begin();
 	Serial.println("Web-Server started");
 
-	initWebSockets();
+	websocket.set_seperator(':');
+
+	websocket.set_onConnectHandler([&](uint8_t ClientNum){
+		websocket.sendTXT(ClientNum, RGB_COLOR,					RGB_Utils::RGBColorToHex(RGB_LEDS.getPixelColor(0)));
+		websocket.sendTXT(ClientNum, EFFECT_RUNNING,			to_string(RGB_LEDS.get_effectRunning()));
+		websocket.sendTXT(ClientNum, EFFECT,					RGB_LEDS.get_effectRunning() == true ? RGB_LEDS.getActualEffekt().getName() : "Nothing");
+		websocket.sendTXT(ClientNum, EFFECT_SPEED,				to_string(EffektSpeed));
+		websocket.sendTXT(ClientNum, TEMPERATURE,				to_string(dht.readTemperature()));
+		websocket.sendTXT(ClientNum, HUMIDITY, 					to_string(dht.readHumidity()));
+		websocket.sendTXT(ClientNum, RELAY_NAME,				relay.getName());
+		websocket.sendTXT(ClientNum, RELAY_STATUS,				to_string(relay.status()));
+		websocket.sendTXT(ClientNum, PIR_SENSOR_ACTIVE_REPORT,	to_string(Pir_Sensor.getActiveReport()));
+		websocket.sendTXT(ClientNum, WIFI_ACCESSPOINT_MODE,		to_string(WiFiAccessPointMode));
+		websocket.sendTXT(ClientNum, WIFI_NAME,					WiFiName);
+		websocket.sendTXT(ClientNum, WIFI_PASSWORD,				WiFiPassword);
+		websocket.sendTXT(ClientNum, HOSTNAME,					Hostname);
+		websocket.sendTXT(ClientNum, MAX_CONNECTIONS,			to_string(MaxWiFiCon));
+		// Send to all Clients
+		websocket.broadcastTXT(NUM_OF_CONNECTED_CLIENTS,		to_string(static_cast<unsigned short>(websocket.connectedClients())));
+	});
+	websocket.set_onDisconnectHandler([&](uint8_t ClientNum){
+		websocket.broadcastTXT(NUM_OF_CONNECTED_CLIENTS,		to_string(static_cast<unsigned short>(websocket.connectedClients())));
+	});
+
+	websocket.addAction(WebsocketAction(RGB_COLOR,					[&RGB_LEDS](String& arguments)				{ RGB_LEDS.fill(RGB_Utils::RGBHexToColor(arguments)); RGB_LEDS.show(); websocket.broadcastTXT(EFFECT_RUNNING, to_string(RGB_LEDS.get_effectRunning())); websocket.broadcastTXT(RGB_COLOR, arguments); }));
+	websocket.addAction(WebsocketAction(EFFECT,						[&Effects, &RGB_LEDS](String& arguments)	{ RGB_LEDS.setActualEffekt(Effects[arguments]); websocket.broadcastTXT(EFFECT, arguments); }));
+	websocket.addAction(WebsocketAction(EFFECT_RUNNING,				[&RGB_LEDS](String& arguments)				{ RGB_LEDS.set_effectRunning(to_bool(arguments)); websocket.broadcastTXT(EFFECT_RUNNING, to_string(RGB_LEDS.get_effectRunning())); }));
+	websocket.addAction(WebsocketAction(EFFECT_SPEED,				[&EffektSpeed](String& arguments)			{ EffektSpeed = arguments.toInt(); websocket.broadcastTXT(EFFECT_SPEED, arguments); }));
+
+	websocket.addAction(WebsocketAction(RELAY_STATUS,				[&relay](String& arguments)					{ relay.switchStatus(); websocket.broadcastTXT(RELAY_STATUS, to_string(relay.status())); }));
+	websocket.addAction(WebsocketAction(PIR_SENSOR_ACTIVE_REPORT,	[&Pir_Sensor](String& arguments)			{ Pir_Sensor.resetActiveReport(); websocket.broadcastTXT(PIR_SENSOR_ACTIVE_REPORT, to_string(Pir_Sensor.getActiveReport())); }));
+	websocket.addAction(WebsocketAction(REBOOT,						[](String& arguments)						{ ESP.restart(); websocket.broadcastTXT(CLIENT_ALERT, "Board restarted -- Need to reload site after restart!"); }));
+	websocket.addAction(WebsocketAction(WRITE_CONFIG,				[&config](String& arguments)				{ config.writeConfigFile(); websocket.broadcastTXT(CLIENT_ALERT, "Wrote Configs -- Reboot to take affect the changes!"); }));
+	
+	websocket.addAction(WebsocketAction(WIFI_NAME,					[&config](String& arguments)				{ config[WIFI][WIFI_NAME].set_Value(arguments);				WiFiName = arguments;							websocket.broadcastTXT(WIFI_NAME, arguments); }));
+	websocket.addAction(WebsocketAction(WIFI_PASSWORD,				[&config](String& arguments)				{ config[WIFI][WIFI_PASSWORD].set_Value(arguments);			WiFiPassword = arguments;						websocket.broadcastTXT(WIFI_PASSWORD, arguments); }));
+	websocket.addAction(WebsocketAction(MAX_CONNECTIONS,			[&config](String& arguments)				{ config[WIFI][MAX_CONNECTIONS].set_Value(arguments);		MaxWiFiCon = arguments.toInt();					websocket.broadcastTXT(MAX_CONNECTIONS, arguments); }));
+	websocket.addAction(WebsocketAction(WIFI_ACCESSPOINT_MODE,		[&config](String& arguments)				{ config[WIFI][WIFI_ACCESSPOINT_MODE].set_Value(arguments);	WiFiAccessPointMode = arguments.toInt();		websocket.broadcastTXT(WIFI_ACCESSPOINT_MODE, arguments); }));
+	websocket.addAction(WebsocketAction(HOSTNAME,					[&config](String& arguments)				{ config[SERVER][HOSTNAME].set_Value(arguments);			Hostname = arguments;							websocket.broadcastTXT(HOSTNAME, arguments); }));
+
+	websocket.begin();
 	Serial.println("Web-Sockets started");
 
-	RGB_LEDS.begin();
-	Serial.println("RGB-LEDS started");
-
-	for(int i = 0; i < RGB_LEDS.numPixels(); i++) {
-		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixel::Color(255, 0, 0));
-	}
-	RGB_LEDS.show();
-	delay(500);
-	for(int i = 0; i < RGB_LEDS.numPixels(); i++) {
-		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixel::Color(0, 255, 0));
-	}
-	RGB_LEDS.show();
-	delay(500);
-	for(int i = 0; i < RGB_LEDS.numPixels(); i++) {
-		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixel::Color(0, 0, 255));
-	}
-	RGB_LEDS.show();
-	delay(500);
-	for(int i = 0; i < RGB_LEDS.numPixels(); i++) {
-		RGB_LEDS.setPixelColor(i, Adafruit_NeoPixel::Color(0, 0, 0));
-	}
-	RGB_LEDS.show();
 
 	Serial.println("DHT started");
 	dht.begin();
@@ -186,19 +230,12 @@ void setup() {
 	Serial.print("Temp: ");
 	Serial.println(dht.readTemperature());
 
-	EffektContainer.push_back(Effekt("Blink", rainbow_soft_blink));
-	EffektContainer.push_back(Effekt("RainbowCycle", rainbowCycle));
-	EffektContainer.push_back(Effekt("ColorWipe", colorWipe));	
-	EffektContainer.push_back(Effekt("Nothing", Nothing));
-	for(unsigned short i = 0; i < EffektContainer.size(); i++) {
-		if(EffektContainer[i].getName() == "Nothing") {
-			aktueller_Effekt = &EffektContainer[i];
-			break;
-		}
-	}
+	// Initialising the effectsGroup - until now only a example - need to rewrite the effects
+	Effects.add(Effect(RAINBOW_SOFT_BLINK,	rainbow_soft_blink));
+	Effects.add(Effect(COLOR_WIPE,			colorWipe));
+	Effects.add(Effect(RAINBOW_CYCLE,		rainbowCycle));
+	RGB_LEDS.setActualEffekt(Effects[RAINBOW_SOFT_BLINK]);
 
-	relay.setPin(D3);
-	relay.setName("LED");
 
 }
 
@@ -254,12 +291,13 @@ void loop() {
 		display.setTextColor(ST77XX_CYAN);
 		display.print("Verbundene Clients: ");
 		display.setTextColor(ST7735_WHITE);
-		display.println(WebSocket.connectedClients());
+		display.println(websocket.connectedClients());
 		timer = millis() + 1500;
 	}
 
-	run_Effekt();
-	WebSocket.loop();
+
+	RGB_LEDS(EffektSpeed);
+	websocket.loop();
 	yield();
 	webserver.handleClient();
 	MDNS.update();
