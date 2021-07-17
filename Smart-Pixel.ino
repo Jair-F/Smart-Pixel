@@ -12,13 +12,22 @@
 
 #include "lib/Filesystem.hpp"
 #include "lib/config/ConfigFile.hpp"
-#include "lib/LED/RGB_LED.hpp"
-#include "lib/LED/Effects.hpp"
-#include "lib/Effect_Functions.hpp"
+
 #include "lib/Webserver.hpp"
 #include "lib/Websocket/Websocket.hpp"
 
+#include "lib/LED/RGB_LED.hpp"
+#include "lib/LED/Effects.hpp"
+#include "lib/Effect_Functions.hpp"
+#include "lib/LED/RGB_Utils.hpp"
+
+#include "lib/TouchSensor.hpp"
+#include "lib/PirSensor.hpp"
+//#include "lib/Display.hpp"
+#include "lib/Relay.hpp"
+
 #include "lib/GlobalConstants.hpp"
+#include "lib/Exception.hpp"
 
 /**
  * Definiert ob man ein WiFi Access Point erstellen soll oder sich zu einem bestehende WiFi verbinden soll
@@ -29,53 +38,51 @@ bool WiFiAccessPointMode = true;
 String Hostname; // Lokale Domain
 String WiFiName;
 String WiFiPassword;
-
-/* Standard IP During programming WEB Server Mode */
-IPAddress local_ip(192, 168, 4, 1);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 255, 0);
-
 /**
  * Maximale Anzahl an Clients, die sich mit dem WiFi verbinden koennen.
  * Ist nur wichtig, wenn ein WiFi-Access-Point erstellet wird(WiFiAccessPointMode = true).
  */
 unsigned short MaxWiFiCon;
 
-Websocket websocket(81);
+#include "lib/WiFiUtils.hpp"
 
-//ESP8266WiFiClass WiFi;
+/* Standard IP During programming WEB Server Mode
+IPAddress local_ip(192, 168, 4, 1);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 255, 0);
+*/
 
-//MDNSResponder MDNS;
+
+Filesystem filesystem;
+ConfigFile config(filesystem);
 
 
 Adafruit_ST7735 display(TFT_CS, TFT_DC, TFT_RST);
 
 
 String RGBColor;
-
-RGB_LED RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
-EffectGroup Effects;
 unsigned short EffektSpeed = 10;
+EffectGroup Effects;
+RGB_LED RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
 
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
-#include "lib/PirSensor.hpp"
-#include "lib/Relay.hpp"
-Relay relay(RELAY_PIN, "LED");
 PirSensor Pir_Sensor(PIR_SENSOR_PIN);
 
-Filesystem filesystem;
-ConfigFile config(filesystem);
+Relay relay(RELAY_PIN, "LED");
 
-#include "lib/Exception.hpp"
-#include "lib/WiFiUtils.hpp"
-#include "lib/PirSensor.hpp"
-#include "lib/TouchSensor.hpp"
-#include "lib/LED/RGB_Utils.hpp"
-//#include "lib/Display.hpp"
+
+//ESP8266WiFiClass WiFi;
+
+//MDNSResponder MDNS;
 
 Webserver webserver(filesystem, 80);
+
+Websocket websocket(81);
+
+
+
 
 void setup() {
 	Serial.begin(9600);
