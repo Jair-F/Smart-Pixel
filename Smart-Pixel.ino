@@ -21,7 +21,7 @@
 #include "lib/Effect_Functions.hpp"
 #include "lib/LED/RGB_Utils.hpp"
 
-#include "lib/TouchSensor.hpp"
+#include "lib/TouchSensor/TouchSensor.hpp"
 #include "lib/PirSensor.hpp"
 //#include "lib/Display.hpp"
 #include "lib/Relay.hpp"
@@ -72,6 +72,8 @@ PirSensor Pir_Sensor(PIR_SENSOR_PIN);
 
 Relay relay(RELAY_PIN, "LED");
 
+TouchSensor Touch_Sensor(TOUCH_SENSOR_PIN);
+
 
 //ESP8266WiFiClass WiFi;
 
@@ -87,8 +89,6 @@ Websocket websocket(81);
 void setup() {
 	Serial.begin(9600);
 	Serial.println("Serial started");
-
-	webserver.setWorkingDir("/www");
 
 	display.initR(INITR_BLACKTAB);      // Init ST7735S chip, black tab
 	Serial.println("Display started");
@@ -156,7 +156,7 @@ void setup() {
 		WiFiName = config[WIFI][WIFI_NAME].get_Value();
 		WiFiPassword = config[WIFI][WIFI_PASSWORD].get_Value();
 
-		WiFiAccessPointMode = config[WIFI][WIFI_ACCESSPOINT_MODE].get_Value().toInt();
+		WiFiAccessPointMode = to_bool(config[WIFI][WIFI_ACCESSPOINT_MODE].get_Value());
 		Hostname = config[SERVER][HOSTNAME].get_Value();
 		MaxWiFiCon =  config[WIFI][MAX_CONNECTIONS].get_Value().toInt();
 
@@ -183,11 +183,13 @@ void setup() {
 	initDNS();
 	Serial.println("DNS started");
 
+	webserver.setWorkingDir("/www");
 	webserver.begin();
 	Serial.println("Web-Server started");
 
 	websocket.set_seperator(':');
 
+	// Actions the Websocket does if a new client connects to him
 	websocket.set_onConnectHandler([&](uint8_t ClientNum){
 		websocket.sendTXT(ClientNum, RGB_COLOR,					RGB_Utils::RGBColorToHex(RGB_LEDS.getPixelColor(0)));
 		websocket.sendTXT(ClientNum, EFFECT_RUNNING,			to_string(RGB_LEDS.get_effectRunning()));
@@ -197,7 +199,7 @@ void setup() {
 		websocket.sendTXT(ClientNum, HUMIDITY, 					to_string(dht.readHumidity()));
 		websocket.sendTXT(ClientNum, RELAY_NAME,				relay.getName());
 		websocket.sendTXT(ClientNum, RELAY_STATUS,				to_string(relay.status()));
-		websocket.sendTXT(ClientNum, PIR_SENSOR_ACTIVE_REPORT,	to_string(Pir_Sensor.getActiveReport()));
+		websocket.sendTXT(ClientNum, PIR_SENSOR_ALERT_REPORTED,	to_string(Pir_Sensor.alertReported()));
 		websocket.sendTXT(ClientNum, WIFI_ACCESSPOINT_MODE,		to_string(WiFiAccessPointMode));
 		websocket.sendTXT(ClientNum, WIFI_NAME,					WiFiName);
 		websocket.sendTXT(ClientNum, WIFI_PASSWORD,				WiFiPassword);
@@ -206,25 +208,32 @@ void setup() {
 		// Send to all Clients
 		websocket.broadcastTXT(NUM_OF_CONNECTED_CLIENTS,		to_string(static_cast<unsigned short>(websocket.connectedClients())));
 	});
+	// Actions the Websocket does if a  client disconnects
 	websocket.set_onDisconnectHandler([&](uint8_t ClientNum){
 		websocket.broadcastTXT(NUM_OF_CONNECTED_CLIENTS,		to_string(static_cast<unsigned short>(websocket.connectedClients())));
 	});
 
-	websocket.addAction(WebsocketAction(RGB_COLOR,					[&RGB_LEDS](String& arguments)				{ RGB_LEDS.fill(RGB_Utils::RGBHexToColor(arguments)); RGB_LEDS.show(); websocket.broadcastTXT(EFFECT_RUNNING, to_string(RGB_LEDS.get_effectRunning())); websocket.broadcastTXT(RGB_COLOR, arguments); }));
-	websocket.addAction(WebsocketAction(EFFECT,						[&Effects, &RGB_LEDS](String& arguments)	{ RGB_LEDS.setActualEffekt(Effects[arguments]); websocket.broadcastTXT(EFFECT, arguments); }));
-	websocket.addAction(WebsocketAction(EFFECT_RUNNING,				[&RGB_LEDS](String& arguments)				{ RGB_LEDS.set_effectRunning(to_bool(arguments)); websocket.broadcastTXT(EFFECT_RUNNING, to_string(RGB_LEDS.get_effectRunning())); }));
-	websocket.addAction(WebsocketAction(EFFECT_SPEED,				[&EffektSpeed](String& arguments)			{ EffektSpeed = arguments.toInt(); websocket.broadcastTXT(EFFECT_SPEED, arguments); }));
+	// Actions if the Websocket recievs Data(The right method is selected by the keyValue from the WebsocketAction)
+	websocket.addAction(WebsocketAction(RGB_COLOR,							[&RGB_LEDS](String& arguments)				{ RGB_LEDS.fill(RGB_Utils::RGBHexToColor(arguments)); RGB_LEDS.show(); websocket.broadcastTXT(EFFECT_RUNNING, to_string(RGB_LEDS.get_effectRunning())); websocket.broadcastTXT(RGB_COLOR, arguments); }));
+	websocket.addAction(WebsocketAction(EFFECT,								[&Effects, &RGB_LEDS](String& arguments)	{ RGB_LEDS.setActualEffekt(Effects[arguments]); websocket.broadcastTXT(EFFECT, arguments); }));
+	websocket.addAction(WebsocketAction(EFFECT_RUNNING,						[&RGB_LEDS](String& arguments)				{ RGB_LEDS.set_effectRunning(to_bool(arguments)); websocket.broadcastTXT(EFFECT_RUNNING, to_string(RGB_LEDS.get_effectRunning())); }));
+	websocket.addAction(WebsocketAction(EFFECT_SPEED,						[&EffektSpeed](String& arguments)			{ EffektSpeed = arguments.toInt(); websocket.broadcastTXT(EFFECT_SPEED, arguments); }));
 
-	websocket.addAction(WebsocketAction(RELAY_STATUS,				[&relay](String& arguments)					{ relay.switchStatus(); websocket.broadcastTXT(RELAY_STATUS, to_string(relay.status())); }));
-	websocket.addAction(WebsocketAction(PIR_SENSOR_ACTIVE_REPORT,	[&Pir_Sensor](String& arguments)			{ Pir_Sensor.resetActiveReport(); websocket.broadcastTXT(PIR_SENSOR_ACTIVE_REPORT, to_string(Pir_Sensor.getActiveReport())); }));
-	websocket.addAction(WebsocketAction(REBOOT,						[](String& arguments)						{ ESP.restart(); websocket.broadcastTXT(CLIENT_ALERT, "Board restarted -- Need to reload site after restart!"); }));
-	websocket.addAction(WebsocketAction(WRITE_CONFIG,				[&config](String& arguments)				{ config.writeConfigFile(); websocket.broadcastTXT(CLIENT_ALERT, "Wrote Configs -- Reboot to take affect the changes!"); }));
-	
-	websocket.addAction(WebsocketAction(WIFI_NAME,					[&config](String& arguments)				{ config[WIFI][WIFI_NAME].set_Value(arguments);				WiFiName = arguments;							websocket.broadcastTXT(WIFI_NAME, arguments); }));
-	websocket.addAction(WebsocketAction(WIFI_PASSWORD,				[&config](String& arguments)				{ config[WIFI][WIFI_PASSWORD].set_Value(arguments);			WiFiPassword = arguments;						websocket.broadcastTXT(WIFI_PASSWORD, arguments); }));
-	websocket.addAction(WebsocketAction(MAX_CONNECTIONS,			[&config](String& arguments)				{ config[WIFI][MAX_CONNECTIONS].set_Value(arguments);		MaxWiFiCon = arguments.toInt();					websocket.broadcastTXT(MAX_CONNECTIONS, arguments); }));
-	websocket.addAction(WebsocketAction(WIFI_ACCESSPOINT_MODE,		[&config](String& arguments)				{ config[WIFI][WIFI_ACCESSPOINT_MODE].set_Value(arguments);	WiFiAccessPointMode = arguments.toInt();		websocket.broadcastTXT(WIFI_ACCESSPOINT_MODE, arguments); }));
-	websocket.addAction(WebsocketAction(HOSTNAME,					[&config](String& arguments)				{ config[SERVER][HOSTNAME].set_Value(arguments);			Hostname = arguments;							websocket.broadcastTXT(HOSTNAME, arguments); }));
+	websocket.addAction(WebsocketAction(RELAY_STATUS,						[&relay](String& arguments)					{ relay.switchStatus(); websocket.broadcastTXT(RELAY_STATUS, to_string(relay.status())); }));
+	websocket.addAction(WebsocketAction(RESET_PIR_SENSOR_ALERT_REPORTED,	[&Pir_Sensor](String& arguments)			{ Pir_Sensor.reset_reportedAlert(); websocket.broadcastTXT(PIR_SENSOR_ALERT_REPORTED, to_string(Pir_Sensor.alertReported())); }));
+	websocket.addAction(WebsocketAction(REBOOT,								[](String& arguments)						{ ESP.restart(); websocket.broadcastTXT(CLIENT_ALERT, "Board restarted -- Need to reload site after restart!"); }));
+	websocket.addAction(WebsocketAction(COMMAND,							[&config](String& arguments)				{
+		if(arguments == WRITE_CONFIG) {
+			config.writeConfigFile(); 
+			websocket.broadcastTXT(CLIENT_ALERT, "Wrote Configs -- Reboot to take affect the changes!");
+		}
+	}));
+
+	websocket.addAction(WebsocketAction(WIFI_NAME,							[&config](String& arguments)				{ config[WIFI][WIFI_NAME].set_Value(arguments);				WiFiName = arguments;							websocket.broadcastTXT(WIFI_NAME, arguments); }));
+	websocket.addAction(WebsocketAction(WIFI_PASSWORD,						[&config](String& arguments)				{ config[WIFI][WIFI_PASSWORD].set_Value(arguments);			WiFiPassword = arguments;						websocket.broadcastTXT(WIFI_PASSWORD, arguments); }));
+	websocket.addAction(WebsocketAction(MAX_CONNECTIONS,					[&config](String& arguments)				{ config[WIFI][MAX_CONNECTIONS].set_Value(arguments);		MaxWiFiCon = arguments.toInt();					websocket.broadcastTXT(MAX_CONNECTIONS, arguments); }));
+	websocket.addAction(WebsocketAction(WIFI_ACCESSPOINT_MODE,				[&config](String& arguments)				{ config[WIFI][WIFI_ACCESSPOINT_MODE].set_Value(arguments);	WiFiAccessPointMode = arguments.toInt();		websocket.broadcastTXT(WIFI_ACCESSPOINT_MODE, arguments); }));
+	websocket.addAction(WebsocketAction(HOSTNAME,							[&config](String& arguments)				{ config[SERVER][HOSTNAME].set_Value(arguments);			Hostname = arguments;							websocket.broadcastTXT(HOSTNAME, arguments); }));
 
 	websocket.begin();
 	Serial.println("Web-Sockets started");
@@ -302,8 +311,40 @@ void loop() {
 		timer = millis() + 1500;
 	}
 
+	/*
+		Actions the Websocket does if something changed(on the Board) and the Websocket acts with the Clients
+		without got previously data from the Client/s
+	*/
+
+	// Touch Sensor Actions
+	if(Touch_Sensor.touched(4, TimeType::seconds)) {	// Reset - restor to default settings and then restart
+		Serial.println("Reset...");
+		
+
+		config[WIFI][WIFI_NAME].set_Value("Smart-Pixel");
+		config[WIFI][WIFI_PASSWORD].set_Value("12345678");
+		config[WIFI][WIFI_ACCESSPOINT_MODE].set_Value("true");
+		config[WIFI][MAX_CONNECTIONS].set_Value("1");
+		config[SERVER][HOSTNAME].set_Value("smart-pixel");
+
+		config.writeConfigFile();
+		
+
+		Serial.println("Restart...");
+		ESP.restart();
+	}
+	else if(Touch_Sensor.touched(2, TimeType::seconds)) {	// Restart
+		Serial.println("Restart...");
+		ESP.restart();
+	}
+	else if(Touch_Sensor.touched(1, TimeType::seconds)) {
+		relay.switchStatus();
+		websocket.broadcastTXT(RELAY_STATUS, to_string(relay.status()));
+		delay(500);
+	}
 
 	RGB_LEDS(EffektSpeed);
+	Touch_Sensor.loop();
 	websocket.loop();
 	yield();
 	webserver.handleClient();

@@ -13,7 +13,6 @@ namespace RGB_Utils {
 	typedef decltype(RGB_Utils::Color(0, 0, 0)) RGB_Color;
 
 
-
 	// https://www.developintelligence.com/blog/2017/02/rgb-to-hex-understanding-the-major-web-color-codes/
 	RGB_Color RGBHexToColor(const char* rgb_hex) {
 		byte red;

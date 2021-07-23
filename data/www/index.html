@@ -44,6 +44,14 @@
 
 		<hr/>
 
+		<label for="effects">Chose a effect:
+			<select name="Effects">
+				<option value="RainbowCycle">RainbowCycle</option>
+				<option>ColorWipe</option>
+				<option>rainbowSoftBlink</option>
+			</select>
+		</label>
+
 		<div class="container">
 		<h2>Effekte Panel</h2> <!-- Should look more atractive -->
 		<form method="POST" onchange="sendEffekte();">
@@ -82,7 +90,7 @@
         
 		<div class="container">
 		<h2>Motion Detector</h2>  <!--Here should be the running man like Mr. X-->
-		<form method="POST" onclick="sendPirSensor();">
+		<form method="POST" onclick="resetPirSensorActiveReport();">
 			<p id="Pir-Sensor" style="height: 5em; width: 5em; background-color:green; border-radius: 0.7em;"></p>
 			<!-- <img src="MotionHand2.png" style="background-color:transparent;" /> -->
 			 <!--Background auf rgb(219, 219, 38); aendern wenn getriggert-->    <br />
@@ -110,7 +118,7 @@
 				</tr>
 				<tr>
 					<td>WiFi-Passwort</td>
-					<td><input id="WiFi-Passwort" type="text" name="WiFi-Passwort" minlength="8" maxlength="12"/></td>
+					<td><input id="WiFi-Passwort" type="text" name="WiFi-Passwort" minlength="8" maxlength="20"/></td>
 				</tr>
 				<tr>
 					<td>Hostname/Domain</td>
@@ -141,24 +149,28 @@
 	<!-- https://code-boxx.com/submit-form-without-refreshing-page/ -->
 	<script>
 		const WebsocketKeyValues = {
-			RGB_COLOR					: "RGB-Color",
-			EFFECT						: "Effect",
-			EFFECT_RUNNING				: "EffektRunning",
-			EFFECT_SPEED				: "EffectSpeed",
-			HUMIDITY					: "Humidity",
-			TEMPERATURE					: "Temperature",
-			RELAY_STATUS				: "RelayStatus",
-			RELAY_NAME					: "RelayName",
-			WRITE_CONFIG				: "write-config",
-			PIR_SENSOR_ACTIVE_REPORT	: "PirSensorActiveReport",
-			REBOOT						: "reboot",
-			CLIENT_ALERT				: "ClientAlert",
-			NUM_OF_CONNECTED_CLIENTS	: "NumOfConnectedClients",
-			WIFI_NAME					: "WiFiName",
-			WIFI_PASSWORD				: "WiFiPassword",
-			MAX_CONNECTIONS				: "MaxConnections",
-			WIFI_ACCESSPOINT_MODE		: "WiFiAccessPointMode",
-			HOSTNAME					: "Hostname"
+			RGB_COLOR						: "RGB-Color",
+			EFFECT							: "Effect",
+			EFFECT_RUNNING					: "EffektRunning",
+			EFFECT_SPEED					: "EffectSpeed",
+			HUMIDITY						: "Humidity",
+			TEMPERATURE						: "Temperature",
+			RELAY_STATUS					: "RelayStatus",
+			RELAY_NAME						: "RelayName",
+			COMMAND							: "Command",
+			PIR_SENSOR_ALERT_REPORTED		: "PirSensorAlertReported",
+			RESET_PIR_SENSOR_ALERT_REPORTED	: "ResetPirSensorAlertReported",
+			REBOOT							: "reboot",
+			CLIENT_ALERT					: "ClientAlert",
+			NUM_OF_CONNECTED_CLIENTS		: "NumOfConnectedClients",
+			WIFI_NAME						: "WiFiName",
+			WIFI_PASSWORD					: "WiFiPassword",
+			MAX_CONNECTIONS					: "MaxConnections",
+			WIFI_ACCESSPOINT_MODE			: "WiFiAccessPointMode",
+			HOSTNAME						: "Hostname",
+
+			// Commands:
+			WRITE_CONFIG					: "write-config"
 		};
 		const Effects = {
 			RainbowSoftBlink	: "rainbowSoftBlink",
@@ -205,7 +217,7 @@
 						break;
 					}
 					case WebsocketKeyValues.EFFECT: {
-						document.getElementById(arg).checked = arg;
+						document.getElementById("Effecte").checked = arg;
 						break;
 					}
 					case WebsocketKeyValues.EFFECT_SPEED: {
@@ -234,7 +246,7 @@
 						RelayName = arg;
 						break;
 					}
-					case WebsocketKeyValues.PIR_SENSOR_ACTIVE_REPORT: {
+					case WebsocketKeyValues.PIR_SENSOR_ALERT_REPORTED: {
 						var color = String;
 						if(arg == 1) {
 							color = "red";
@@ -297,17 +309,17 @@
 			for(var relayToChange of relays) {
 			}
 			var relayNum = 0;
-			websocketSend("RelayStatus", "0");
+			websocketSend(WebsocketKeyValues.RELAY_STATUS, "");
 		}
-		function sendPirSensor() {
-			websocketSend("PirSensor", "reset");
+		function resetPirSensorActiveReport() {
+			websocketSend(WebsocketKeyValues.RESET_PIR_SENSOR_ALERT_REPORTED, "");
 		}
 		function sendRGB() {
 			var rgb = document.getElementById("RGB-Color").value;
 			//alert(rgb)
 			//console.log("RGB: " + rgb);
 			//Socket.send(rgb);
-			websocketSend("RGB-Color", rgb);
+			websocketSend(WebsocketKeyValues.RGB_COLOR, rgb);
 		}
 		function sendEffekte() {
 			// https://www.techiedelight.com/get-value-of-selected-radio-button-javascript/ - 2. JavaScript
@@ -330,12 +342,13 @@
 			var Hostname = document.getElementById("Hostname").value;
 			var maxConnections = document.getElementById("MaxConnections").value;
 
-			websocketSend("WiFiAccessPointMode" + WiFiAccessPointMode);
-			websocketSend("WiFi-Name", WiFiName);
-			websocketSend("WiFi-Passwort", WiFiPasswort);
-			websocketSend("MaxConnections", maxConnections);
-			websocketSend("Hostname", Hostname);
-			websocketSend("Command", "writeSpiffsConfigs");
+			websocketSend(WebsocketKeyValues.WIFI_ACCESSPOINT_MODE, WiFiAccessPointMode);
+			websocketSend(WebsocketKeyValues.WIFI_NAME, WiFiName);
+			websocketSend(WebsocketKeyValues.WIFI_PASSWORD, WiFiPasswort);
+			websocketSend(WebsocketKeyValues.MAX_CONNECTIONS, maxConnections);
+			websocketSend(WebsocketKeyValues.HOSTNAME, Hostname);
+			sleep(750);	// Sleep because it sent it before the values above!
+			websocketSend(WebsocketKeyValues.COMMAND, WebsocketKeyValues.WRITE_CONFIG);
 		}
 		function HideField(ID, Hide) {
 			if(Hide == true) {
@@ -345,7 +358,7 @@
 				document.getElementById(ID).removeAttribute("disabled");
 			}
 		}
-		function FiledIsHidden(ID) {
+		function FieldIsHidden(ID) {
 			return document.getElementById(ID).getAttribute("disabled") == "true" ? true : false;
 		}
 		function handleWiFiAccessPointModeCheckbox() {
@@ -355,6 +368,16 @@
 			else {
 				HideField('MaxConnections', true);
 			}
+		}
+
+
+		// https://www.sitepoint.com/delay-sleep-pause-wait/
+		function sleep(milliseconds) {
+  			const date = Date.now();
+  			let currentDate = null;
+  			do {
+  				currentDate = Date.now();
+  			} while (currentDate - date < milliseconds);
 		}
 	</script>
 </html>
