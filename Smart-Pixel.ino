@@ -310,11 +310,15 @@ void loop() {
 		display.println(websocket.connectedClients());
 		timer = millis() + 1500;
 	}
-
+ 
 	/*
 		Actions the Websocket does if something changed(on the Board) and the Websocket acts with the Clients
 		without got previously data from the Client/s
 	*/
+	// If something moved and we not already send it to the client
+	if(Pir_Sensor.getLastActiveReport() == false && Pir_Sensor.alertReported() == true) {
+		websocket.broadcastTXT(PIR_SENSOR_ALERT_REPORTED, to_string(Pir_Sensor.alertReported()));
+	}
 
 	// Touch Sensor Actions
 	if(Touch_Sensor.touched(4, TimeType::seconds)) {	// Reset - restor to default settings and then restart
