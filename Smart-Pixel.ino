@@ -212,7 +212,7 @@ void setup() {
 	websocket.set_onConnectHandler([&](uint8_t ClientNum){
 		websocket.sendTXT(ClientNum, RGB_COLOR,					RGB_Utils::RGBColorToHex(RGB_LEDS.getPixelColor(0)));
 		websocket.sendTXT(ClientNum, EFFECT_RUNNING,			to_string(RGB_LEDS.get_effectRunning()));
-		websocket.sendTXT(ClientNum, EFFECT,					RGB_LEDS.get_effectRunning() == true ? RGB_LEDS.getActualEffekt().getName() : "Nothing");
+		websocket.sendTXT(ClientNum, EFFECT,					RGB_LEDS.getActualEffekt().getName());
 		websocket.sendTXT(ClientNum, EFFECT_SPEED,				to_string(EffektSpeed));
 		websocket.sendTXT(ClientNum, TEMPERATURE,				to_string(dht.readTemperature()));
 		websocket.sendTXT(ClientNum, HUMIDITY, 					to_string(dht.readHumidity()));
