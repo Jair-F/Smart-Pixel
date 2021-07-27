@@ -46,6 +46,7 @@
 
 		<div class="container">
 		<h2>Effekte Panel</h2> <!-- Should look more atractive -->
+		<!--
 		<form method="POST" onchange="sendEffekte();">
 			<input type="checkbox" id="EffectIsRunning" name="EffectIsRunning">Run Effect
 			<br/>
@@ -53,15 +54,18 @@
 			<br/>
 			<input type="radio" class="Effecte" name="Effekt" id="RainbowCycle" value="RainbowCycle"/>RainbowCycle
 			<br/>
-			<label for="effects">Chose a effect:
-				<select name="Effects">
-					<option value="RainbowCycle">RainbowCycle</option>
-					<option>ColorWipe</option>
-					<option>rainbowSoftBlink</option>
-				</select>
-			</label>
-			<br/>
 			<input type="radio" class="Effecte" name="Effekt" id="ColorWipe" value="ColorWipe"/>ColorWipe
+			<br/>
+			-->
+			<form method="POST" onchange="sendEffekte();">
+				<input type="checkbox" id="EffectIsRunning" name="EffectIsRunning">Run Effect
+				<br/>
+				Chose a effect:
+					<select id="Effecte">
+						<option value="RainbowCycle">RainbowCycle</option>
+						<option value="ColorWipe">ColorWipe</option>
+						<option value="rainbowSoftBlink">rainbowSoftBlink</option>
+					</select>
 			<br/>
 			 Effekt Speed
 			 <br />
@@ -90,7 +94,8 @@
         
 		<div class="container">
 		<h2>Motion Detector</h2>  <!--Here should be the running man like Mr. X-->
-			<p id="Pir-Sensor" style="height: 5em; width: 5em; background-color:green; border-radius: 0.7em;"></p>
+			<p id="Pir-Sensor" style="text-align: center; color: black; padding-top: 3em; padding-bottom: 3em; background-color:green; border-radius: 0.7em; margin: 0.5em 44%;">%RELAY_NAME%</p>
+
 			<!-- <img src="MotionHand2.png" style="background-color:transparent;" /> -->
 			 <!--Background auf rgb(219, 219, 38); aendern wenn getriggert-->
 	    </div>
@@ -125,7 +130,18 @@
 					<td>Anzahl an Clients</td>
 					<td><input id="MaxConnections" type="number" min="1" max="8" name="MaxConnections" title="Maximale Anzahl an Clients, die sich mit dem Wlan verbinden koennen(ist nur Einstellbar wenn 'Eigenes WiFi erzeugen' aktiviert ist)"/></td>
 				</tr>
-				<tr></tr>
+				<tr>
+					<td>Relay Name</td>
+					<td>
+						<input type="text" id="RelayName" min="1" max="30">
+					</td>
+				</tr>
+				<tr>
+					<td>Pir-Sensor Name</td>
+					<td>
+						<input type="text" id="PirSensorName" min="1" max="30">
+					</td>
+				</tr>
 				<tr>
 					
 					<!-- <button onclick="SendWiFiSettings(); return false;">Abschicken</button> -->
@@ -154,6 +170,7 @@
 			TEMPERATURE						: "Temperature",
 			RELAY_STATUS					: "RelayStatus",
 			RELAY_NAME						: "RelayName",
+			PIR_SENSOR_NAME					: "PirSensorName",
 			COMMAND							: "Command",
 			PIR_SENSOR_STATUS				: "PirSensorStatus",
 			REBOOT							: "reboot",
@@ -177,6 +194,7 @@
 		// WebSocket-Initialization
 			var Socket = new WebSocket("ws://" + location.hostname + ":81/", ["arduino"]);
 			var RelayName;
+			var PirSensorName;
 			Socket.onopen = function() { console.log("Verbindung " + new Date()); }
 			Socket.onclose = function() {
 				console.log("WebSocket Verbindung getrennt");
@@ -213,7 +231,8 @@
 						break;
 					}
 					case WebsocketKeyValues.EFFECT: {
-						document.getElementById(arg).checked = true;
+						//document.getElementById(arg).checked = true;
+						document.getElementById("Effecte").value = arg;
 						break;
 					}
 					case WebsocketKeyValues.EFFECT_SPEED: {
@@ -238,8 +257,14 @@
 						break;
 					}
 					case WebsocketKeyValues.RELAY_NAME: {
-						document.getElementById("Relay0").value = arg;
 						RelayName = arg;
+						document.getElementById("RelayName").value = RelayName;
+						break;
+					}
+					case WebsocketKeyValues.PIR_SENSOR_NAME: {
+						PirSensorName = arg;
+						document.getElementById("PirSensorName").value = PirSensorName;
+						document.getElementById("Pir-Sensor").innerHTML = PirSensorName;	// the quadrat, which shows the status
 						break;
 					}
 					case WebsocketKeyValues.PIR_SENSOR_STATUS: {
@@ -316,16 +341,12 @@
 		}
 		function sendEffekte() {
 			// https://www.techiedelight.com/get-value-of-selected-radio-button-javascript/ - 2. JavaScript
-			var radios = document.getElementsByClassName("Effecte");
-			for (var checked_radio of radios) {
-				if(checked_radio.checked) {
-					//alert(checked_radio.value);
-					websocketSend(WebsocketKeyValues.EFFECT, checked_radio.value);
-				}
-			}
+			var effectName = document.getElementById("Effecte").value;
 			var effectRunning = document.getElementById("EffectIsRunning").checked;
-			websocketSend(WebsocketKeyValues.EFFECT_RUNNING, effectRunning == true ? "true" : "false");
 			var effektSpeed = document.getElementById("EffectSpeed").value;
+
+			websocketSend(WebsocketKeyValues.EFFECT_RUNNING, effectRunning == true ? "true" : "false");
+			websocketSend(WebsocketKeyValues.EFFECT, effectName);
 			websocketSend(WebsocketKeyValues.EFFECT_SPEED, effektSpeed);
 		}
 		function SendWiFiSettings() {
@@ -334,14 +355,18 @@
 			var WiFiPasswort = document.getElementById("WiFi-Passwort").value;
 			var Hostname = document.getElementById("Hostname").value;
 			var maxConnections = document.getElementById("MaxConnections").value;
+			var relayName = document.getElementById("RelayName").value
+			var pirSensorName = document.getElementById("PirSensorName").value
 
-			websocketSend(WebsocketKeyValues.WIFI_ACCESSPOINT_MODE, WiFiAccessPointMode);
-			websocketSend(WebsocketKeyValues.WIFI_NAME, WiFiName);
-			websocketSend(WebsocketKeyValues.WIFI_PASSWORD, WiFiPasswort);
-			websocketSend(WebsocketKeyValues.MAX_CONNECTIONS, maxConnections);
-			websocketSend(WebsocketKeyValues.HOSTNAME, Hostname);
+			websocketSend(WebsocketKeyValues.WIFI_ACCESSPOINT_MODE,	WiFiAccessPointMode);
+			websocketSend(WebsocketKeyValues.WIFI_NAME,				WiFiName);
+			websocketSend(WebsocketKeyValues.WIFI_PASSWORD,			WiFiPasswort);
+			websocketSend(WebsocketKeyValues.MAX_CONNECTIONS,		maxConnections);
+			websocketSend(WebsocketKeyValues.HOSTNAME,				Hostname);
+			websocketSend(WebsocketKeyValues.RELAY_NAME,			relayName);
+			websocketSend(WebsocketKeyValues.PIR_SENSOR_NAME,		pirSensorName);
 			sleep(750);	// Sleep because it sent it before the values above!
-			websocketSend(WebsocketKeyValues.COMMAND, WebsocketKeyValues.WRITE_CONFIG);
+			websocketSend(WebsocketKeyValues.COMMAND,				WebsocketKeyValues.WRITE_CONFIG);
 		}
 		function HideField(ID, Hide) {
 			if(Hide == true) {
@@ -371,6 +396,11 @@
   			do {
   				currentDate = Date.now();
   			} while (currentDate - date < milliseconds);
+		}
+
+		function versuch() {
+			var a = document.getElementById("Versuch");
+			alert(a.value);
 		}
 	</script>
 </html>

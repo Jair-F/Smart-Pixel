@@ -8,6 +8,8 @@
 #define MAX_CONNECTIONS			"MaxConnections"
 #define WIFI_ACCESSPOINT_MODE	"WiFiAccessPointMode"
 #define HOSTNAME				"Hostname"
+#define PIR_SENSOR_NAME			"PirSensorName"
+#define RELAY_NAME				"RelayName"
 
 // Websocket Acions
 #define RGB_COLOR						"RGB-Color"
@@ -31,8 +33,10 @@
 #define NUM_OF_CONNECTED_CLIENTS	"NumOfConnectedClients"
 
 // conifg-Groups
-#define WIFI	"WiFi"
-#define SERVER	"Server"
+#define WIFI		"WiFi"
+#define SERVER		"Server"
+#define PIR_SENSOR	"PirSensor"
+#define RELAY		"Relay"
 
 // Effects
 #define COLOR_WIPE			"ColorWipe"

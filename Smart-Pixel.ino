@@ -70,7 +70,7 @@ DHT dht(DHT_PIN, DHT_TYPE);
 
 PirSensor Pir_Sensor(PIR_SENSOR_PIN);
 
-Relay relay(RELAY_PIN, "LED");
+Relay relay(RELAY_PIN);
 
 TouchSensor Touch_Sensor(TOUCH_SENSOR_PIN);
 
@@ -153,13 +153,22 @@ void setup() {
 
 	// Setting up Envirement variables
 	try {
+		/*
+			! ---------------------- Sorted on order of how important the variable is ---------------------- !
+			
+			This is sorted in order of how important this envirement-variable is(most important on the top less important on the botom)!
+			This is in because if for example a the relay-name is not defined we still have wifi/can connect to the wifi and dont jump out to 
+			early of the try block caused by the exception the config-object throws if he doesnt find a specific value.
+		*/
 		WiFiName = config[WIFI][WIFI_NAME].get_Value();
 		WiFiPassword = config[WIFI][WIFI_PASSWORD].get_Value();
 
 		WiFiAccessPointMode = to_bool(config[WIFI][WIFI_ACCESSPOINT_MODE].get_Value());
-		Hostname = config[SERVER][HOSTNAME].get_Value();
 		MaxWiFiCon =  config[WIFI][MAX_CONNECTIONS].get_Value().toInt();
+		Hostname = config[SERVER][HOSTNAME].get_Value();
 
+		relay.setName(config[RELAY][RELAY_NAME].get_Value());
+		Pir_Sensor.setName(config[PIR_SENSOR][PIR_SENSOR_NAME].get_Value());
 	}
 	catch(Config_error& ce) {
 		Serial.print("Config_ERROR: ");
@@ -215,6 +224,8 @@ void setup() {
 		websocket.sendTXT(ClientNum, WIFI_PASSWORD,				WiFiPassword);
 		websocket.sendTXT(ClientNum, HOSTNAME,					Hostname);
 		websocket.sendTXT(ClientNum, MAX_CONNECTIONS,			to_string(MaxWiFiCon));
+		websocket.sendTXT(ClientNum, PIR_SENSOR_NAME,			Pir_Sensor.getName());
+		websocket.sendTXT(ClientNum, RELAY_NAME,				relay.getName());
 		// Send to all Clients
 		websocket.broadcastTXT(NUM_OF_CONNECTED_CLIENTS,		to_string(static_cast<unsigned short>(websocket.connectedClients())));
 	});
@@ -238,11 +249,13 @@ void setup() {
 		}
 	}));
 
-	websocket.addAction(WebsocketAction(WIFI_NAME,							[&config](String& arguments)				{ config[WIFI][WIFI_NAME].set_Value(arguments);				WiFiName = arguments;							websocket.broadcastTXT(WIFI_NAME, arguments); }));
-	websocket.addAction(WebsocketAction(WIFI_PASSWORD,						[&config](String& arguments)				{ config[WIFI][WIFI_PASSWORD].set_Value(arguments);			WiFiPassword = arguments;						websocket.broadcastTXT(WIFI_PASSWORD, arguments); }));
-	websocket.addAction(WebsocketAction(MAX_CONNECTIONS,					[&config](String& arguments)				{ config[WIFI][MAX_CONNECTIONS].set_Value(arguments);		MaxWiFiCon = arguments.toInt();					websocket.broadcastTXT(MAX_CONNECTIONS, arguments); }));
-	websocket.addAction(WebsocketAction(WIFI_ACCESSPOINT_MODE,				[&config](String& arguments)				{ config[WIFI][WIFI_ACCESSPOINT_MODE].set_Value(arguments);	WiFiAccessPointMode = arguments.toInt();		websocket.broadcastTXT(WIFI_ACCESSPOINT_MODE, arguments); }));
-	websocket.addAction(WebsocketAction(HOSTNAME,							[&config](String& arguments)				{ config[SERVER][HOSTNAME].set_Value(arguments);			Hostname = arguments;							websocket.broadcastTXT(HOSTNAME, arguments); }));
+	websocket.addAction(WebsocketAction(WIFI_NAME,							[&config]				(String& arguments)				{ config[WIFI][WIFI_NAME].set_Value(arguments);					WiFiName = arguments;							websocket.broadcastTXT(WIFI_NAME, arguments); }));
+	websocket.addAction(WebsocketAction(WIFI_PASSWORD,						[&config]				(String& arguments)				{ config[WIFI][WIFI_PASSWORD].set_Value(arguments);				WiFiPassword = arguments;						websocket.broadcastTXT(WIFI_PASSWORD, arguments); }));
+	websocket.addAction(WebsocketAction(MAX_CONNECTIONS,					[&config]				(String& arguments)				{ config[WIFI][MAX_CONNECTIONS].set_Value(arguments);			MaxWiFiCon = arguments.toInt();					websocket.broadcastTXT(MAX_CONNECTIONS, arguments); }));
+	websocket.addAction(WebsocketAction(WIFI_ACCESSPOINT_MODE,				[&config]				(String& arguments)				{ config[WIFI][WIFI_ACCESSPOINT_MODE].set_Value(arguments);		WiFiAccessPointMode = arguments.toInt();		websocket.broadcastTXT(WIFI_ACCESSPOINT_MODE, arguments); }));
+	websocket.addAction(WebsocketAction(HOSTNAME,							[&config]				(String& arguments)				{ config[SERVER][HOSTNAME].set_Value(arguments);				Hostname = arguments;							websocket.broadcastTXT(HOSTNAME, arguments); }));
+	websocket.addAction(WebsocketAction(PIR_SENSOR_NAME,					[&config, &Pir_Sensor]	(String& arguments)				{ config[PIR_SENSOR][PIR_SENSOR_NAME].set_Value(arguments);		Pir_Sensor.setName(arguments);					websocket.broadcastTXT(PIR_SENSOR_NAME, arguments); }));
+	websocket.addAction(WebsocketAction(RELAY_NAME,							[&config, &relay]		(String& arguments)				{ config[RELAY][RELAY_NAME].set_Value(arguments);				relay.setName(arguments);						websocket.broadcastTXT(RELAY_NAME, arguments); }));
 
 	websocket.begin();
 	Serial.println("Web-Sockets started");
@@ -260,6 +273,7 @@ void setup() {
 	Effects.add(Effect(COLOR_WIPE,			colorWipe));
 	Effects.add(Effect(RAINBOW_CYCLE,		rainbowCycle));
 	RGB_LEDS.setActualEffekt(Effects[RAINBOW_SOFT_BLINK]);
+	RGB_LEDS.set_effectRunning(true);
 
 
 }
@@ -331,11 +345,13 @@ void loop() {
 		display.setCursor( (display.width() - strlen(message)*12) / 2, display.height() / 2 - 16/2);	// In the middle of the screen
 		display.print(message);
 
-		config[WIFI][WIFI_NAME].set_Value("Smart-Pixel");
-		config[WIFI][WIFI_PASSWORD].set_Value("12345678");
-		config[WIFI][WIFI_ACCESSPOINT_MODE].set_Value("true");
-		config[WIFI][MAX_CONNECTIONS].set_Value("1");
-		config[SERVER][HOSTNAME].set_Value("smart-pixel");
+		config.insert(WIFI,			WIFI_NAME,				"Smart-Pixel");
+		config.insert(WIFI,			WIFI_PASSWORD,			"12345678");
+		config.insert(WIFI,			WIFI_ACCESSPOINT_MODE,	"true");
+		config.insert(WIFI,			MAX_CONNECTIONS,		"2");
+		config.insert(SERVER,		HOSTNAME,				"smart-pixel");
+		config.insert(PIR_SENSOR,	PIR_SENSOR_NAME,		"Relay");
+		config.insert(RELAY,		RELAY_NAME,				"PirSensor");
 
 		config.writeConfigFile();
 
