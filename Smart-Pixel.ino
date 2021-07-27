@@ -98,7 +98,7 @@ void setup() {
 	display.setTextWrap(true);
 	const char* name = "Smart-Pixel";
 	display.setTextSize(2);
-	display.setCursor( (display.width() - strlen(name)*12) / 2, display.height() / 2 - 16/2);
+	display.setCursor( (display.width() - strlen(name)*12) / 2, display.height() / 2 - 16/2);	// In the middle of the screen
 	for(unsigned short i = 0; i < strlen(name); i++) {
 		display.setTextColor(display.color565(i%2 != 0 && i %3 != 0 ? 255 : 0, i%2 == 0 ? 255 : 0, i%3 == 0 ? 255 : 0));
 		display.print(name[i]);
@@ -189,6 +189,16 @@ void setup() {
 
 	websocket.set_seperator(':');
 
+	/*
+		Actions the Websocket does if something changed(on the Board) and the Websocket acts with the Clients
+		without got previously data from the Client/s
+	*/
+	// If something moved and we not already send it to the client
+	Pir_Sensor.set_onChangeHandler([&websocket, &Pir_Sensor](bool pirSensorStatus){
+		Serial.println("Pir-Sensor Status changed - sending new status to all clients...");
+		websocket.broadcastTXT(PIR_SENSOR_STATUS, to_string(Pir_Sensor.get_Status()));
+	});
+
 	// Actions the Websocket does if a new client connects to him
 	websocket.set_onConnectHandler([&](uint8_t ClientNum){
 		websocket.sendTXT(ClientNum, RGB_COLOR,					RGB_Utils::RGBColorToHex(RGB_LEDS.getPixelColor(0)));
@@ -199,7 +209,7 @@ void setup() {
 		websocket.sendTXT(ClientNum, HUMIDITY, 					to_string(dht.readHumidity()));
 		websocket.sendTXT(ClientNum, RELAY_NAME,				relay.getName());
 		websocket.sendTXT(ClientNum, RELAY_STATUS,				to_string(relay.status()));
-		websocket.sendTXT(ClientNum, PIR_SENSOR_ALERT_REPORTED,	to_string(Pir_Sensor.alertReported()));
+		websocket.sendTXT(ClientNum, PIR_SENSOR_STATUS,			to_string(Pir_Sensor.get_Status()));
 		websocket.sendTXT(ClientNum, WIFI_ACCESSPOINT_MODE,		to_string(WiFiAccessPointMode));
 		websocket.sendTXT(ClientNum, WIFI_NAME,					WiFiName);
 		websocket.sendTXT(ClientNum, WIFI_PASSWORD,				WiFiPassword);
@@ -220,7 +230,6 @@ void setup() {
 	websocket.addAction(WebsocketAction(EFFECT_SPEED,						[&EffektSpeed](String& arguments)			{ EffektSpeed = arguments.toInt(); websocket.broadcastTXT(EFFECT_SPEED, arguments); }));
 
 	websocket.addAction(WebsocketAction(RELAY_STATUS,						[&relay](String& arguments)					{ relay.switchStatus(); websocket.broadcastTXT(RELAY_STATUS, to_string(relay.status())); }));
-	websocket.addAction(WebsocketAction(RESET_PIR_SENSOR_ALERT_REPORTED,	[&Pir_Sensor](String& arguments)			{ Pir_Sensor.reset_reportedAlert(); websocket.broadcastTXT(PIR_SENSOR_ALERT_REPORTED, to_string(Pir_Sensor.alertReported())); }));
 	websocket.addAction(WebsocketAction(REBOOT,								[](String& arguments)						{ ESP.restart(); websocket.broadcastTXT(CLIENT_ALERT, "Board restarted -- Need to reload site after restart!"); }));
 	websocket.addAction(WebsocketAction(COMMAND,							[&config](String& arguments)				{
 		if(arguments == WRITE_CONFIG) {
@@ -310,20 +319,17 @@ void loop() {
 		display.println(websocket.connectedClients());
 		timer = millis() + 1500;
 	}
- 
-	/*
-		Actions the Websocket does if something changed(on the Board) and the Websocket acts with the Clients
-		without got previously data from the Client/s
-	*/
-	// If something moved and we not already send it to the client
-	if(Pir_Sensor.getLastActiveReport() == false && Pir_Sensor.alertReported() == true) {
-		websocket.broadcastTXT(PIR_SENSOR_ALERT_REPORTED, to_string(Pir_Sensor.alertReported()));
-	}
 
 	// Touch Sensor Actions
 	if(Touch_Sensor.touched(4, TimeType::seconds)) {	// Reset - restor to default settings and then restart
-		Serial.println("Reset...");
+		const char* message = "Reset";
+		Serial.println(message);
 		
+		display.fillScreen(ST7735_BLACK);
+		display.setTextColor(ST7735_RED);
+		display.setTextSize(2);
+		display.setCursor( (display.width() - strlen(message)*12) / 2, display.height() / 2 - 16/2);	// In the middle of the screen
+		display.print(message);
 
 		config[WIFI][WIFI_NAME].set_Value("Smart-Pixel");
 		config[WIFI][WIFI_PASSWORD].set_Value("12345678");
@@ -332,19 +338,25 @@ void loop() {
 		config[SERVER][HOSTNAME].set_Value("smart-pixel");
 
 		config.writeConfigFile();
-		
 
-		Serial.println("Restart...");
+		delay(100);
+		
 		ESP.restart();
 	}
-	else if(Touch_Sensor.touched(2, TimeType::seconds)) {	// Restart
-		Serial.println("Restart...");
+	else if(Touch_Sensor.touched(1, TimeType::seconds)) {	// Restart
+		const char* message = "Restart";
+
+		display.fillScreen(ST7735_BLACK);
+		display.setTextColor(ST7735_RED);
+		display.setTextSize(2);
+		display.setCursor( (display.width() - strlen(message)*12) / 2, display.height() / 2 - 16/2);	// In the middle of the screen
+		display.print(message);
+
+		Serial.println(message);
+
+		delay(1000);
+
 		ESP.restart();
-	}
-	else if(Touch_Sensor.touched(1, TimeType::seconds)) {
-		relay.switchStatus();
-		websocket.broadcastTXT(RELAY_STATUS, to_string(relay.status()));
-		delay(500);
 	}
 
 	RGB_LEDS(EffektSpeed);
@@ -354,5 +366,5 @@ void loop() {
 	webserver.handleClient();
 	MDNS.update();
 	yield();
-	Pir_Sensor.check();
+	Pir_Sensor.loop();
 }

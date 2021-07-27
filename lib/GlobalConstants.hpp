@@ -18,8 +18,7 @@
 #define TEMPERATURE						"Temperature"
 #define RELAY_STATUS					"RelayStatus"
 #define RELAY_NAME						"RelayName"
-#define PIR_SENSOR_ALERT_REPORTED		"PirSensorAlertReported"
-#define RESET_PIR_SENSOR_ALERT_REPORTED	"ResetPirSensorAlertReported"
+#define PIR_SENSOR_STATUS				"PirSensorStatus"
 #define COMMAND							"Command"
 
 // Commands

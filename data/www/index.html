@@ -44,14 +44,6 @@
 
 		<hr/>
 
-		<label for="effects">Chose a effect:
-			<select name="Effects">
-				<option value="RainbowCycle">RainbowCycle</option>
-				<option>ColorWipe</option>
-				<option>rainbowSoftBlink</option>
-			</select>
-		</label>
-
 		<div class="container">
 		<h2>Effekte Panel</h2> <!-- Should look more atractive -->
 		<form method="POST" onchange="sendEffekte();">
@@ -60,6 +52,14 @@
 			<input type="radio" class="Effecte" name="Effekt" id="rainbowSoftBlink" value="rainbowSoftBlink"/>Blink
 			<br/>
 			<input type="radio" class="Effecte" name="Effekt" id="RainbowCycle" value="RainbowCycle"/>RainbowCycle
+			<br/>
+			<label for="effects">Chose a effect:
+				<select name="Effects">
+					<option value="RainbowCycle">RainbowCycle</option>
+					<option>ColorWipe</option>
+					<option>rainbowSoftBlink</option>
+				</select>
+			</label>
 			<br/>
 			<input type="radio" class="Effecte" name="Effekt" id="ColorWipe" value="ColorWipe"/>ColorWipe
 			<br/>
@@ -90,12 +90,9 @@
         
 		<div class="container">
 		<h2>Motion Detector</h2>  <!--Here should be the running man like Mr. X-->
-		<form method="POST" onclick="resetPirSensorActiveReport();">
 			<p id="Pir-Sensor" style="height: 5em; width: 5em; background-color:green; border-radius: 0.7em;"></p>
 			<!-- <img src="MotionHand2.png" style="background-color:transparent;" /> -->
-			 <!--Background auf rgb(219, 219, 38); aendern wenn getriggert-->    <br />
-			<input class="button" type="button" name="Reset" value="Reset">
-		</form>
+			 <!--Background auf rgb(219, 219, 38); aendern wenn getriggert-->
 	    </div>
 
 		<hr/>
@@ -158,8 +155,7 @@
 			RELAY_STATUS					: "RelayStatus",
 			RELAY_NAME						: "RelayName",
 			COMMAND							: "Command",
-			PIR_SENSOR_ALERT_REPORTED		: "PirSensorAlertReported",
-			RESET_PIR_SENSOR_ALERT_REPORTED	: "ResetPirSensorAlertReported",
+			PIR_SENSOR_STATUS				: "PirSensorStatus",
 			REBOOT							: "reboot",
 			CLIENT_ALERT					: "ClientAlert",
 			NUM_OF_CONNECTED_CLIENTS		: "NumOfConnectedClients",
@@ -217,7 +213,7 @@
 						break;
 					}
 					case WebsocketKeyValues.EFFECT: {
-						document.getElementById("Effecte").checked = arg;
+						document.getElementById(arg).checked = true;
 						break;
 					}
 					case WebsocketKeyValues.EFFECT_SPEED: {
@@ -246,9 +242,9 @@
 						RelayName = arg;
 						break;
 					}
-					case WebsocketKeyValues.PIR_SENSOR_ALERT_REPORTED: {
+					case WebsocketKeyValues.PIR_SENSOR_STATUS: {
 						var color = String;
-						if(arg == 1) {
+						if(arg == "1" || arg == "true") {
 							color = "red";
 						} else {
 							color = "green";
@@ -310,9 +306,6 @@
 			}
 			var relayNum = 0;
 			websocketSend(WebsocketKeyValues.RELAY_STATUS, "");
-		}
-		function resetPirSensorActiveReport() {
-			websocketSend(WebsocketKeyValues.RESET_PIR_SENSOR_ALERT_REPORTED, "");
 		}
 		function sendRGB() {
 			var rgb = document.getElementById("RGB-Color").value;
