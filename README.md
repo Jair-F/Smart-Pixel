@@ -1,7 +1,7 @@
 # Smart-Pixel
 
-## Pin-Belegung
-**Bisher nur Beispiele - die Pins stimmen nur fürs erste - müssen später noch richtig eingetragen werden!!**
+## Pins
+**The pins are not finally. During development they may change!!**
 - Touch-Sensor: D0
 - Pir-Sensor: D1
 - Relay-0: D3
@@ -17,25 +17,25 @@
 - (RTC:)
 
 
-## Planung
-- Datei **"Klassen Planung.io"** ist auf der Plattform [Draw IO](https://app.diagrams.net/) gemacht worden.
+## Planning
+- File **"Klassen Planung.io"** is made on the Platform/Website [Draw IO](https://app.diagrams.net/).
 
-## Library's - Voraussetzungen
+## Library's 
 - [Arduino-Core für ESP8266-WiFiChip](https://github.com/esp8266/Arduino) (Nodemcu Library)
 	* [Installationsanweisung auf der Seite folgen](https://github.com/esp8266/Arduino#installing-with-boards-manager)
-		* Vereinfacht erklärt: Füge `http://arduino.esp8266.com/stable/package_esp8266com_index.json` in der Arduino IDE unter *Datei* > *Voreinstellungen* > *Zusätzliche Boardverwalter-URLs*
-		* *Werkzeuge* > *Board* > *Boardverwalter* > suche nach *'esp8266'* > Klicke auf Installieren
+		* Insert this Link `http://arduino.esp8266.com/stable/package_esp8266com_index.json` in the Arduino-IDE *File* > *Preferences* > *Additional Boards Manager URLs*
+		* *Tools* > *Board* > *BoardManager* > search for *'esp8266'* > click install
 - [Websocket](https://github.com/Links2004/arduinoWebSockets)
-	* Unter [releases](https://github.com/Links2004/arduinoWebSockets/releases) die neuste 'SourceCode.zip' herunterladen
-	* Arduino-IDE: (*Sketch* > *Bibliothek einbinden* > *Zip Bibliothek hinzufügen*)
+	* Under [releases](https://github.com/Links2004/arduinoWebSockets/releases) downlaod the newest 'SourceCode.zip'
+	* Arduino-IDE: (*Sketch* > *Include Library* > *Add .zip Library*)
 - [Adafruit Neopixel](https://github.com/adafruit/Adafruit_NeoPixel) 
-	* [Installationsanweisungen auf der Seite folgen](https://github.com/adafruit/Adafruit_NeoPixel#installation)
+	* [Follow installation instructions on the site](https://github.com/adafruit/Adafruit_NeoPixel#installation)
 - Display
-	* In Library Manager nach **ST7735** suchen, die Bibliothek von Adafruit.
+	* Search in Library Manager(*Sketch* > *Include Library* > *Manage Libraries*) for **ST7735**, the Library from Adafruit.
 - RTC
-	* In Library Manager nach **RTClib** suchen, die Bibliothek von Adafruit.
+	* Search in Library Manager for **RTClib**, the Library from Adafruit.
 - DHT-Sensor
-	* In Library Manager nach **dht sensor library** suchen, die Bibliothek von Adafruit.
-- [SPIFFS-Uploader](https://github.com/esp8266/Arduino#installing-with-boards-manager) - **Das ist nur der File-Uploader für die Arduino IDE. Die Library für das ESP8266-Spiffs ist schon in der 'Arduino-Core für ESP8266-WiFi-Chip' Library enthalten.**
-	* [Installationsanweisung auf der Seite folgen](https://github.com/esp8266/arduino-esp8266fs-plugin#installation)
-	* Unter Linux muss man im Home-Verzeichnis unter Arduino(~/Arduino) den Ordner **tools** erstellen. Da muss man den Inhalt der heruntergeladenen Datei entpaken.
+	* Search in Library Manager for **dht sensor library**, the Library from Adafruit.
+- [SPIFFS-Uploader](https://github.com/esp8266/Arduino#installing-with-boards-manager) - **This is only the SPIFFS-File uploader(data directory) for the Arduino-IDE. The Library for the ESP8255-Spiffs is already in included in the 'Arduino-Core für ESP8266-WiFi-Chip' library.**
+	* [Follow installation instructions on the site](https://github.com/esp8266/arduino-esp8266fs-plugin#installation)
+	* On Linux you have to create in your Home-Folder in the Arduino-Directory(~/Arduino) a folder called **tools**. Inside this folder you have to extract the content of the downloaded archive.
