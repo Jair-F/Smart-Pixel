@@ -14,7 +14,7 @@ All these elements are controllable through a web-interface (Website with Websoc
 
 **The BackEnd is written entirely in C++. The Webinterface/Website is written in HTML, styled with CSS, the dynamic updates of the Website are written in JavaScript**
 
-Heres a demonstration how the clients are syncronized one to each other. If we change something at one client it automaticaly also changes it on the other client!
+Here is a demonstration how the clients are syncronized with each other. If a parameter is changed at one client, the other client is updated directly!
 
 [![Project Demo](https://img.youtube.com/vi/sIVptSRVPj8/0.jpg)](https://youtube.com/watch?v=sIVptSRVPj8)
 
