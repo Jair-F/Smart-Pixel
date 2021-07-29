@@ -4,7 +4,7 @@
 class Relay {
 public:
 	Relay() { }
-	Relay(unsigned short _pin, String _name, bool _status = false);
+	Relay(unsigned short _pin, String _name = "Relay", bool _status = false);
 	Relay(const Relay&) = default;
 	~Relay() { }
 
