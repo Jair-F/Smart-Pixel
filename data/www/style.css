@@ -1,0 +1,26 @@
+html {
+	background-color: rgb(48, 48, 48);
+	text-align: center;
+}	
+
+input {
+	background-color: rgb(109, 109, 109);
+	border-color: rgb(231, 231, 231);
+	border-radius: 0.2em;
+	
+}
+
+p {
+	color:rgb(122, 122, 122);
+}
+
+h1 {
+	color:linear-gradient(to right, red, blue, green, yellow, orange, red);
+	text-shadow: 1px 1px rgb(161, 161, 161);
+}
+
+hr {
+	background: linear-gradient(to right, red, rgb(0, 183, 255), blue);
+	height: 0.5em;
+	border-width: 0px;
+}

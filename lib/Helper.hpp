@@ -30,7 +30,15 @@ String to_string(float num) {
 }
 
 bool to_bool(String str) {
-	return str == "true" || str == "1";
+	if(str == "1" || str == "true") {
+		return true;
+	}
+	else if(str == "0" || str == "false") {
+		return false;
+	}
+	else {
+		Serial.println(str + " is not a type a bool can be asigned to");
+	}
 }
 
 // Funktionen um den RGB-Hex-Code zu konvertieren und in dezimal Werte von 0-255 umwandeln
