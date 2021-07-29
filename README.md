@@ -1,7 +1,7 @@
 # Smart-Pixel
 
 ## Pin-Belegung
-**Bisher nur Beispliel - die Pins stimmen nur fürs erste - müssen später noch richtig eingetragen werden!!**
+**Bisher nur Beispiele - die Pins stimmen nur fürs erste - müssen später noch richtig eingetragen werden!!**
 - Touch-Sensor: D0
 - Pir-Sensor: D1
 - Relay-0: D3
@@ -18,7 +18,7 @@
 
 
 ## Planung
-- Datei **"Klassen Planung.io"** ist auf der Platfrom [Draw IO](https://app.diagrams.net/) gemacht worden.
+- Datei **"Klassen Planung.io"** ist auf der Plattform [Draw IO](https://app.diagrams.net/) gemacht worden.
 
 ## Library's - Voraussetzungen
 - [Arduino-Core für ESP8266-WiFiChip](https://github.com/esp8266/Arduino) (Nodemcu Library)
