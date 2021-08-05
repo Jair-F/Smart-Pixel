@@ -66,7 +66,6 @@ RGB_Pixel_Colors& default_Effect(RGB_Pixel_Colors& _pixelColors) {
 
 void RGB_LED::setActualEffekt(Effect& _effekt) {
 	actualEffekt = _effekt;
-	effectIsRunning = true;
 }
 
 RGB_LED::RGB_LED(unsigned short numPixels, unsigned short pin, neoPixelType type): LEDS(numPixels, pin, type), PixelColors(LEDS.numPixels()) {
