@@ -1,11 +1,37 @@
 # Smart-Pixel
 
-## Pin-Belegung
-**Bisher nur Beispliel - die Pins stimmen nur fürs erste - müssen später noch richtig eingetragen werden!!**
-- Touch-Sensor: **UNSET**
+## Description
+This Code is for the [Arduino NodeMCU-Microcontroller](https://en.wikipedia.org/wiki/NodeMCU) (preferrably for the model NodeMCU 1). The following periphery is present:
+- A WiFi-Chip on the NodeMCU-Board - to connect to a WiFi or create an own WiFi-Access-Point
+- A [Touch-Sensor](https://www.dx.com/p/produino-jog-type-touch-sensor-capacitive-touch-switch-module-for-arduino-blue-2038545.html) to controll the Board pysically (restart, reset)
+- A temperature and humidity sensor ([DHT11](https://learn.adafruit.com/dht))
+- A [motion detector](https://www.elecrow.com/hcsr505-mini-pir-motion-sensor-p-1382.html)(to give you a report if somebody is actually in your room)
+- A [Relay](https://www.amazon.com/-/de/dp/B07BVXT1ZK/) to control lamps or other devices which have to be connected to high voltage(220V)
+- A small [Display](https://www.amazon.com/Display-Module-ST7735-128x160-STM32/dp/B07BFV69DZ) to print important information
+- A [Neopixel RGB-Ring/Block/Strip](https://www.adafruit.com/product/1463) to run effects or show a color
+
+All these elements are controllable through a web-interface (Website with Websocket) to read the temperature/humidity, to control the Relay/the LED's or run an effect... You can also assign to the relay and to the Motion detector a name, which will be shown on the website accordingly. In order to ensure a smooth and user friendly experience, the website updates itself dynamically in the background, reading constantly the actual data from the sensors connected to the Board.
+
+**The BackEnd is written entirely in C++. The Webinterface/Website is written in HTML, styled with CSS, the dynamic updates of the Website are written in JavaScript**
+
+Here is a demonstration how the clients are syncronized with each other. If a parameter is changed at one client, the other client is updated directly!
+
+[![Project Demo](https://img.youtube.com/vi/37696_5yYVo/0.jpg)](https://www.youtube.com/watch?v=37696_5yYVo)
+
+## For Developers
+Due to the limitations of the Board like **limited porcessing power and limited storage we dont have the ability to use multithreading** the functions or loops (which need to run continuosly in the background) are designed in a different way. For example, to start the effects we cant run in an own thread. We coded the functions of the effect (and also of the other periphery and objects which need an own loop) in such a way that it stores the previous color, changes the color when calling the function only one step and returns immediately. All these loop functions are called from the main loop.
+
+### Used Languages
+- C++ (Server BackEnd, peripheral control)
+- HTML, CSS (for the Website)
+- JavaScript (to update the Website dynamically)
+
+## Pins
+**The pins are not finally. During development they may change!!**
+- Touch-Sensor: D0
 - Pir-Sensor: D1
 - Relay-0: D3
-- DHT-Sensor: D0
+- DHT-Sensor: A0
 - RGB-LED: D2
 - Display:
 	* LED: 3.3V
@@ -17,25 +43,25 @@
 - (RTC:)
 
 
-## Planung
-- Datei **"Klassen Planung.io"** ist auf der Platfrom [Draw IO](https://app.diagrams.net/) gemacht worden.
+## Planning
+- File **"Klassen Planung.io"** is made on the Platform/Website [Draw IO](https://app.diagrams.net/).
 
-## Library's - Voraussetzungen
+## Library's 
 - [Arduino-Core für ESP8266-WiFiChip](https://github.com/esp8266/Arduino) (Nodemcu Library)
 	* [Installationsanweisung auf der Seite folgen](https://github.com/esp8266/Arduino#installing-with-boards-manager)
-		* Vereinfacht erklärt: Füge `http://arduino.esp8266.com/stable/package_esp8266com_index.json` in der Arduino IDE unter *Datei* > *Voreinstellungen* > *Zusätzliche Boardverwalter-URLs*
-		* *Werkzeuge* > *Board* > *Boardverwalter* > suche nach *'esp8266'* > Klicke auf Installieren
+		* Insert this Link `http://arduino.esp8266.com/stable/package_esp8266com_index.json` in the Arduino-IDE *File* > *Preferences* > *Additional Boards Manager URLs*
+		* *Tools* > *Board* > *BoardManager* > search for *'esp8266'* > click install
 - [Websocket](https://github.com/Links2004/arduinoWebSockets)
-	* Unter [releases](https://github.com/Links2004/arduinoWebSockets/releases) die neuste 'SourceCode.zip' herunterladen
-	* Arduino-IDE: (*Sketch* > *Bibliothek einbinden* > *Zip Bibliothek hinzufügen*)
+	* Under [releases](https://github.com/Links2004/arduinoWebSockets/releases) downlaod the newest 'SourceCode.zip'
+	* Arduino-IDE: (*Sketch* > *Include Library* > *Add .zip Library*)
 - [Adafruit Neopixel](https://github.com/adafruit/Adafruit_NeoPixel) 
-	* [Installationsanweisungen auf der Seite folgen](https://github.com/adafruit/Adafruit_NeoPixel#installation)
+	* [Follow installation instructions on the site](https://github.com/adafruit/Adafruit_NeoPixel#installation)
 - Display
-	* In Library Manager nach **ST7735** suchen, die Bibliothek von Adafruit.
+	* Search in Library Manager(*Sketch* > *Include Library* > *Manage Libraries*) for **ST7735**, the Library from Adafruit.
 - RTC
-	* In Library Manager nach **RTClib** suchen, die Bibliothek von Adafruit.
+	* Search in Library Manager for **RTClib**, the Library from Adafruit.
 - DHT-Sensor
-	* In Library Manager nach **dht sensor library** suchen, die Bibliothek von Adafruit.
-- [SPIFFS-Uploader](https://github.com/esp8266/Arduino#installing-with-boards-manager) - **Das ist nur der File-Uploader für die Arduino IDE. Die Library für das ESP8266-Spiffs ist schon in der 'Arduino-Core für ESP8266-WiFi-Chip' Library enthalten.**
-	* [Installationsanweisung auf der Seite folgen](https://github.com/esp8266/arduino-esp8266fs-plugin#installation)
-	* Unter Linux muss man im Home-Verzeichnis unter Arduino(~/Arduino) den Ordner **tools** erstellen. Da muss man den Inhalt der heruntergeladenen Datei entpaken.
+	* Search in Library Manager for **dht sensor library**, the Library from Adafruit.
+- [SPIFFS-Uploader](https://github.com/esp8266/Arduino#installing-with-boards-manager) - **This is only the SPIFFS-File uploader(data directory) for the Arduino-IDE. The Library for the ESP8255-Spiffs is already in included in the 'Arduino-Core für ESP8266-WiFi-Chip' library.**
+	* [Follow installation instructions on the site](https://github.com/esp8266/arduino-esp8266fs-plugin#installation)
+	* On Linux you have to create in your Home-Folder in the Arduino-Directory(~/Arduino) a folder called **tools**. Inside this folder you have to extract the content of the downloaded archive.

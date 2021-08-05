@@ -6,6 +6,8 @@
 /**
  * Implement:
  * 		> Maybe file upload https://tttapa.github.io/ESP8266/Chap12%20-%20Uploading%20to%20Server.html
+ * 							https://tttapa.github.io/ESP8266/Chap10%20-%20Simple%20Web%20Server.html
+ * 							https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/server-examples.html
  * 
  * The Webserver is only used to get the Website, maybe make uploads or authentications but not for other
  * commands/interactions with the user because he disconnects from the client every time he sent the website.
