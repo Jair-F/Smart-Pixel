@@ -16,7 +16,7 @@ All these elements are controllable through a web-interface (Website with Websoc
 
 Here is a demonstration how the clients are syncronized with each other. If a parameter is changed at one client, the other client is updated directly!
 
-[![Project Demo](https://img.youtube.com/vi/sIVptSRVPj8/0.jpg)](https://youtube.com/watch?v=sIVptSRVPj8)
+[![Project Demo](https://img.youtube.com/vi/37696_5yYVo/0.jpg)](https://www.youtube.com/watch?v=37696_5yYVo)
 
 ## For Developers
 Due to the limitations of the Board like **limited porcessing power and limited storage we dont have the ability to use multithreading** the functions or loops (which need to run continuosly in the background) are designed in a different way. For example, to start the effects we cant run in an own thread. We coded the functions of the effect (and also of the other periphery and objects which need an own loop) in such a way that it stores the previous color, changes the color when calling the function only one step and returns immediately. All these loop functions are called from the main loop.
