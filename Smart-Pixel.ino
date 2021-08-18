@@ -75,9 +75,9 @@ Relay relay(RELAY_PIN);
 TouchSensor Touch_Sensor(TOUCH_SENSOR_PIN);
 
 
-//ESP8266WiFiClass WiFi;
+extern MDNSResponder MDNS;
 
-//MDNSResponder MDNS;
+extern ESP8266WiFiClass WiFi;
 
 Webserver webserver(filesystem, 80);
 
