@@ -66,11 +66,12 @@
 						<option value="RainbowCycle">RainbowCycle</option>
 						<option value="ColorWipe">ColorWipe</option>
 						<option value="rainbowSoftBlink">rainbowSoftBlink</option>
+						<option value="randomRGBblink">RandomRGBBlink</option>
 					</select>
 			<br/>
 			 Effekt Speed
 			 <br />
-			<input id="EffectSpeed" name="EffektSpeed" type="range" min="1" max="100"/>
+			<input id="EffectSpeed" name="EffektSpeed" type="range" min="1" max="200"/>
 		</form>
 	    </div>
 
@@ -189,7 +190,8 @@
 		const Effects = {
 			RainbowSoftBlink	: "rainbowSoftBlink",
 			RainbowCycle		: "RainbowCycle",
-			ColorWipe			: "ColorWipe"
+			ColorWipe			: "ColorWipe",
+			randomRGBblink		: "randomRGBblink"
 		};
 		
 		// WebSocket-Initialization

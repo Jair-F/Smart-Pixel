@@ -37,7 +37,7 @@ bool to_bool(String str) {
 		return false;
 	}
 	else {
-		Serial.println(str + " is not a type a bool can be asigned to");
+		Serial.println("\"" + str + "\" is not a type a bool can be asigned to");
 	}
 }
 

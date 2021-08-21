@@ -13,6 +13,44 @@
 */
 
 
+RGB_Pixel_Colors& randomRGBblink(RGB_Pixel_Colors& _pixelColors) {
+
+	for(unsigned short i = 0; i < _pixelColors.numOfPixels(); ++i) {
+		/*
+			The Colors the LEDS can light up(only full colors - no mix)
+			0 = off
+			1 = red
+			2 = green
+			3 = blue
+		*/
+		byte color = random(0, 4);
+
+		switch(color) {
+			case 0: {
+				_pixelColors[i] = RGB_Utils::Color(0, 0, 0);
+				break;
+			}
+			case 1: {
+				_pixelColors[i] = RGB_Utils::Color(255, 0, 0);
+				break;
+			}
+			case 2: {
+				_pixelColors[i] = RGB_Utils::Color(0, 255, 0);
+				break;
+			}
+			case 3: {
+				_pixelColors[i] = RGB_Utils::Color(0, 0, 255);
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+	}
+
+	return _pixelColors;
+}
+
 
 RGB_Pixel_Colors& rainbow_soft_blink(RGB_Pixel_Colors& _pixelColors) {
 	static byte schleife{1};    // Die auszufuehrende Schleife(wird in switch-case abgefragt)

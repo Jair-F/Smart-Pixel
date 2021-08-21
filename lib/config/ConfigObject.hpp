@@ -14,7 +14,7 @@ public:
 	bool operator==(const ConfigObject& co);
 	bool operator!=(const ConfigObject& co) { return ! (*this == co); }
 
-	String get_KeyWord() const	{ return configKeyWord;	}
+	String get_KeyWord() const		{ return configKeyWord;	}
 	String get_Value() const		{ return configValue;	}
 
 	void set_KeyWord(String _configKeyWord)	{ configKeyWord = _configKeyWord;	}
