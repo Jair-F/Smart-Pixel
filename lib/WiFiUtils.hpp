@@ -8,6 +8,12 @@
 #include "Exception.hpp"
 #include "Helper.hpp"
 
+extern MDNSResponder MDNS;
+extern ESP8266WiFiClass WiFi;
+extern bool WiFiAccessPointMode;
+extern String WiFiName;
+extern String WiFiPassword;
+extern unsigned short MaxWiFiCon;
 
 void initWifi();
 

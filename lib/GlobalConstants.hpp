@@ -42,7 +42,7 @@
 #define COLOR_WIPE			"ColorWipe"
 #define RAINBOW_SOFT_BLINK	"rainbowSoftBlink"
 #define RAINBOW_CYCLE		"RainbowCycle"
-
+#define RANDOM_RGB_BLINK	"randomRGBblink"
 
 
 

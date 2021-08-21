@@ -4,6 +4,8 @@
 
 #pragma once
 
+extern FS SPIFFS;
+
 /* SPIFFS ist
  FS SPIFFS = FS(FSImplPtr(new spiffs_impl::SPIFFSImpl(
 							 FS_PHYS_ADDR,
@@ -18,7 +20,7 @@
 class Filesystem : public FS {
 public:
 	Filesystem();
-	virtual ~Filesystem() { SPIFFS.end(); }
+	virtual ~Filesystem() { this->end(); }
 
 	/**
 		File open(_path, _mode)
@@ -47,6 +49,7 @@ public:
 	*/
 };
 
+// copy Variable SPIFFS, because it has the preconfiguration for this board
 Filesystem::Filesystem(): FS(SPIFFS) {
 	SPIFFSConfig config;
 	// Normally the spiffs format itself if he faild to mount
