@@ -61,7 +61,6 @@ Adafruit_ST7735 display(TFT_CS, TFT_DC, TFT_RST);
 
 
 String RGBColor;
-unsigned short EffektSpeed = 10;
 EffectGroup Effects;
 RGB_LED RGB_LEDS(RGB_LED_NUMPIXELS, RGB_LED_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -89,6 +88,9 @@ Websocket websocket(81);
 void setup() {
 	Serial.begin(9600);
 	Serial.println("Serial started");
+
+	randomSeed(analogRead(0));			// Initialize randomSeed with a relative random number(read analog state from pin 0 or another pin)
+	Serial.println("Initialized random");
 
 	display.initR(INITR_BLACKTAB);      // Init ST7735S chip, black tab
 	Serial.println("Display started");
@@ -213,7 +215,7 @@ void setup() {
 		websocket.sendTXT(ClientNum, RGB_COLOR,					RGB_Utils::RGBColorToHex(RGB_LEDS.getPixelColor(0)));
 		websocket.sendTXT(ClientNum, EFFECT_RUNNING,			to_string(RGB_LEDS.get_effectRunning()));
 		websocket.sendTXT(ClientNum, EFFECT,					RGB_LEDS.getActualEffekt().getName());
-		websocket.sendTXT(ClientNum, EFFECT_SPEED,				to_string(EffektSpeed));
+		websocket.sendTXT(ClientNum, EFFECT_SPEED,				to_string(RGB_LEDS.getEffectSpeed()));
 		websocket.sendTXT(ClientNum, TEMPERATURE,				to_string(dht.readTemperature()));
 		websocket.sendTXT(ClientNum, HUMIDITY, 					to_string(dht.readHumidity()));
 		websocket.sendTXT(ClientNum, RELAY_NAME,				relay.getName());
@@ -238,7 +240,7 @@ void setup() {
 	websocket.addAction(WebsocketAction(RGB_COLOR,							[&RGB_LEDS](String& arguments)				{ RGB_LEDS.fill(RGB_Utils::RGBHexToColor(arguments)); RGB_LEDS.show(); websocket.broadcastTXT(EFFECT_RUNNING, to_string(RGB_LEDS.get_effectRunning())); websocket.broadcastTXT(RGB_COLOR, arguments); }));
 	websocket.addAction(WebsocketAction(EFFECT,								[&Effects, &RGB_LEDS](String& arguments)	{ RGB_LEDS.setActualEffekt(Effects[arguments]); websocket.broadcastTXT(EFFECT, arguments); }));
 	websocket.addAction(WebsocketAction(EFFECT_RUNNING,						[&RGB_LEDS](String& arguments)				{ RGB_LEDS.set_effectRunning(to_bool(arguments)); websocket.broadcastTXT(EFFECT_RUNNING, to_string(RGB_LEDS.get_effectRunning())); }));
-	websocket.addAction(WebsocketAction(EFFECT_SPEED,						[&EffektSpeed](String& arguments)			{ EffektSpeed = arguments.toInt(); websocket.broadcastTXT(EFFECT_SPEED, arguments); }));
+	websocket.addAction(WebsocketAction(EFFECT_SPEED,						[&RGB_LEDS](String& arguments)				{ RGB_LEDS.setEffectSpeed(arguments.toInt()); websocket.broadcastTXT(EFFECT_SPEED, arguments); }));
 
 	websocket.addAction(WebsocketAction(RELAY_STATUS,						[&relay](String& arguments)					{ relay.switchStatus(); websocket.broadcastTXT(RELAY_STATUS, to_string(relay.status())); }));
 	websocket.addAction(WebsocketAction(REBOOT,								[](String& arguments)						{ ESP.restart(); websocket.broadcastTXT(CLIENT_ALERT, "Board restarted -- Need to reload site after restart!"); }));
@@ -272,6 +274,7 @@ void setup() {
 	Effects.add(Effect(RAINBOW_SOFT_BLINK,	rainbow_soft_blink));
 	Effects.add(Effect(COLOR_WIPE,			colorWipe));
 	Effects.add(Effect(RAINBOW_CYCLE,		rainbowCycle));
+	Effects.add(Effect(RANDOM_RGB_BLINK,	randomRGBblink));
 	RGB_LEDS.setActualEffekt(Effects[RAINBOW_SOFT_BLINK]);
 	RGB_LEDS.set_effectRunning(true);
 
@@ -375,7 +378,7 @@ void loop() {
 		ESP.restart();
 	}
 
-	RGB_LEDS(EffektSpeed);
+	RGB_LEDS();
 	Touch_Sensor.loop();
 	websocket.loop();
 	yield();

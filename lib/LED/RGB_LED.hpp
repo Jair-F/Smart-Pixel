@@ -23,6 +23,7 @@ private:
 	RGB_Pixel_Colors PixelColors;
 
 	bool effectIsRunning;
+	unsigned long effectSpeed;
 public:
 	RGB_LED(uint16_t numPixels, unsigned short pin, neoPixelType type);
 
@@ -30,11 +31,14 @@ public:
 	// Returns nullptr if there is no effect running
 	Effect& getActualEffekt() { return actualEffekt; }
 
+	void setEffectSpeed(unsigned long _efs)		{ effectSpeed = _efs; }
+	unsigned long getEffectSpeed()				{ return effectSpeed; }
+
 	// returns wether there runs a effect or not
 	bool get_effectRunning() const 				{ return effectIsRunning; }
 	void set_effectRunning(bool _effectRunning)	{ effectIsRunning = _effectRunning; }
 
-	void operator()(unsigned short effektSpeed);
+	void operator()();
 
 	// Functions which must to be sepcialized - deactivate Effect if expicit set Color on the led's.
 	void setPixelColor(uint16_t pixelPos, RGB_Utils::RGB_Color _color)					{ effectIsRunning = false; LEDS.setPixelColor(pixelPos, _color);			}
@@ -74,14 +78,14 @@ RGB_LED::RGB_LED(unsigned short numPixels, unsigned short pin, neoPixelType type
 	LEDS.begin();
 }
 
-void RGB_LED::operator()(unsigned short effektSpeed) {
+void RGB_LED::operator()() {
 	if(effectIsRunning) {
 		actualEffekt(PixelColors);
 		for(uint16_t i = 0; i < LEDS.numPixels(); i++) {
 			LEDS.setPixelColor(i, PixelColors[i]);
 		}
 		LEDS.show();
-		delay(effektSpeed);
+		delay(this->effectSpeed);
 	}
 }
 
