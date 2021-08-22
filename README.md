@@ -36,7 +36,7 @@ Due to the limitations of the Board like **limited porcessing power and limited 
 - Display:
 	* LED: 3.3V
 	* SCK: D5
-	* SDA: D10
+	* SDA: D7
 	* A0:  D4
 	* RESET: 3.3V
 	* CS: D8
