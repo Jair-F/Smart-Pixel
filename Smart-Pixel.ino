@@ -218,7 +218,6 @@ void setup() {
 		websocket.sendTXT(ClientNum, EFFECT_SPEED,				to_string(RGB_LEDS.getEffectSpeed()));
 		websocket.sendTXT(ClientNum, TEMPERATURE,				to_string(dht.readTemperature()));
 		websocket.sendTXT(ClientNum, HUMIDITY, 					to_string(dht.readHumidity()));
-		websocket.sendTXT(ClientNum, RELAY_NAME,				relay.getName());
 		websocket.sendTXT(ClientNum, RELAY_STATUS,				to_string(relay.status()));
 		websocket.sendTXT(ClientNum, PIR_SENSOR_STATUS,			to_string(Pir_Sensor.get_Status()));
 		websocket.sendTXT(ClientNum, WIFI_ACCESSPOINT_MODE,		to_string(WiFiAccessPointMode));
@@ -276,6 +275,7 @@ void setup() {
 	Effects.add(Effect(RAINBOW_CYCLE,		rainbowCycle));
 	Effects.add(Effect(RANDOM_RGB_BLINK,	randomRGBblink));
 	RGB_LEDS.setActualEffekt(Effects[RAINBOW_SOFT_BLINK]);
+	RGB_LEDS.setEffectSpeed(20);
 	RGB_LEDS.set_effectRunning(true);
 
 
