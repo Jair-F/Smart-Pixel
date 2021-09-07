@@ -1,26 +1,59 @@
-html {
-	background-color: rgb(48, 48, 48);
-	text-align: center;
-}	
-
-input {
-	background-color: rgb(109, 109, 109);
-	border-color: rgb(231, 231, 231);
-	border-radius: 0.2em;
-	
+.b-example-divider {
+  display: flex;
+  height: 3rem;
+  background-color: rgba(69, 184, 192, 0.1);
+  border: solid rgba(0, 0, 0, .15);
+  border-width: 1px 0;
+  box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+  justify-content: center;
+  align-items:     center;
 }
 
-p {
-	color:rgb(122, 122, 122);
+#top {
+	display:table; 
+	font-size: 2rem;
+  font-weight:900;
+	background: linear-gradient(100deg,#e05252 0%, #99e052 25%, #52e0e0 50%,#9952e0 75%, #e05252 100%);
+	-webkit-text-fill-color:transparent;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-background-clip:text; 
+	background-clip: text;
 }
 
-h1 {
-	color:linear-gradient(to right, red, blue, green, yellow, orange, red);
-	text-shadow: 1px 1px rgb(161, 161, 161);
+.inner-shell{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 }
 
-hr {
-	background: linear-gradient(to right, red, rgb(0, 183, 255), blue);
-	height: 0.5em;
-	border-width: 0px;
+[class^="col"]  /* More relevant for Desktop view */
+{
+  
+  min-height:25vh;
+  margin-bottom:2rem;
+
+}
+
+.bi {
+  fill: currentColor;
+}
+
+@media (min-height: 877px)
+{
+ .container{
+   height: 95.2vh;
+ }
+}
+
+.icon-square {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  font-size: 2rem;
+  border-radius: .75rem;
+  background-color: rgb(225, 250, 255);
 }
