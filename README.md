@@ -65,3 +65,12 @@ Due to the limitations of the Board like **limited porcessing power and limited 
 - [SPIFFS-Uploader](https://github.com/esp8266/Arduino#installing-with-boards-manager) - **This is only the SPIFFS-File uploader(data directory) for the Arduino-IDE. The Library for the ESP8255-Spiffs is already in included in the 'Arduino-Core für ESP8266-WiFi-Chip' library.**
 	* [Follow installation instructions on the site](https://github.com/esp8266/arduino-esp8266fs-plugin#installation)
 	* On Linux you have to create in your Home-Folder in the Arduino-Directory(~/Arduino) a folder called **tools**. Inside this folder you have to extract the content of the downloaded archive.
+
+## Uploading the Sketch
+**This are my settings and they should work properly**
+- *Tools* > *Board* - select the NodeMCU 1.0 board
+- *Tools* > *C++ Exceptions* - change it to **enable**
+- *Tools* > *Flash Size* - select **4MB (FS:2MB OTA:~1019KB)**
+- *Tools* > *Port* - connect your NodeMCU to your PC and select the port of your Board
+
+Then upload the sketch by pressing **Ctrl+U** or clicking the arrow which points to the right at the left upper corner.
