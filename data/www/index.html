@@ -461,7 +461,7 @@ viewBox="0 0 32 32">
           <svg class="bi" width="1.1em" height="1.1em"><use xlink:href="#color"/></svg>
         </div>
 
-        <div class="inner-shell " >
+        <div class="inner-shell fw-bold" >
           <h2>Color Mixer</h2>
           <div class=" d-flex h-100 align-items-center">
           <form  method="POST" onchange="sendRGB();">
@@ -476,7 +476,7 @@ viewBox="0 0 32 32">
         <div class="icon-square text-dark flex-shrink-0 me-3">
           <svg class="bi" width="1.2em" height="1.2em"><use xlink:href="#effect"/></svg>
         </div>
-        <div class="inner-shell">
+        <div class="inner-shell fw-bolder">
           <h2>Effect Panel</h2>
           <div class="d-flex align-items-center h-100">
           <form method="POST" onchange="sendEffekte();" style="width: fit-content; height: fit-content;">
@@ -503,8 +503,8 @@ viewBox="0 0 32 32">
           <h2>Sensor Panel</h2>
           <div class=" d-flex  h-100  align-items-center" >
           <div>
-          <p>Temperature: <span id="Temperature">%TEMP%</span></p>
-		      <p>Humidity: <span id="Humidity">%HUM%</span></p>
+          <p class="fw-bold">Temperature: <span id="Temperature">%TEMP%</span></p>
+		      <p class="fw-bold">Humidity: <span id="Humidity">%HUM%</span></p>
         </div>
         </div>
         </div>
@@ -536,7 +536,7 @@ viewBox="0 0 32 32">
         <div class="inner-shell ">
           <h2>Motion Detector</h2>
           <div class="d-flex  h-100 align-items-center ">
-            <p id="Pir-Sensor" style="margin-bottom:0; height: 5em; width: 50%; background-color:green; border-radius: 0.7em;"></p>
+            <p id="Pir-Sensor" style="margin-bottom:0; height: 5em; width: 50%; background-color:green; border-radius: 0.7em;">%RELAY_NAME%</p>
           </div>
           <div class="flex-grow-1"></div>
           <form method="POST" class="w-100"  onclick="sendPirSensor();">
