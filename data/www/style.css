@@ -31,11 +31,7 @@
 [class^="col"]  /* More relevant for Desktop view */
 {
   
-<<<<<<< HEAD
   min-height:20vh;
-=======
-  min-height:25vh;
->>>>>>> 9e6ae704a09fdcbe31b6ef6aa9d68905a5cb3798
   margin-bottom:2rem;
 
 }
