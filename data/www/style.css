@@ -40,7 +40,7 @@
   fill: currentColor;
 }
 
-@media (min-height: 877px)
+@media (min-width: 992px ) and (min-height: 972px)
 {
  .container{
    height: 95.2vh;
