@@ -31,7 +31,7 @@
 [class^="col"]  /* More relevant for Desktop view */
 {
   
-  min-height:25vh;
+  min-height:20vh;
   margin-bottom:2rem;
 
 }
@@ -40,7 +40,7 @@
   fill: currentColor;
 }
 
-@media (min-height: 877px)
+@media (min-width: 992px ) and (min-height: 972px)
 {
  .container{
    height: 95.2vh;
