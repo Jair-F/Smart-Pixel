@@ -123,13 +123,21 @@ void ConfigFile::readConfigFile() {
 
 	// ConfigGroup in which we actually insert the ConfigObjects
 	String insertConfigGroup;
-
 	while(file.position() < file.size()) {
 		// Ignore Spaces - seek forward
 		char buffer;
 		file.readBytes(&buffer, 1);
 		while(buffer == '\t' || buffer == ' ' || buffer == '\n' && file.position() < file.size()) {
 			file.readBytes(&buffer, 1);
+
+			if(buffer == '\r') {			// Support for windows "end of line"(\r\t)
+				file.readBytes(&buffer, 1);
+				if(buffer != '\n') {
+					file.seek(file.position() - 2);	// Seek 2 backward - the \r was not in combination of a \r
+					file.readBytes(&buffer, 1);
+					break;
+				}
+			}
 		}
 		// go 1 back - then we are on the beging of the text
 		file.seek(file.position() - 1);
@@ -191,22 +199,22 @@ void ConfigFile::writeConfigFile() {
 }
 
 String ConfigFile::print() {
-		String ret;
-		for(std::size_t i = 0; i < ConfigGroups.size(); ++i) {
-			ret += ConfigGroups[i].get_GroupName();
+	String ret;
+	for(std::size_t i = 0; i < ConfigGroups.size(); ++i) {
+		ret += ConfigGroups[i].get_GroupName();
+		ret += '\n';
+		//Serial.println(ConfigGroups[i].get_GroupName());
+		for(std::size_t a = 0; a < ConfigGroups[i].numOfConfigObjects(); ++a) {
+			ret += '\t';
+			//Serial.print('\t');
+			ret += ConfigGroups[i][a].get_KeyWord();
+			//Serial.print(ConfigGroups[i][a].get_KeyWord());
+			ret += ':';
+			//Serial.print(':');
+			ret += ConfigGroups[i][a].get_Value();
+			//Serial.println(ConfigGroups[i][a].get_Value());
 			ret += '\n';
-			//Serial.println(ConfigGroups[i].get_GroupName());
-			for(std::size_t a = 0; a < ConfigGroups[i].numOfConfigObjects(); ++a) {
-				ret += '\t';
-				//Serial.print('\t');
-				ret += ConfigGroups[i][a].get_KeyWord();
-				//Serial.print(ConfigGroups[i][a].get_KeyWord());
-				ret += ':';
-				//Serial.print(':');
-				ret += ConfigGroups[i][a].get_Value();
-				//Serial.println(ConfigGroups[i][a].get_Value());
-				ret += '\n';
-			}
 		}
-		return ret;
 	}
+	return ret;
+}
