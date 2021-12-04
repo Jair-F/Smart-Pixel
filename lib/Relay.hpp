@@ -25,7 +25,7 @@ private:
 
 // Implementationen
 
-Relay::Relay(unsigned short _pin, String _name, bool _status): pin(_pin), name(_name) {
+Relay::Relay(unsigned short _pin, String _name, bool _status = false): pin(_pin), name(_name) {
 	pinMode(_pin, OUTPUT);
 	digitalWrite(pin, _status);
 }
