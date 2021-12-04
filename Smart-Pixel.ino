@@ -8,7 +8,7 @@
 #include <Adafruit_GFX.h>		// Include core graphics library
 #include <Adafruit_ST7735.h>	// Include Adafruit_ST7735 library to drive the display
 
-#define DEBUG
+//#define DEBUG
 
 #include "lib/Filesystem.hpp"
 #include "lib/config/ConfigFile.hpp"
@@ -276,7 +276,7 @@ void setup() {
 	Effects.add(Effect(RANDOM_RGB_BLINK,	randomRGBblink));
 	RGB_LEDS.setActualEffekt(Effects[RAINBOW_SOFT_BLINK]);
 	RGB_LEDS.setEffectSpeed(20);
-	RGB_LEDS.set_effectRunning(true);
+	RGB_LEDS.set_effectRunning(false);
 
 
 }
