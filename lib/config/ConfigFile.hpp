@@ -127,8 +127,7 @@ void ConfigFile::readConfigFile() {
 		// Ignore Spaces - seek forward
 		char buffer;
 		file.readBytes(&buffer, 1);
-		while(buffer == '\t' || buffer == ' ' || buffer == '\n' && file.position() < file.size()) {
-			file.readBytes(&buffer, 1);
+		while(buffer == '\r' || buffer == '\t' || buffer == ' ' || buffer == '\n' && file.position() < file.size()) {
 
 			if(buffer == '\r') {			// Support for windows "end of line"(\r\t)
 				file.readBytes(&buffer, 1);
@@ -138,6 +137,8 @@ void ConfigFile::readConfigFile() {
 					break;
 				}
 			}
+
+			file.readBytes(&buffer, 1);
 		}
 		// go 1 back - then we are on the beging of the text
 		file.seek(file.position() - 1);
