@@ -30,9 +30,9 @@ Due to the limitations of the Board like **limited porcessing power and limited 
 **The pins are not finally. During development they may change!!**
 - Touch-Sensor: D0
 - Pir-Sensor: D1
-- Relay-0: D2
+- Relay-0: D3
 - DHT-Sensor: A0
-- RGB-LED: D3
+- RGB-LED: D2
 - Display:
 	* LED: 3.3V
 	* SCK: D5
