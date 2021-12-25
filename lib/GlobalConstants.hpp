@@ -21,6 +21,7 @@
 #define RELAY_STATUS					"RelayStatus"
 #define RELAY_NAME						"RelayName"
 #define PIR_SENSOR_STATUS				"PirSensorStatus"
+#define PIR_SENSOR_RESET_STATUS			"PirSensorResetStatus"
 #define COMMAND							"Command"
 
 // Commands
