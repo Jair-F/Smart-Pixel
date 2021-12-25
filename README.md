@@ -48,7 +48,7 @@ Due to the limitations of the Board like **limited porcessing power and limited 
 
 ## Library's 
 - [Arduino-Core für ESP8266-WiFiChip](https://github.com/esp8266/Arduino) (Nodemcu Library)
-	* [Installationsanweisung auf der Seite folgen](https://github.com/esp8266/Arduino#installing-with-boards-manager)
+	* [Follow installation instructions on the site](https://github.com/esp8266/Arduino#installing-with-boards-manager)
 		* Insert this Link `http://arduino.esp8266.com/stable/package_esp8266com_index.json` in the Arduino-IDE *File* > *Preferences* > *Additional Boards Manager URLs*
 		* *Tools* > *Board* > *BoardManager* > search for *'esp8266'* > click install
 - [Websocket](https://github.com/Links2004/arduinoWebSockets)
@@ -67,7 +67,7 @@ Due to the limitations of the Board like **limited porcessing power and limited 
 	* On Linux you have to create in your Home-Folder in the Arduino-Directory(~/Arduino) a folder called **tools**. Inside this folder you have to extract the content of the downloaded archive.
 
 ## Uploading the Sketch
-**This are my settings and they should work properly**
+- Please ensure that the config-file(`"./data/www/config.config"`) is saved with **Unix/Linux(LF) eol(end of line)**!
 - *Tools* > *Board* - select the NodeMCU 1.0 board
 - *Tools* > *C++ Exceptions* - change it to **enable**
 - *Tools* > *Flash Size* - select **4MB (FS:2MB OTA:~1019KB)**
