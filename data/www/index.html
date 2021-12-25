@@ -417,7 +417,7 @@
 		websocketSend("MaxConnections", maxConnections);
 		websocketSend("Hostname", Hostname);
 		websocketSend("RelayName", relayName);
-		websocketSend("Command", "writeSpiffsConfigs");
+		websocketSend("Command", WebsocketKeyValues.WRITE_CONFIG);
 	}
 	function HideField(ID, Hide) {
 		if (Hide == true) {
