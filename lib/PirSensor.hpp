@@ -11,7 +11,7 @@ private:
 	String name;
 	//DateTime last_active_report;
 
-	bool lastStatus;
+	bool status;	// if there was alarm since the last reset - true
 
 	onChange_Handler onChange;	// if movmentSinceLastReset changes this function will be called
 
@@ -26,11 +26,16 @@ public:
 	unsigned short getPin() { return pin; }
 	void setPin(unsigned short _pin);
 
-	// Last scan status from the sensor
-	bool get_Status() { return lastStatus; }
+	// if there was alarm since the last reset - true if there was alarm
+	bool get_Status() { return status; }
+	
+	void reset_Status() { this->status = false; onChange(status); }
 
 	// call in loop(checks constantly if something moved)
 	void loop();
+
+	// run manually the onChangeHandler
+	void run_onChangeHandler() { this->onChange(status); }
 
 	void set_onChangeHandler(onChange_Handler handler) { onChange = handler; }
 
@@ -45,11 +50,10 @@ public:
 void PirSensor::loop() {
 	bool actualStatus = digitalRead(pin);
 
-	if(actualStatus != lastStatus) {
-		onChange(actualStatus);
+	if (actualStatus == true) {	// if there is alarm we change the status
+		status = actualStatus;
+		onChange(status);
 	}
-
-	lastStatus = actualStatus;
 }
 
 void PirSensor::setPin(unsigned short _pin) {
