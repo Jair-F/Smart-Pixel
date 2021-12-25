@@ -1,429 +1,443 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <link rel="icon" type="image/ico" href="favicon.ico"/>
-    <title>Light is power</title>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="">
+	<link rel="icon" type="image/ico" href="favicon.ico" />
+	<title>Light is power</title>
 
 
-    
 
-    <!-- Bootstrap core CSS -->
-   <link href="bootstrap.min.css" rel="stylesheet">
 
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
+	<!-- Bootstrap core CSS -->
+	<link href="bootstrap.min.css" rel="stylesheet">
 
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-    </style>
+	<style>
+		.bd-placeholder-img {
+			font-size: 1.125rem;
+			text-anchor: middle;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			user-select: none;
+		}
 
-    
-    <!-- Custom styles for this template -->
-    <link href="style.css" rel="stylesheet">
-  </head>
-  <body>
- 
+		@media (min-width: 768px) {
+			.bd-placeholder-img-lg {
+				font-size: 3.5rem;
+			}
+		}
+	</style>
 
-<main>
-  <div class="container px-4 py-5" id="hanging-icons">
-    <div class="d-flex justify-content-center justify-content-lg-start">
-      <h2  id="top">Micro Rainbow</h2>
-    </div>
-    <hr>
-   
-    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3" >
-     
-      <div class="col d-flex align-items-start" >
-        <div class="icon-square text-dark flex-shrink-0 me-3">
-          <img class="bi" src="SVG_icons/Colors.svg" alt="Color" width="40"/>
-        </div>
 
-        <div class="inner-shell fw-bold" >
-          <h2>Color Mixer</h2>
-          <div class=" d-flex h-100 align-items-center">
-          <form  method="POST" onchange="sendRGB();">
-            Choose
-            <br />
-            <input id="RGB-Color" type="color"  name="RGB-Color"/>			
-          </form>
-        </div>
-        </div>
-      </div>
-      <div class="col d-flex align-items-start" >
-        <div class="icon-square text-dark flex-shrink-0 me-3">
-         <img class="bi" src="SVG_icons/Effect.svg" height="32"/>
-        </div>
-        <div class="inner-shell fw-bolder">
-          <h2>Effect Panel</h2>
-          <div class="d-flex align-items-center h-100">
-          <form method="POST" onchange="sendEffekte();" style="width: fit-content; height: fit-content;">
-            <input type="checkbox" id="EffectIsRunning" name="EffectIsRunning"/>Run Effect
-            <br/>
-            <input type="radio" class="Effecte" name="Effekt" id="rainbowSoftBlink" value="rainbowSoftBlink"/>Blink
-            <br/>
-            <input type="radio" class="Effecte" name="Effekt" id="RainbowCycle" value="RainbowCycle"/>RainbowCycle
-            <br/>
-            <input type="radio" class="Effecte" name="Effekt" id="ColorWipe" value="ColorWipe"/>ColorWipe
-            <br/>
-             Effekt Speed
-             <br />
-            <input id="EffectSpeed" name="EffektSpeed" type="range" min="1" max="100"/>
-          </form>
-        </div>
-        </div>
-      </div>
-      <div class="col d-flex align-items-start pb-0">
-        <div class="icon-square text-dark flex-shrink-0 me-3">
-          <img class="bi" src="SVG_icons/Temprature.svg" height="38"/>
-        </div>
-        <div class="inner-shell">
-          <h2>Sensor Panel</h2>
-          <div class=" d-flex  h-100  align-items-center" >
-          <div>
-          <p class="fw-bold">Temperature: <span id="Temperature">%TEMP%</span></p>
-		      <p class="fw-bold">Humidity: <span id="Humidity">%HUM%</span></p>
-        </div>
-        </div>
-        </div>
-      </div>
-    </div>
- 
-    <!-- Second section 3 Sections with button -->
-    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3 pt-0 ">
-      <div class="col d-flex align-items-start">
-        <div class="icon-square  text-dark flex-shrink-0 me-3">
-          <img class="bi" src="SVG_icons/Toggles.svg" width="34"/>
-        </div>
-         
-        <div class="inner-shell">
-          <h2>Smart Switch</h2>
-         
-          <div class="flex-grow-1"></div>
-          <form method="POST" class="w-100">
-            <input class="btn btn-primary w-50 mb-3" style="margin-top:auto;" type="button" onclick="sendRelay();"  id="Relay0" value="%NAME%"/>
-          </form>
-        </div>
-        
-      </div>
-      <div class="col d-flex align-items-start">
-        <div class="icon-square  text-dark flex-shrink-0 me-3">
-          <img class="bi" src="SVG_icons/Motion.svg" width="38"/>
-        </div>
-         
-        <div class="inner-shell ">
-          <h2>Motion Detector</h2>
-          <div class="d-flex  h-100 align-items-center ">
-            <p id="Pir-Sensor" style="margin-bottom:0; height: 5em; width: 50%; background-color:green; border-radius: 0.7em;">%RELAY_NAME%</p>
-          </div>
-          <div class="flex-grow-1"></div>
-          <form method="POST" class="w-100"  onclick="sendPirSensor();">
-            <!-- <img src="MotionHand2.png" style="background-color:transparent;" /> -->
-             <!--Background auf rgb(219, 219, 38); aendern wenn getriggert-->    <br />
-             <input class="btn btn-primary w-50 mb-3" type="button" name="Reset" value="Reset">
-            
-          </form>
-        </div>
-         
-          
-      </div>
-      <div class="col d-flex align-items-start">
-        <div class="icon-square  text-dark flex-shrink-0 me-3">
-          <img class="bi" src="SVG_icons/Settings.svg" width="38"/>
-        </div>
-        <div>
-          <h2>Settings</h2>
-          <form class="w-100">
-            <table class="table w-100" cellpadding="5rem">
-               <!--<colgroup>
+	<!-- Custom styles for this template -->
+	<link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+
+
+	<main>
+		<div class="container px-4 py-5" id="hanging-icons">
+			<div class="d-flex justify-content-center justify-content-lg-start">
+				<h2 id="top">Micro Rainbow</h2>
+			</div>
+			<hr>
+
+			<div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+
+				<div class="col d-flex align-items-start">
+					<div class="icon-square text-dark flex-shrink-0 me-3">
+						<img class="bi" src="SVG_icons/Colors.svg" alt="Color" width="40" />
+					</div>
+
+					<div class="inner-shell fw-bold">
+						<h2>Color Mixer</h2>
+						<div class=" d-flex h-100 align-items-center">
+							<form method="POST" onchange="sendRGB();">
+								Choose
+								<br />
+								<input id="RGB-Color" type="color" name="RGB-Color" />
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="col d-flex align-items-start">
+					<div class="icon-square text-dark flex-shrink-0 me-3">
+						<img class="bi" src="SVG_icons/Effect.svg" height="32" />
+					</div>
+					<div class="inner-shell fw-bolder">
+						<h2>Effect Panel</h2>
+						<div class="d-flex align-items-center h-100">
+							<form method="POST" onchange="sendEffekte();"
+								style="width: fit-content; height: fit-content;">
+								<input type="checkbox" id="EffectIsRunning" name="EffectIsRunning" />Run Effect
+								<br />
+								<input type="radio" class="Effecte" name="Effekt" id="rainbowSoftBlink"
+									value="rainbowSoftBlink" />Blink
+								<br />
+								<input type="radio" class="Effecte" name="Effekt" id="RainbowCycle"
+									value="RainbowCycle" />RainbowCycle
+								<br />
+								<input type="radio" class="Effecte" name="Effekt" id="ColorWipe"
+									value="ColorWipe" />ColorWipe
+								<br />
+								Effekt Speed
+								<br />
+								<input id="EffectSpeed" name="EffektSpeed" type="range" min="1" max="100" />
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="col d-flex align-items-start pb-0">
+					<div class="icon-square text-dark flex-shrink-0 me-3">
+						<img class="bi" src="SVG_icons/Temprature.svg" height="38" />
+					</div>
+					<div class="inner-shell">
+						<h2>Sensor Panel</h2>
+						<div class=" d-flex  h-100  align-items-center">
+							<div>
+								<p class="fw-bold">Temperature: <span id="Temperature">%TEMP%</span></p>
+								<p class="fw-bold">Humidity: <span id="Humidity">%HUM%</span></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Second section 3 Sections with button -->
+			<div class="row g-4 py-5 row-cols-1 row-cols-lg-3 pt-0 ">
+				<div class="col d-flex align-items-start">
+					<div class="icon-square  text-dark flex-shrink-0 me-3">
+						<img class="bi" src="SVG_icons/Toggles.svg" width="34" />
+					</div>
+
+					<div class="inner-shell">
+						<h2>Smart Switch</h2>
+
+						<div class="flex-grow-1"></div>
+						<form method="POST" class="w-100">
+							<input class="btn btn-primary w-50 mb-3" style="margin-top:auto;" type="button"
+								onclick="sendRelay();" id="Relay0" value="%NAME%" />
+						</form>
+					</div>
+
+				</div>
+				<div class="col d-flex align-items-start">
+					<div class="icon-square  text-dark flex-shrink-0 me-3">
+						<img class="bi" src="SVG_icons/Motion.svg" width="38" />
+					</div>
+
+					<div class="inner-shell ">
+						<h2>Motion Detector</h2>
+						<div class="d-flex  h-100 align-items-center ">
+							<p id="Pir-Sensor"
+								style="margin-bottom:0; height: 5em; width: 50%; background-color:green; border-radius: 0.7em;">
+							</p>
+						</div>
+						<div class="flex-grow-1"></div>
+						<form method="POST" class="w-100" onclick="sendPirSensor();">
+							<!-- <img src="MotionHand2.png" style="background-color:transparent;" /> -->
+							<!--Background auf rgb(219, 219, 38); aendern wenn getriggert--> <br />
+							<input class="btn btn-primary w-50 mb-3" type="button" name="Reset" value="Reset">
+
+						</form>
+					</div>
+
+
+				</div>
+				<div class="col d-flex align-items-start">
+					<div class="icon-square  text-dark flex-shrink-0 me-3">
+						<img class="bi" src="SVG_icons/Settings.svg" width="38" />
+					</div>
+					<div>
+						<h2>Settings</h2>
+						<form class="w-100">
+							<table class="table w-100" cellpadding="5rem">
+								<!--<colgroup>
                 <col width="30%"/>
                 <col width="30%"/>
                </colgroup>-->
-              <tr>
-                <th>Eigenes WiFi </th>
-                <td><input onchange="handleWiFiAccessPointModeCheckbox()"id="WiFiAccessPointMode" type="checkbox" name="WiFiAccessPointMode"/></td>
-              </tr>
-              <tr>
-                <th>WiFi-Name</th>
-                <td><input id="WiFi-Name" type="text" class="w-75" name="WiFi-Name" minlength="8" maxlength="12"/></td>
-              </tr>
-              <tr>
-                <th>WiFi-Passwort</th>
-                <td><input id="WiFi-Passwort" type="text" class="w-75" name="WiFi-Passwort" minlength="8" maxlength="12"/></td>
-              </tr>
-              <tr>
-                <th>Hostname</th>
-                <td><input id="Hostname" type="text" class="w-75" name="Hostname" minlength="1" maxlength="12"/></td>
-              </tr>
-              <tr>
-                <th>Number of Clients</th>
-               <!-- <td><input id="MaxConnections" type="number" class="w-75" min="1" max="8" name="MaxConnections" title="Maximale Anzahl an Clients, die sich mit dem Wlan verbinden koennen(ist nur Einstellbar wenn 'Eigenes WiFi erzeugen' aktiviert ist)"/></td> -->
-                <td><select class="custom-select w-75" id="MaxConnection">
-                      <option selected value="1">1</option>
-                      <option  value="2">2</option>
-                      <option  value="3">3</option>
-                      <option  value="4">4</option>
-                    </select>
-                </td>
-              </tr>
-              <tr>
-                <th>Relay Name</th>
-                <td>
-                  <input type="text" class="w-75" id="RelayName" min="1" max="30">
-                </td>
-              </tr>
-              <tr>
-                <th>Pir-Sensor Name</th>
-                <td>
-                  <input type="text" class="w-75" id="PirSensorName" min="1" max="30">
-                </td>
-              </tr>
-              <tr></tr>
-              <tr>
-                <!-- <button onclick="SendWiFiSettings(); return false;">Abschicken</button> -->
-              </tr>
-            </table>
-            <input class="btn btn-primary w-50" type="button" value="Abschicken" onclick="SendWiFiSettings();">
-          </form>
-        </div>
-      
-      </div>
-    </div>
-  </div>
+								<tr>
+									<th>Eigenes WiFi </th>
+									<td><input onchange="handleWiFiAccessPointModeCheckbox()" id="WiFiAccessPointMode"
+											type="checkbox" name="WiFiAccessPointMode" /></td>
+								</tr>
+								<tr>
+									<th>WiFi-Name</th>
+									<td><input id="WiFi-Name" type="text" class="w-75" name="WiFi-Name" minlength="8"
+											maxlength="12" /></td>
+								</tr>
+								<tr>
+									<th>WiFi-Passwort</th>
+									<td><input id="WiFi-Passwort" type="text" class="w-75" name="WiFi-Passwort"
+											minlength="8" maxlength="12" /></td>
+								</tr>
+								<tr>
+									<th>Hostname</th>
+									<td><input id="Hostname" type="text" class="w-75" name="Hostname" minlength="1"
+											maxlength="12" /></td>
+								</tr>
+								<tr>
+									<th>Number of Clients</th>
+									<!-- <td><input id="MaxConnections" type="number" class="w-75" min="1" max="8" name="MaxConnections" title="Maximale Anzahl an Clients, die sich mit dem Wlan verbinden koennen(ist nur Einstellbar wenn 'Eigenes WiFi erzeugen' aktiviert ist)"/></td> -->
+									<td><select class="custom-select w-75" id="MaxConnections">
+											<option selected value="1">1</option>
+											<option value="2">2</option>
+											<option value="3">3</option>
+											<option value="4">4</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<th>Relay Name</th>
+									<td>
+										<input type="text" class="w-75" id="RelayName" min="1" max="30">
+									</td>
+								</tr>
+								<tr>
+									<!-- <button onclick="SendWiFiSettings(); return false;">Abschicken</button> -->
+								</tr>
+							</table>
+							<input class="btn btn-primary w-50" type="button" value="Abschicken"
+								onclick="SendWiFiSettings();">
+						</form>
+					</div>
 
-  <div class="b-example-divider">&copy;&nbsp;Created by _______ and ______</div>
- 
-</main>
-   
-  </body>
-  <!-- https://code-boxx.com/submit-form-without-refreshing-page/ -->
-	<script>
-		const WebsocketKeyValues = {
-			RGB_COLOR					: "RGB-Color",
-			EFFECT						: "Effect",
-			EFFECT_RUNNING				: "EffektRunning",
-			EFFECT_SPEED				: "EffectSpeed",
-			HUMIDITY					: "Humidity",
-			TEMPERATURE					: "Temperature",
-			RELAY_STATUS				: "RelayStatus",
-			RELAY_NAME					: "RelayName",
-			WRITE_CONFIG				: "write-config",
-			PIR_SENSOR_ACTIVE_REPORT	: "PirSensorActiveReport",
-			REBOOT						: "reboot",
-			CLIENT_ALERT				: "ClientAlert",
-			NUM_OF_CONNECTED_CLIENTS	: "NumOfConnectedClients",
-			WIFI_NAME					: "WiFiName",
-			WIFI_PASSWORD				: "WiFiPassword",
-			MAX_CONNECTIONS				: "MaxConnections",
-			WIFI_ACCESSPOINT_MODE		: "WiFiAccessPointMode",
-			HOSTNAME					: "Hostname"
-		};
-		const Effects = {
-			RainbowSoftBlink	: "rainbowSoftBlink",
-			RainbowCycle		: "RainbowCycle",
-			ColorWipe			: "ColorWipe"
-		};
-		
-		// WebSocket-Initialization
-			var Socket = new WebSocket("ws://" + location.hostname + ":81/", ["arduino"]);
-			var RelayName;
-			Socket.onopen = function() { console.log("Verbindung " + new Date()); }
-			Socket.onclose = function() {
-				console.log("WebSocket Verbindung getrennt");
-				alert("Verbindung zu Server getrtennt! Daten koennen nicht mehr im Hintergrund aktualisiert werden - Website neuladen(reload)");
+				</div>
+			</div>
+		</div>
+
+	</main>
+
+</body>
+<footer>
+	<p style="justify-content: center; align-items: center; display: flex;">Num of Connected Clients: <span id="NumOfConnectedClients"> %NUM%</span></p>
+	<div class="b-example-divider"><p>&copy;&nbsp;Created by _______ and ______</p></div>
+</footer>
+<!-- https://code-boxx.com/submit-form-without-refreshing-page/ -->
+<script>
+	const WebsocketKeyValues = {
+		RGB_COLOR: "RGB-Color",
+		EFFECT: "Effect",
+		EFFECT_RUNNING: "EffektRunning",
+		EFFECT_SPEED: "EffectSpeed",
+		HUMIDITY: "Humidity",
+		TEMPERATURE: "Temperature",
+		RELAY_STATUS: "RelayStatus",
+		RELAY_NAME: "RelayName",
+		WRITE_CONFIG: "write-config",
+		PIR_SENSOR_STATUS: "PirSensorStatus",
+		PIR_SENSOR_RESET_STATUS: "PirSensorResetStatus",
+		REBOOT: "reboot",
+		CLIENT_ALERT: "ClientAlert",
+		NUM_OF_CONNECTED_CLIENTS: "NumOfConnectedClients",
+		WIFI_NAME: "WiFiName",
+		WIFI_PASSWORD: "WiFiPassword",
+		MAX_CONNECTIONS: "MaxConnections",
+		WIFI_ACCESSPOINT_MODE: "WiFiAccessPointMode",
+		HOSTNAME: "Hostname"
+	};
+	const Effects = {
+		RainbowSoftBlink: "rainbowSoftBlink",
+		RainbowCycle: "RainbowCycle",
+		ColorWipe: "ColorWipe"
+	};
+
+	// WebSocket-Initialization
+	var Socket = new WebSocket("ws://" + location.hostname + ":81/", ["arduino"]);
+	var RelayName;
+	Socket.onopen = function () { console.log("Verbindung " + new Date()); }
+	Socket.onclose = function () {
+		console.log("WebSocket Verbindung getrennt");
+		alert("Verbindung zu Server getrtennt! Daten koennen nicht mehr im Hintergrund aktualisiert werden - Website neuladen(reload)");
+	}
+	Socket.onerror = function (error) {
+		console.log("Websocket Fehler ", error);
+		alert("Fehler bei der Verbindung zum Server! Daten koennen nicht im Hintergrund aktualisiert werden - Website neuladen(reload)");
+	}
+
+	Socket.onmessage = function (sendData) {
+		var splitPosFirst = sendData.data.indexOf(":");
+		var splitPosSecond = sendData.data.indexOf(":", splitPosFirst + 1);
+		var splitPosLast = sendData.data.lastIndexOf(":");
+
+		var argName = sendData.data.substring(splitPosSecond + 1, splitPosLast);
+		var arg = sendData.data.substring(splitPosLast + 1);
+
+		console.log(argName + ':' + arg);
+
+
+		switch (argName) {
+			case WebsocketKeyValues.RGB_COLOR: {
+				document.getElementById("RGB-Color").value = arg;
+				break;
 			}
-			Socket.onerror = function(error) {
-				console.log("Websocket Fehler ", error);
-				alert("Fehler bei der Verbindung zum Server! Daten koennen nicht im Hintergrund aktualisiert werden - Website neuladen(reload)");
-			}
-
-			Socket.onmessage = function (sendData) {
-				var splitPosFirst = sendData.data.indexOf(":");
-				var splitPosSecond = sendData.data.indexOf(":", splitPosFirst + 1);
-				var splitPosLast = sendData.data.lastIndexOf(":");
-
-				var argName = sendData.data.substring(splitPosSecond + 1, splitPosLast);
-				var arg = sendData.data.substring(splitPosLast + 1);
-
-				console.log(argName + ':' + arg);
-				
-
-				switch (argName) {
-					case WebsocketKeyValues.RGB_COLOR: {
-						document.getElementById("RGB-Color").value = arg;
-						break;
-					}
-					case WebsocketKeyValues.EFFECT_RUNNING: {
-						if(arg == "1" || arg == "true"){
-							document.getElementById("EffectIsRunning").checked = true;
-						}
-						else {
-							document.getElementById("EffectIsRunning").checked = false;
-						}
-						break;
-					}
-					case WebsocketKeyValues.EFFECT: {
-						document.getElementById(arg).checked = arg;
-						break;
-					}
-					case WebsocketKeyValues.EFFECT_SPEED: {
-						document.getElementById("EffectSpeed").value = arg;
-						break;
-					}
-					case WebsocketKeyValues.HUMIDITY: {
-						document.getElementById("Humidity").innerHTML = arg;
-						break;
-					}
-					case WebsocketKeyValues.TEMPERATURE: {
-						document.getElementById("Temperature").innerHTML = arg;
-						break;
-					}
-					case WebsocketKeyValues.RELAY_STATUS: {
-						if(arg == "1") {
-							buttonText = " ausschalten";
-						} else {
-							buttonText = " einschalten";
-						}
-						document.getElementById("Relay0").value = RelayName + buttonText;
-						break;
-					}
-					case WebsocketKeyValues.RELAY_NAME: {
-						document.getElementById("Relay0").value = arg;
-						RelayName = arg;
-						break;
-					}
-					case WebsocketKeyValues.PIR_SENSOR_ACTIVE_REPORT: {
-						var color = String;
-						if(arg == 1) {
-							color = "red";
-						} else {
-							color = "green";
-						}
-						document.getElementById("Pir-Sensor").style.backgroundColor = color;
-						break;
-					}
-					case WebsocketKeyValues.CLIENT_ALERT: {
-						alert(arg);
-						break;
-					}
-					case WebsocketKeyValues.NUM_OF_CONNECTED_CLIENTS: {
-						document.getElementById("NumOfConnectedClients").innerHTML = arg;
-						break;
-					}
-					case WebsocketKeyValues.WIFI_ACCESSPOINT_MODE: {
-						if(arg == "1") {
-							document.getElementById("WiFiAccessPointMode").checked = true;
-						} else {
-							document.getElementById("WiFiAccessPointMode").checked = false;
-						}
-						// Grey out Field for MaxConnections if not creating WiFiAccessPointMode
-						handleWiFiAccessPointModeCheckbox();
-						break;
-					}
-					case WebsocketKeyValues.WIFI_NAME: {
-						document.getElementById("WiFi-Name").value = arg;
-						break;
-					}
-					case WebsocketKeyValues.WIFI_PASSWORD: {
-						document.getElementById("WiFi-Passwort").value = arg;
-						break;
-					}
-					case WebsocketKeyValues.HOSTNAME: {
-						document.getElementById("Hostname").value = arg;
-						break;
-					}
-					case WebsocketKeyValues.MAX_CONNECTIONS: {
-						document.getElementById("MaxConnections").value = arg;
-						break;
-					}
-					default: {
-						console.log("Error got not supported action: " + argName + ':' + arg);
-						break;
-					}
+			case WebsocketKeyValues.EFFECT_RUNNING: {
+				if (arg == "1" || arg == "true") {
+					document.getElementById("EffectIsRunning").checked = true;
 				}
-			}
-		// WebSocket-Initialization
-
-		function websocketSend(argName, arg) {
-			var sendString = argName + ":" + arg;
-			console.log(sendString);
-			Socket.send(sendString);
-		}
-
-		function sendRelay() {
-			var relays = document.getElementsByClassName("Relay");
-			for(var relayToChange of relays) {
-			}
-			var relayNum = 0;
-			websocketSend("RelayStatus", "0");
-		}
-		function sendPirSensor() {
-			websocketSend("PirSensor", "reset");
-		}
-		function sendRGB() {
-			var rgb = document.getElementById("RGB-Color").value;
-			//alert(rgb)
-			//console.log("RGB: " + rgb);
-			//Socket.send(rgb);
-			websocketSend("RGB-Color", rgb);
-		}
-		function sendEffekte() {
-			// https://www.techiedelight.com/get-value-of-selected-radio-button-javascript/ - 2. JavaScript
-			var radios = document.getElementsByClassName("Effecte");
-			for (var checked_radio of radios) {
-				if(checked_radio.checked) {
-					//alert(checked_radio.value);
-					websocketSend(WebsocketKeyValues.EFFECT, checked_radio.value);
+				else {
+					document.getElementById("EffectIsRunning").checked = false;
 				}
+				break;
 			}
-			var effectRunning = document.getElementById("EffectIsRunning").checked;
-			websocketSend(WebsocketKeyValues.EFFECT_RUNNING, effectRunning == true ? "true" : "false");
-			var effektSpeed = document.getElementById("EffectSpeed").value;
-			websocketSend(WebsocketKeyValues.EFFECT_SPEED, effektSpeed);
+			case WebsocketKeyValues.EFFECT: {
+				document.getElementById(arg).checked = arg;
+				break;
+			}
+			case WebsocketKeyValues.EFFECT_SPEED: {
+				document.getElementById("EffectSpeed").value = arg;
+				break;
+			}
+			case WebsocketKeyValues.HUMIDITY: {
+				document.getElementById("Humidity").innerHTML = arg;
+				break;
+			}
+			case WebsocketKeyValues.TEMPERATURE: {
+				document.getElementById("Temperature").innerHTML = arg;
+				break;
+			}
+			case WebsocketKeyValues.RELAY_NAME: {
+				document.getElementById("Relay0").value = arg;		// button to switch status
+				document.getElementById("RelayName").value = arg;	// text field in settings to change name
+				RelayName = arg;
+				// break;	will also execute the next case-relay-status
+			}
+			case WebsocketKeyValues.RELAY_STATUS: {
+				if (arg == "1") {
+					buttonText = " ausschalten";
+				} else {
+					buttonText = " einschalten";
+				}
+				document.getElementById("Relay0").value = RelayName + buttonText;
+				break;
+			}
+			case WebsocketKeyValues.PIR_SENSOR_STATUS: {
+				var color = String;
+				if (arg == 1) {
+					color = "red";
+				} else {
+					color = "green";
+				}
+				document.getElementById("Pir-Sensor").style.backgroundColor = color;
+				break;
+			}
+			case WebsocketKeyValues.CLIENT_ALERT: {
+				alert(arg);
+				break;
+			}
+			case WebsocketKeyValues.NUM_OF_CONNECTED_CLIENTS: {
+				document.getElementById("NumOfConnectedClients").innerHTML = arg;
+				break;
+			}
+			case WebsocketKeyValues.WIFI_ACCESSPOINT_MODE: {
+				if (arg == "1") {
+					document.getElementById("WiFiAccessPointMode").checked = true;
+				} else {
+					document.getElementById("WiFiAccessPointMode").checked = false;
+				}
+				// Grey out Field for MaxConnections if not creating WiFiAccessPointMode
+				handleWiFiAccessPointModeCheckbox();
+				break;
+			}
+			case WebsocketKeyValues.WIFI_NAME: {
+				document.getElementById("WiFi-Name").value = arg;
+				break;
+			}
+			case WebsocketKeyValues.WIFI_PASSWORD: {
+				document.getElementById("WiFi-Passwort").value = arg;
+				break;
+			}
+			case WebsocketKeyValues.HOSTNAME: {
+				document.getElementById("Hostname").value = arg;
+				break;
+			}
+			case WebsocketKeyValues.MAX_CONNECTIONS: {
+				document.getElementById("MaxConnections").value = arg;
+				break;
+			}
+			default: {
+				console.log("Error got not supported action: " + argName + ':' + arg);
+				break;
+			}
 		}
-		function SendWiFiSettings() {
-			var WiFiAccessPointMode = document.getElementById("WiFiAccessPointMode").checked == true ? "1" : "0";
-			var WiFiName = document.getElementById("WiFi-Name").value;
-			var WiFiPasswort = document.getElementById("WiFi-Passwort").value;
-			var Hostname = document.getElementById("Hostname").value;
-			var maxConnections = document.getElementById("MaxConnections").value;
+	}
+	// WebSocket-Initialization
 
-			websocketSend("WiFiAccessPointMode" + WiFiAccessPointMode);
-			websocketSend("WiFi-Name", WiFiName);
-			websocketSend("WiFi-Passwort", WiFiPasswort);
-			websocketSend("MaxConnections", maxConnections);
-			websocketSend("Hostname", Hostname);
-			websocketSend("Command", "writeSpiffsConfigs");
+	function websocketSend(argName, arg) {
+		var sendString = argName + ":" + arg;
+		console.log(sendString);
+		Socket.send(sendString);
+	}
+
+	function sendRelay() {
+		var relays = document.getElementsByClassName("Relay");
+		for (var relayToChange of relays) {
 		}
-		function HideField(ID, Hide) {
-			if(Hide == true) {
-				document.getElementById(ID).setAttribute("disabled", true);
-			}
-			else {
-				document.getElementById(ID).removeAttribute("disabled");
+		var relayNum = 0;
+		websocketSend("RelayStatus", "0");
+	}
+	function sendPirSensor() {
+		websocketSend(WebsocketKeyValues.PIR_SENSOR_RESET_STATUS, "0");
+	}
+	function sendRGB() {
+		var rgb = document.getElementById("RGB-Color").value;
+		//alert(rgb)
+		//console.log("RGB: " + rgb);
+		//Socket.send(rgb);
+		websocketSend("RGB-Color", rgb);
+	}
+	function sendEffekte() {
+		// https://www.techiedelight.com/get-value-of-selected-radio-button-javascript/ - 2. JavaScript
+		var radios = document.getElementsByClassName("Effecte");
+		for (var checked_radio of radios) {
+			if (checked_radio.checked) {
+				//alert(checked_radio.value);
+				websocketSend(WebsocketKeyValues.EFFECT, checked_radio.value);
 			}
 		}
-		function FiledIsHidden(ID) {
-			return document.getElementById(ID).getAttribute("disabled") == "true" ? true : false;
+		var effectRunning = document.getElementById("EffectIsRunning").checked;
+		websocketSend(WebsocketKeyValues.EFFECT_RUNNING, effectRunning == true ? "true" : "false");
+		var effektSpeed = document.getElementById("EffectSpeed").value;
+		websocketSend(WebsocketKeyValues.EFFECT_SPEED, effektSpeed); ue
+	}
+	function SendWiFiSettings() {
+		var WiFiAccessPointMode = document.getElementById("WiFiAccessPointMode").checked == true ? "1" : "0";
+		var WiFiName = document.getElementById("WiFi-Name").value;
+		var WiFiPasswort = document.getElementById("WiFi-Passwort").value;
+		var Hostname = document.getElementById("Hostname").value;
+		var maxConnections = document.getElementById("MaxConnections").value;
+		var relayName = document.getElementById("RelayName").value;
+
+		websocketSend("WiFiAccessPointMode" + WiFiAccessPointMode);
+		websocketSend("WiFi-Name", WiFiName);
+		websocketSend("WiFi-Passwort", WiFiPasswort);
+		websocketSend("MaxConnections", maxConnections);
+		websocketSend("Hostname", Hostname);
+		websocketSend("RelayName", relayName);
+		websocketSend("Command", WebsocketKeyValues.WRITE_CONFIG);
+	}
+	function HideField(ID, Hide) {
+		if (Hide == true) {
+			document.getElementById(ID).setAttribute("disabled", true);
 		}
-		function handleWiFiAccessPointModeCheckbox() {
-			if(document.getElementById("WiFiAccessPointMode").checked == true) {
-				HideField('MaxConnections', false);
-			}
-			else {
-				HideField('MaxConnections', true);
-			}
+		else {
+			document.getElementById(ID).removeAttribute("disabled");
 		}
-	</script>
+	}
+	function FiledIsHidden(ID) {
+		return document.getElementById(ID).getAttribute("disabled") == "true" ? true : false;
+	}
+	function handleWiFiAccessPointModeCheckbox() {
+		if (document.getElementById("WiFiAccessPointMode").checked == true) {
+			HideField('MaxConnections', false);
+		}
+		else {
+			HideField('MaxConnections', true);
+		}
+	}
+</script>
+
 </html>
