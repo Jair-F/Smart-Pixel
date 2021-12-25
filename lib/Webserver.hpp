@@ -77,6 +77,7 @@ protected:
 
 // Implementation
 String Webserver::fileType(String pathToFile) const {
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
 	if		(pathToFile.isEmpty())				return "";
 	else if	(pathToFile.endsWith(".html"))		return "text/html";
 	else if	(pathToFile.endsWith(".css"))		return "text/css";
@@ -85,6 +86,7 @@ String Webserver::fileType(String pathToFile) const {
 	else if (pathToFile.endsWith(".gz"))		return "application/gzip";
 	else if (pathToFile.endsWith(".jpeg"))		return "image/jpeg";
 	else if (pathToFile.endsWith("jpg"))		return "image/jpeg";
+	else if (pathToFile.endsWith("svg"))		return "image/svg+xml";
 	else										return "text/plain";
 }
 
