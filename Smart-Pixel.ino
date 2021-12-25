@@ -218,15 +218,14 @@ void setup() {
 		websocket.sendTXT(ClientNum, EFFECT_SPEED,				to_string(RGB_LEDS.getEffectSpeed()));
 		websocket.sendTXT(ClientNum, TEMPERATURE,				to_string(dht.readTemperature()));
 		websocket.sendTXT(ClientNum, HUMIDITY, 					to_string(dht.readHumidity()));
-		websocket.sendTXT(ClientNum, RELAY_STATUS,				to_string(relay.status()));
 		websocket.sendTXT(ClientNum, PIR_SENSOR_STATUS,			to_string(Pir_Sensor.get_Status()));
 		websocket.sendTXT(ClientNum, WIFI_ACCESSPOINT_MODE,		to_string(WiFiAccessPointMode));
 		websocket.sendTXT(ClientNum, WIFI_NAME,					WiFiName);
 		websocket.sendTXT(ClientNum, WIFI_PASSWORD,				WiFiPassword);
 		websocket.sendTXT(ClientNum, HOSTNAME,					Hostname);
 		websocket.sendTXT(ClientNum, MAX_CONNECTIONS,			to_string(MaxWiFiCon));
-		websocket.sendTXT(ClientNum, PIR_SENSOR_NAME,			Pir_Sensor.getName());
 		websocket.sendTXT(ClientNum, RELAY_NAME,				relay.getName());
+		websocket.sendTXT(ClientNum, RELAY_STATUS,				to_string(relay.status()));
 		// Send to all Clients
 		websocket.broadcastTXT(NUM_OF_CONNECTED_CLIENTS,		to_string(static_cast<unsigned short>(websocket.connectedClients())));
 	});
@@ -242,6 +241,7 @@ void setup() {
 	websocket.addAction(WebsocketAction(EFFECT_SPEED,						[&RGB_LEDS](String& arguments)				{ RGB_LEDS.setEffectSpeed(arguments.toInt()); websocket.broadcastTXT(EFFECT_SPEED, arguments); }));
 
 	websocket.addAction(WebsocketAction(RELAY_STATUS,						[&relay](String& arguments)					{ relay.switchStatus(); websocket.broadcastTXT(RELAY_STATUS, to_string(relay.status())); }));
+	websocket.addAction(WebsocketAction(PIR_SENSOR_RESET_STATUS,			[&Pir_Sensor](String& arguments)			{ Pir_Sensor.reset_Status(); Pir_Sensor.run_onChangeHandler(); }));
 	websocket.addAction(WebsocketAction(REBOOT,								[](String& arguments)						{ ESP.restart(); websocket.broadcastTXT(CLIENT_ALERT, "Board restarted -- Need to reload site after restart!"); }));
 	websocket.addAction(WebsocketAction(COMMAND,							[&config](String& arguments)				{
 		if(arguments == WRITE_CONFIG) {
