@@ -158,8 +158,8 @@
                 <col width="30%"/>
                </colgroup>-->
 								<tr>
-									<th>Eigenes WiFi </th>
-									<td><input onchange="handleWiFiAccessPointModeCheckbox()" id="WiFiAccessPointMode"
+									<th>WiFi Access Point Mode</th>
+									<td><input title="Wether to create a own WiFi-Access-Point or connect to an existing WiFi" onchange="handleWiFiAccessPointModeCheckbox()" id="WiFiAccessPointMode"
 											type="checkbox" name="WiFiAccessPointMode" /></td>
 								</tr>
 								<tr>
@@ -174,13 +174,13 @@
 								</tr>
 								<tr>
 									<th>Hostname</th>
-									<td><input id="Hostname" type="text" class="w-75" name="Hostname" minlength="1"
+									<td><input title="The local domain/DNS-Name" id="Hostname" type="text" class="w-75" name="Hostname" minlength="1"
 											maxlength="12" /></td>
 								</tr>
 								<tr>
 									<th>Max Number of Clients</th>
 									<!-- <td><input id="MaxConnections" type="number" class="w-75" min="1" max="8" name="MaxConnections" title="Maximale Anzahl an Clients, die sich mit dem Wlan verbinden koennen(ist nur Einstellbar wenn 'Eigenes WiFi erzeugen' aktiviert ist)"/></td> -->
-									<td><select class="custom-select w-75" id="MaxConnections">
+									<td><select title="Only available if the board creates an own WiFi-Access-Point" class="custom-select w-75" id="MaxConnections">
 											<option selected value="1">1</option>
 											<option value="2">2</option>
 											<option value="3">3</option>
