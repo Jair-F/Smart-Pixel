@@ -74,14 +74,12 @@
 								style="width: fit-content; height: fit-content;">
 								<input type="checkbox" id="EffectIsRunning" name="EffectIsRunning" />Run Effect
 								<br />
-								<input type="radio" class="Effecte" name="Effekt" id="rainbowSoftBlink"
-									value="rainbowSoftBlink" />Blink
-								<br />
-								<input type="radio" class="Effecte" name="Effekt" id="RainbowCycle"
-									value="RainbowCycle" />RainbowCycle
-								<br />
-								<input type="radio" class="Effecte" name="Effekt" id="ColorWipe"
-									value="ColorWipe" />ColorWipe
+								<select id="Effect" onchange="sendEffekte();">
+									<option value="RainbowCycle">RainbowCycle</option>
+									<option value="ColorWipe">ColorWipe</option>
+									<option value="rainbowSoftBlink">rainbowSoftBlink</option>
+									<option value="randomRGBblink">RandomRGBBlink</option>
+								</select>
 								<br />
 								Effekt Speed
 								<br />
@@ -160,8 +158,8 @@
                 <col width="30%"/>
                </colgroup>-->
 								<tr>
-									<th>Eigenes WiFi </th>
-									<td><input onchange="handleWiFiAccessPointModeCheckbox()" id="WiFiAccessPointMode"
+									<th>WiFi Access Point Mode</th>
+									<td><input title="Wether to create a own WiFi-Access-Point or connect to an existing WiFi" onchange="handleWiFiAccessPointModeCheckbox()" id="WiFiAccessPointMode"
 											type="checkbox" name="WiFiAccessPointMode" /></td>
 								</tr>
 								<tr>
@@ -176,13 +174,13 @@
 								</tr>
 								<tr>
 									<th>Hostname</th>
-									<td><input id="Hostname" type="text" class="w-75" name="Hostname" minlength="1"
+									<td><input title="The local domain/DNS-Name" id="Hostname" type="text" class="w-75" name="Hostname" minlength="1"
 											maxlength="12" /></td>
 								</tr>
 								<tr>
-									<th>Number of Clients</th>
+									<th>Max Number of Clients</th>
 									<!-- <td><input id="MaxConnections" type="number" class="w-75" min="1" max="8" name="MaxConnections" title="Maximale Anzahl an Clients, die sich mit dem Wlan verbinden koennen(ist nur Einstellbar wenn 'Eigenes WiFi erzeugen' aktiviert ist)"/></td> -->
-									<td><select class="custom-select w-75" id="MaxConnections">
+									<td><select title="Only available if the board creates an own WiFi-Access-Point" class="custom-select w-75" id="MaxConnections">
 											<option selected value="1">1</option>
 											<option value="2">2</option>
 											<option value="3">3</option>
@@ -213,8 +211,11 @@
 
 </body>
 <footer>
-	<p style="justify-content: center; align-items: center; display: flex;">Num of Connected Clients: <span id="NumOfConnectedClients"> %NUM%</span></p>
-	<div class="b-example-divider"><p>&copy;&nbsp;Created by _______ and ______</p></div>
+	<p style="justify-content: center; align-items: center; display: flex;">Num of Connected Clients: <span
+			id="NumOfConnectedClients"> %NUM%</span></p>
+	<div class="b-example-divider">
+		<p>&copy;&nbsp;Created by _______ and ______</p>
+	</div>
 </footer>
 <!-- https://code-boxx.com/submit-form-without-refreshing-page/ -->
 <script>
@@ -284,7 +285,7 @@
 				break;
 			}
 			case WebsocketKeyValues.EFFECT: {
-				document.getElementById(arg).checked = arg;
+				document.getElementById("Effect").value = arg;
 				break;
 			}
 			case WebsocketKeyValues.EFFECT_SPEED: {
@@ -307,11 +308,11 @@
 			}
 			case WebsocketKeyValues.RELAY_STATUS: {
 				if (arg == "1") {
-					buttonText = " ausschalten";
+					buttonText = "turn " + RelayName + " off";
 				} else {
-					buttonText = " einschalten";
+					buttonText = "turn " + RelayName + " on";
 				}
-				document.getElementById("Relay0").value = RelayName + buttonText;
+				document.getElementById("Relay0").value = buttonText;
 				break;
 			}
 			case WebsocketKeyValues.PIR_SENSOR_STATUS: {
@@ -391,17 +392,11 @@
 	}
 	function sendEffekte() {
 		// https://www.techiedelight.com/get-value-of-selected-radio-button-javascript/ - 2. JavaScript
-		var radios = document.getElementsByClassName("Effecte");
-		for (var checked_radio of radios) {
-			if (checked_radio.checked) {
-				//alert(checked_radio.value);
-				websocketSend(WebsocketKeyValues.EFFECT, checked_radio.value);
-			}
-		}
+		websocketSend(WebsocketKeyValues.EFFECT, document.getElementById("Effect").value);
 		var effectRunning = document.getElementById("EffectIsRunning").checked;
 		websocketSend(WebsocketKeyValues.EFFECT_RUNNING, effectRunning == true ? "true" : "false");
 		var effektSpeed = document.getElementById("EffectSpeed").value;
-		websocketSend(WebsocketKeyValues.EFFECT_SPEED, effektSpeed); ue
+		websocketSend(WebsocketKeyValues.EFFECT_SPEED, effektSpeed);
 	}
 	function SendWiFiSettings() {
 		var WiFiAccessPointMode = document.getElementById("WiFiAccessPointMode").checked == true ? "1" : "0";
