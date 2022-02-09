@@ -1,60 +1,52 @@
 #pragma once
 
-
-
 // Config-Keywords
-#define WIFI_NAME				"WiFiName"
-#define WIFI_PASSWORD			"WiFiPassword"
-#define MAX_CONNECTIONS			"MaxConnections"
-#define WIFI_ACCESSPOINT_MODE	"WiFiAccessPointMode"
-#define HOSTNAME				"Hostname"
-#define PIR_SENSOR_NAME			"PirSensorName"
-#define RELAY_NAME				"RelayName"
+#define WIFI_NAME "WiFiName"
+#define WIFI_PASSWORD "WiFiPassword"
+#define MAX_CONNECTIONS "MaxConnections"
+#define WIFI_ACCESSPOINT_MODE "WiFiAccessPointMode"
+#define HOSTNAME "Hostname"
+#define PIR_SENSOR_NAME "PirSensorName"
+#define RELAY_NAME "RelayName"
 
 // Websocket Acions
-#define RGB_COLOR						"RGB-Color"
-#define EFFECT							"Effect"
-#define EFFECT_RUNNING					"EffektRunning"
-#define EFFECT_SPEED					"EffectSpeed"
-#define HUMIDITY						"Humidity"
-#define TEMPERATURE						"Temperature"
-#define RELAY_STATUS					"RelayStatus"
-#define RELAY_NAME						"RelayName"
-#define PIR_SENSOR_STATUS				"PirSensorStatus"
-#define PIR_SENSOR_RESET_STATUS			"PirSensorResetStatus"
-#define COMMAND							"Command"
+#define RGB_COLOR "RGB-Color"
+#define EFFECT "Effect"
+#define EFFECT_RUNNING "EffektRunning"
+#define EFFECT_SPEED "EffectSpeed"
+#define HUMIDITY "Humidity"
+#define TEMPERATURE "Temperature"
+#define RELAY_STATUS "RelayStatus"
+#define RELAY_NAME "RelayName"
+#define PIR_SENSOR_STATUS "PirSensorStatus"
+#define PIR_SENSOR_RESET_STATUS "PirSensorResetStatus"
+#define COMMAND "Command"
 
 // Commands
-#define WRITE_CONFIG					"write-config"
+#define WRITE_CONFIG "write-config"
 
 // Reboot the board
-#define REBOOT						"reboot"
+#define REBOOT "reboot"
 // Send Command to client to show him a message(pop up window)
-#define CLIENT_ALERT				"ClientAlert"
-#define NUM_OF_CONNECTED_CLIENTS	"NumOfConnectedClients"
+#define CLIENT_ALERT "ClientAlert"
+#define NUM_OF_CONNECTED_CLIENTS "NumOfConnectedClients"
 
 // conifg-Groups
-#define WIFI		"WiFi"
-#define SERVER		"Server"
-#define PIR_SENSOR	"PirSensor"
-#define RELAY		"Relay"
+#define WIFI "WiFi"
+#define SERVER "Server"
+#define PIR_SENSOR "PirSensor"
+#define RELAY "Relay"
 
 // Effects
-#define COLOR_WIPE			"ColorWipe"
-#define RAINBOW_SOFT_BLINK	"rainbowSoftBlink"
-#define RAINBOW_CYCLE		"RainbowCycle"
-#define RANDOM_RGB_BLINK	"randomRGBblink"
-
-
-
-
-
-
+#define COLOR_WIPE "ColorWipe"
+#define RAINBOW_SOFT_BLINK "rainbowSoftBlink"
+#define RAINBOW_CYCLE "RainbowCycle"
+#define RANDOM_RGB_BLINK "randomRGBblink"
 
 // ----------------- Pins and Pheripherial-Configs/Settings -----------------
 
 // Display
-	/*
+/*
 	Pinouts:
 	VCC			3.3V
 	GND			GND
@@ -65,30 +57,23 @@
 	SCK			D5 
 	LED			3.3V
 	*/
-
-	#define TFT_CS		D8	//15	// D8
-	#define TFT_RST		0	// goes to ground
-	#define TFT_DC		D4	//2	// DC = A0 - D4
-// Display
+#define TFT_CS D8 //15	// D8
+#define TFT_RST 0 // goes to ground
+#define TFT_DC D4 //2	// DC = A0 - D4
 
 // RGB-LED
-	#define RGB_LED_NUMPIXELS 16
-	#define RGB_LED_PIN D2
-// RGB-LED
+#define RGB_LED_NUMPIXELS 16
+#define RGB_LED_PIN D2
 
 // DHT-Temperature-Humidity-Sensor
-	#define DHT_PIN A0
-	#define DHT_TYPE DHT11
-// DHT-Temperature-Humidity-Sensor
+#define DHT_PIN A0
+#define DHT_TYPE DHT11
 
 // Pir-Sensor
-	#define PIR_SENSOR_PIN D1
-// Pir-Sensor
+#define PIR_SENSOR_PIN D1
 
 // Relay
-	#define RELAY_PIN D3
-// Relay
+#define RELAY_PIN D3
 
 // TouchSensor
-	#define TOUCH_SENSOR_PIN D0
-// TouchSensor
+#define TOUCH_SENSOR_PIN D0
