@@ -47,22 +47,20 @@ Due to the limitations of the Board like **limited porcessing power and limited 
 - File **"Klassen Planung.io"** is made on the Platform/Website [Draw IO](https://app.diagrams.net/).
 
 ## Library's 
-- [Arduino-Core für ESP8266-WiFiChip](https://github.com/esp8266/Arduino) (Nodemcu Library)
+- [Arduino-Core für ESP8266-WiFiChip](https://github.com/esp8266/Arduino) (Nodemcu Library) - `tested version: 3.0.2`
 	* [Follow installation instructions on the site](https://github.com/esp8266/Arduino#installing-with-boards-manager)
 		* Insert this Link `http://arduino.esp8266.com/stable/package_esp8266com_index.json` in the Arduino-IDE *File* > *Preferences* > *Additional Boards Manager URLs*
 		* *Tools* > *Board* > *BoardManager* > search for *'esp8266'* > click install
-- [Websocket](https://github.com/Links2004/arduinoWebSockets)
+- [Websocket](https://github.com/Links2004/arduinoWebSockets) - `tested version: 2.3.5`
 	* Under [releases](https://github.com/Links2004/arduinoWebSockets/releases) downlaod the newest 'SourceCode.zip'
 	* Arduino-IDE: (*Sketch* > *Include Library* > *Add .zip Library*)
-- [Adafruit Neopixel](https://github.com/adafruit/Adafruit_NeoPixel) 
+- [Adafruit Neopixel](https://github.com/adafruit/Adafruit_NeoPixel) - `tested version: 1.10.4`
 	* [Follow installation instructions on the site](https://github.com/adafruit/Adafruit_NeoPixel#installation)
-- Display
+- Display - `tested version: 1.9.2`
 	* Search in Library Manager(*Sketch* > *Include Library* > *Manage Libraries*) for **ST7735**, the Library from Adafruit.
-- RTC
-	* Search in Library Manager for **RTClib**, the Library from Adafruit.
-- DHT-Sensor
+- DHT-Sensor - `tested version: 1.4.3`
 	* Search in Library Manager for **dht sensor library**, the Library from Adafruit.
-- [SPIFFS-Uploader](https://github.com/esp8266/Arduino#installing-with-boards-manager) - **This is only the SPIFFS-File uploader(data directory) for the Arduino-IDE. The Library for the ESP8255-Spiffs is already in included in the 'Arduino-Core für ESP8266-WiFi-Chip' library.**
+- [SPIFFS-Uploader](https://github.com/esp8266/Arduino#installing-with-boards-manager) - **This is only the SPIFFS-File uploader(data directory) for the Arduino-IDE. The Library for the ESP8255-Spiffs is already in included in the 'Arduino-Core für ESP8266-WiFi-Chip' library.** - `tested version: 0.5.0`
 	* [Follow installation instructions on the site](https://github.com/esp8266/arduino-esp8266fs-plugin#installation)
 	* On Linux you have to create in your Home-Folder in the Arduino-Directory(~/Arduino) a folder called **tools**. Inside this folder you have to extract the content of the downloaded archive.
 
